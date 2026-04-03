@@ -6,7 +6,7 @@ const Hero = () => {
       <div className="hero-overlay" style={styles.overlay}></div>
       <div className="hero-content" style={styles.content}>
         <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <img src="/favicon.png" alt="El Andino Isotipo" style={styles.heroLogo} />
+          <img src="/logo_hero.png" alt="El Andino Logo" style={styles.heroLogo} />
           <h1 style={styles.title}>Sentí el campo en cada mate.</h1>
           <p style={styles.subtitle}>
             Nuestra tierra noble en tu mesa. Descubre la calidez rústica de una yerba premium, orgánica y estacionada al tiempo de la naturaleza.
@@ -53,10 +53,10 @@ const styles = {
     padding: '0 5%',
   },
   heroLogo: {
-    height: 'clamp(130px, 25vw, 300px)',
-    width: 'auto',
+    height: 'auto',
+    width: 'min(90vw, 800px)',
     marginBottom: '3rem',
-    filter: 'brightness(0) invert(1) drop-shadow(0 10px 25px rgba(0,0,0,0.8))',
+    filter: 'brightness(0) invert(1) drop-shadow(0 15px 35px rgba(0,0,0,0.9))',
     objectFit: 'contain'
   },
   title: {
