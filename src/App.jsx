@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ShoppingBag, Leaf } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { CartProvider, useCart } from './context/CartContext';
 import Hero from './components/Hero';
 import BenefitsBanner from './components/BenefitsBanner';
 import ProductList from './components/ProductList';
+import BlendCreator from './components/BlendCreator';
 import Cart from './components/Cart';
 import CheckoutModal from './components/CheckoutModal';
 import MateSecrets from './components/MateSecrets';
@@ -24,9 +25,8 @@ const Navbar = () => {
 
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-      <div className="logo">
-        <Leaf color="var(--color-primary)" size={28} />
-        El Andino
+      <div className="logo" style={{ display: 'flex', alignItems: 'center' }}>
+        <img src="/logo_nav.png" alt="El Andino Logo" style={{ height: '45px', objectFit: 'contain', transition: 'all 0.3s ease' }} />
       </div>
       
       <div style={{display: 'flex', alignItems: 'center'}}>
@@ -48,6 +48,7 @@ const Layout = () => {
         <Hero />
         <BenefitsBanner />
         <ProductList />
+        <BlendCreator />
         <MateSecrets />
       </main>
       

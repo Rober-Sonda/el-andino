@@ -1,76 +1,56 @@
-import React, { useState } from 'react';
-import { BookOpen, Droplets, Leaf, Coffee } from 'lucide-react';
+import React from 'react';
+import { BookOpen, Droplets, Flame, ThermometerSun, MapPin } from 'lucide-react';
 
-const secretCards = [
+const secrets = [
   {
-    id: 'historia',
-    icon: <BookOpen size={28} />,
-    title: 'El Legado Guaraní',
-    content: 'El origen del mate se remonta a los pueblos originarios Guaraníes, quienes utilizaban las hojas del árbol "Ilex paraguariensis" como objeto de culto, moneda de cambio y brebaje sagrado. Para ellos, era un regalo de los dioses diseñado para unir a la tribu y dar resistencia en las largas caminatas.'
+    id: 'origen',
+    icon: <MapPin size={32} color="var(--color-accent)" />,
+    title: 'La Herencia Sagrada',
+    content: 'Descubierto por las tribus Tupí-Guaraní en el corazón de la selva paranaense, el "Ka’a" (yerba mate) era considerado un regalo viviente de los dioses. Más que una bebida, era un puente espiritual que forjaba hermandad y daba una resistencia sobrehumana a los guerreros en sus travesías.'
   },
   {
-    id: 'agua',
-    icon: <Droplets size={28} />,
-    title: 'Secretos de Catador',
-    content: 'Un catador sabe que el enemigo número uno de la buena yerba es el agua hervida. La temperatura perfecta oscila entre los 75°C y 80°C. Si el agua hierve, "quema" la yerba, destrozando su amargor noble y lavando el sabor en apenas tres cebadas. Además, recuerda siempre escupir o descartar el primer chorrito tibio.'
+    id: 'despertar',
+    icon: <Droplets size={32} color="var(--color-accent)" />,
+    title: 'El Despertar de la Yerba',
+    content: 'El secreto mejor guardado del cebador experto es el "despertar". Nunca inundes la yerba seca de golpe. Con el mate inclinado, vierte un primer chorrito de agua apenas tibia (50°C) en la parte baja de la montañita. Esto hidrata la hoja suavemente, previniéndola de quemarse y asegurando mates espumosos por horas.'
   },
   {
-    id: 'tipos-mate',
-    icon: <Coffee size={28} />,
-    title: 'La Elección del Mate',
-    content: 'Existen varios tipos: El tradicional de calabaza (poro) es reverenciado por "curarse" y absorber el sabor, el de madera (como el algarrobo) aporta notas dulces al amargor, y los modernos de acero o vidrio no alteran el gusto pero previenen la acidez. ¡Cada material cuenta una historia diferente!'
+    id: 'temperatura',
+    icon: <ThermometerSun size={32} color="var(--color-accent)" />,
+    title: 'El Enemigo: Agua Hervida',
+    content: 'El agua nunca debe hervir. La temperatura exacta y ancestral oscila entre 75°C y 80°C. Un agua arrebatada quemará las hojas, dándole un sabor metálico y extrañamente amargo a la yerba, "lavando" el mate en apenas tres cebadas.'
   },
   {
-    id: 'tipos-yerba',
-    icon: <Leaf size={28} />,
-    title: 'El Arte de la Molienda',
-    content: 'La "Yerba con Palo" (estilo Argentino) brinda mates suaves e ideales para principiantes. La "Despalada" (estilo Uruguayo) es yerba pura, fina y de sabor prolongado e intenso. Finalmente, las yerbas "Barbacuá" son expuestas al humo de leña durante el secado, adquiriendo ese toque maderero inconfundible.'
+    id: 'cebada',
+    icon: <Flame size={32} color="var(--color-accent)" />,
+    title: 'El Arte de la Cebada',
+    content: 'Mantén siempre tu "montañita" seca a un costado. Cebá dirigiendo el chorrito de agua lo más cerca de la bombilla posible. Poco a poco, cuando notes que pierde sabor, ve empujando esa yerba seca al medio (dar vuelta el mate) para revivir la ronda y la magia.'
   }
 ];
 
 const MateSecrets = () => {
-  const [activeTab, setActiveTab] = useState('historia');
-
   return (
-    <section style={styles.section}>
+    <section id="sabiduria" style={styles.section}>
       <div style={styles.container}>
         <div style={styles.header}>
-          <h2 style={styles.title}>La Sabiduría del Mate</h2>
+          <BookOpen size={40} color="var(--color-accent)" style={{marginBottom: '1rem'}} />
+          <h2 style={styles.title}>Sabiduría del Mate</h2>
           <p style={styles.subtitle}>
-            Datos curiosos, historia y los secretos mejores guardados por los verdaderos catadores.
+            Un viaje desde los orígenes de la tierra hasta el secreto para cebar el mate perfecto.
           </p>
         </div>
 
-        <div style={styles.layout}>
-          <div style={styles.tabsMenu}>
-            {secretCards.map((card) => (
-              <button
-                key={card.id}
-                style={styles.tabBtn}
-                className={activeTab === card.id ? 'active-tab' : ''}
-                onClick={() => setActiveTab(card.id)}
-              >
-                <span style={styles.iconContainer}>{card.icon}</span>
-                {card.title}
-              </button>
-            ))}
-          </div>
-
-          <div style={styles.contentArea}>
-            {secretCards.map((card) => (
-              <div 
-                key={card.id} 
-                style={{
-                  ...styles.cardContent,
-                  display: activeTab === card.id ? 'block' : 'none'
-                }}
-                className={activeTab === card.id ? 'animate-fade-in' : ''}
-              >
+        <div style={styles.cardsContainer}>
+          {secrets.map((card, index) => (
+            <div key={card.id} style={styles.card}>
+              <div style={styles.cardNumber}>0{index + 1}</div>
+              <div style={styles.cardIcon}>{card.icon}</div>
+              <div style={styles.cardContent}>
                 <h3 style={styles.cardTitle}>{card.title}</h3>
                 <p style={styles.cardText}>{card.content}</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -85,7 +65,7 @@ const styles = {
     borderTop: '1px solid var(--glass-border)'
   },
   container: {
-    maxWidth: '1000px',
+    maxWidth: '800px', // Narrower for better reading line-length
     margin: '0 auto',
   },
   header: {
@@ -94,101 +74,66 @@ const styles = {
   },
   title: {
     fontFamily: 'var(--font-serif)',
-    fontSize: 'clamp(2rem, 4vw, 3rem)',
-    color: 'var(--color-accent)',
+    fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
+    color: 'var(--color-primary-dark)',
     marginBottom: '1rem'
   },
   subtitle: {
-    fontSize: '1.1rem',
-    opacity: 0.8,
+    fontSize: '1.2rem',
+    color: 'var(--color-text-muted)',
     maxWidth: '600px',
-    margin: '0 auto'
+    margin: '0 auto',
+    lineHeight: '1.6'
   },
-  layout: {
+  cardsContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '2rem',
+    gap: '2.5rem',
+  },
+  card: {
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
     background: 'var(--glass-bg)',
     borderRadius: '24px',
     border: '1px solid var(--glass-border)',
+    padding: '2.5rem',
+    boxShadow: 'var(--shadow-soft)',
     overflow: 'hidden'
   },
-  tabsMenu: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    background: 'rgba(0, 0, 0, 0.05)',
-    borderBottom: '1px solid var(--glass-border)'
+  cardNumber: {
+    position: 'absolute',
+    top: '-15px',
+    right: '10px',
+    fontSize: '8rem',
+    fontWeight: '900',
+    fontFamily: 'var(--font-serif)',
+    color: 'var(--color-text)',
+    opacity: 0.03,
+    pointerEvents: 'none'
   },
-  tabBtn: {
-    flex: 1,
-    minWidth: '200px',
-    padding: '1.5rem 1rem',
+  cardIcon: {
+    marginBottom: '1.5rem',
+    background: 'rgba(189, 83, 25, 0.1)', // accent color with opacity
+    width: '60px',
+    height: '60px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '10px',
-    color: 'var(--color-text-muted)',
-    fontSize: '1.1rem',
-    fontWeight: '600',
-    transition: 'var(--transition-fast)',
-    borderRight: '1px solid var(--glass-border)',
-    opacity: 0.8
-  },
-  iconContainer: {
-    display: 'flex',
-  },
-  contentArea: {
-    padding: '3rem 2rem 4rem 2rem',
-    minHeight: '200px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  cardContent: {
-    maxWidth: '800px',
-    textAlign: 'center'
+    borderRadius: '16px'
   },
   cardTitle: {
     fontFamily: 'var(--font-serif)',
-    fontSize: '2rem',
+    fontSize: '1.8rem',
     color: 'var(--color-primary-dark)',
-    marginBottom: '1.5rem'
+    marginBottom: '1rem'
   },
   cardText: {
-    fontSize: '1.15rem',
+    fontSize: '1.1rem',
     lineHeight: '1.8',
     color: 'var(--color-text)',
     opacity: 0.9
   }
 };
-
-if (typeof document !== 'undefined') {
-  const styleSheet = document.createElement("style");
-  styleSheet.innerText = `
-    .animate-fade-in {
-      animation: tabFadeIn 0.5s ease-out forwards;
-    }
-    .active-tab {
-      color: var(--color-primary-dark) !important;
-      background: var(--color-bg-light) !important;
-      box-shadow: inset 0 -3px 0 var(--color-primary-dark) !important;
-      opacity: 1 !important;
-    }
-    button[style*="minWidth: 200px"]:hover {
-      opacity: 1 !important;
-      background: rgba(0,0,0,0.02);
-    }
-    [data-theme='dark'] .active-tab {
-      color: var(--color-accent) !important;
-      background: rgba(255, 255, 255, 0.05) !important;
-      box-shadow: inset 0 -3px 0 var(--color-accent) !important;
-    }
-    @keyframes tabFadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  `;
-  document.head.appendChild(styleSheet);
-}
 
 export default MateSecrets;

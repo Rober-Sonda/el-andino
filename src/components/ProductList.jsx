@@ -6,7 +6,7 @@ const products = [
     id: 'premium',
     name: 'Yerba Premium',
     description: 'Estacionada naturalmente por 24 meses. Suave, duradera y de molienda equilibrada. Ideal para largas rondas.',
-    image: '/premium.png',
+    image: '/premium_full.jpg',
     isOrganic: true,
     isSinTacc: true,
     isAntiacid: true
@@ -15,17 +15,17 @@ const products = [
     id: 'ahumada',
     name: 'Yerba Ahumada',
     description: 'Secada con maderas seleccionadas (Barbacuá). Un sabor intenso, profundo y con carácter de monte.',
-    image: '/ahumada.png',
+    image: '/ahumada_full.jpg',
     isOrganic: true,
     isSinTacc: true,
-    isAntiacid: false
+    isAntiacid: true
   },
   {
     id: 'uruguaya-despalada',
     name: 'Uruguaya Despalada',
     description: 'Corte fino sin palo, pura hoja. Estilo canario para un mate fuerte, espumoso y de sabor prologando.',
-    image: '/despalada.png',
-    isOrganic: false,
+    image: '/despalada_full.jpg',
+    isOrganic: true,
     isSinTacc: true,
     isAntiacid: true
   },
@@ -33,10 +33,10 @@ const products = [
     id: 'uruguaya-molida',
     name: 'Uruguaya Molida',
     description: 'Tradicional molienda fina con equilibrio perfecto. La clásica y elegante elección oriental.',
-    image: '/molida.png',
+    image: '/molida_full.jpg',
     isOrganic: true,
     isSinTacc: true,
-    isAntiacid: false
+    isAntiacid: true
   }
 ];
 
