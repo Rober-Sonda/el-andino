@@ -44,6 +44,11 @@
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
+.nav-logo-img {
+  transition: all 0.3s ease;
+  filter: brightness(0) invert(1);
+}
+
 .navbar.scrolled .logo {
   color: var(--color-primary);
   text-shadow: none;
@@ -52,11 +57,18 @@
   color: var(--color-primary) !important;
   filter: none;
 }
+.navbar.scrolled .nav-logo-img {
+  filter: none;
+}
+
 [data-theme='dark'] .navbar.scrolled .logo {
   color: var(--color-text-light);
 }
 [data-theme='dark'] .navbar.scrolled .logo svg {
   color: var(--color-text-light) !important;
+}
+[data-theme='dark'] .navbar.scrolled .nav-logo-img {
+  filter: brightness(0) invert(1);
 }
 
 .cart-button, .theme-btn {
