@@ -42,8 +42,8 @@ const MateSecrets = () => {
 
         <div style={styles.cardsContainer}>
           {secrets.map((card, index) => (
-            <div key={card.id} style={styles.card}>
-              <div style={styles.cardNumber}>0{index + 1}</div>
+            <div key={card.id} className="secret-card" style={styles.card}>
+              <div className="card-number" style={styles.cardNumber}>0{index + 1}</div>
               <div style={styles.cardIcon}>{card.icon}</div>
               <div style={styles.cardContent}>
                 <h3 style={styles.cardTitle}>{card.title}</h3>
@@ -110,7 +110,8 @@ const styles = {
     fontFamily: 'var(--font-serif)',
     color: 'var(--color-text)',
     opacity: 0.03,
-    pointerEvents: 'none'
+    pointerEvents: 'none',
+    transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
   },
   cardIcon: {
     marginBottom: '1.5rem',
@@ -135,5 +136,18 @@ const styles = {
     opacity: 0.9
   }
 };
+
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.innerText = `
+    .secret-card:hover .card-number,
+    .secret-card:active .card-number {
+      transform: scale(1.15) translate(-10px, 10px);
+      color: var(--color-accent);
+      opacity: 0.08 !important;
+    }
+  `;
+  document.head.appendChild(styleSheet);
+}
 
 export default MateSecrets;

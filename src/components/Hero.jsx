@@ -78,8 +78,8 @@ const styles = {
     lineHeight: '1.6'
   },
   button: {
-    backgroundColor: '#F4F0EA',
-    color: '#1a2315',
+    backgroundColor: 'var(--color-primary)',
+    color: '#ffffff',
     padding: '1.2rem 3.5rem',
     fontSize: '1.05rem',
     fontWeight: '900',
@@ -104,8 +104,7 @@ if (typeof document !== 'undefined') {
     .hero-btn:hover {
       transform: translateY(-3px) scale(1.02);
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
-      background-color: var(--color-accent) !important;
-      color: #FFF !important;
+      background-color: var(--color-primary-dark) !important;
     }
   `;
   document.head.appendChild(styleSheet);

@@ -213,8 +213,8 @@ const styles = {
   addButton: {
     width: '100%',
     padding: '1.2rem',
-    background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%)',
-    color: '#0a0a0a',
+    background: 'var(--color-primary)',
+    color: '#ffffff',
     borderRadius: '12px',
     fontWeight: '700',
     fontSize: '1.1rem',
@@ -222,7 +222,7 @@ const styles = {
     letterSpacing: '0.5px',
     transition: 'var(--transition-fast)',
     border: 'none',
-    boxShadow: '0 4px 15px rgba(189, 83, 25, 0.25)',
+    boxShadow: '0 4px 15px rgba(42, 51, 37, 0.25)',
     cursor: 'pointer'
   },
   counter: {
@@ -258,6 +258,9 @@ if (typeof document !== 'undefined') {
     }
     [data-theme='dark'] .price-text {
       color: var(--color-accent) !important;
+    }
+    button[style*="background: var(--color-primary)"]:hover {
+      background: var(--color-primary-dark) !important;
     }
   `;
   document.head.appendChild(styleSheet);

@@ -160,7 +160,7 @@ const BlendCreator = () => {
                  </div>
              </div>
 
-             <h3 style={{marginBottom: '2rem', fontSize:'1.8rem', color: 'var(--color-primary)'}}>Cantidades (Escala 5%)</h3>
+             <h3 style={{marginBottom: '2rem', fontSize:'1.8rem'}}>Cantidades (Escala 5%)</h3>
              
              <div style={styles.slidersWrapper}>
                  {Object.keys(ratios).map(key => (
@@ -387,8 +387,8 @@ const styles = {
   addButton: {
     width: '100%',
     padding: '1.3rem',
-    background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%)',
-    color: '#0a0a0a',
+    background: 'var(--color-primary)',
+    color: '#ffffff',
     borderRadius: '12px',
     fontWeight: '800',
     fontSize: '1.1rem',
@@ -396,7 +396,7 @@ const styles = {
     letterSpacing: '1px',
     transition: 'var(--transition-fast)',
     border: 'none',
-    boxShadow: '0 4px 20px rgba(226, 186, 101, 0.3)',
+    boxShadow: '0 4px 20px rgba(42, 51, 37, 0.3)',
     cursor: 'pointer'
   },
   visualSection: {
@@ -502,6 +502,9 @@ if (typeof document !== 'undefined') {
     button[style*="background: var(--glass-bg)"]:hover {
       border-color: var(--color-accent) !important;
       background: rgba(189, 83, 25, 0.1) !important;
+    }
+    button[style*="background: var(--color-primary)"]:hover {
+      background: var(--color-primary-dark) !important;
     }
     .blend-grid {
       display: grid;
