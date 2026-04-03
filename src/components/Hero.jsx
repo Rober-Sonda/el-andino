@@ -57,7 +57,7 @@ const styles = {
   heroLogo: {
     height: 'auto',
     width: 'min(90vw, 800px)',
-    marginBottom: '3rem',
+    marginBottom: '0',
     filter: 'brightness(0) invert(1) drop-shadow(0 15px 35px rgba(0,0,0,0.9))',
     objectFit: 'contain'
   },
