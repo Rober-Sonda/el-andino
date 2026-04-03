@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" id="dynamic-favicon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>El Andino | Yerba Mate Premium</title>
     <meta property="og:title" content="El Andino - Tradición y nobleza directa del campo a tu mesa" />
@@ -11,6 +11,19 @@
     <meta property="og:url" content="https://el-andino-mate-app.web.app" />
     <meta property="og:type" content="website" />
     <meta name="theme-color" content="#3a4f41" />
+    <script>
+      (function() {
+        function updateFavicon() {
+          var favicon = document.getElementById('dynamic-favicon');
+          var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (favicon) {
+            favicon.href = isDark ? "/favicon-white.png" : "/favicon.png";
+          }
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFavicon);
+        updateFavicon();
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

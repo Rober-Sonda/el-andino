@@ -7,7 +7,7 @@ const Hero = () => {
       <div className="hero-overlay" style={styles.overlay}></div>
       <div className="hero-content" style={styles.content}>
         <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <img src="/logo_hero.png" alt="El Andino Logo" style={styles.heroLogo} />
+          <img src="/favicon.png" alt="El Andino Logo" style={styles.heroLogo} />
           <h1 style={styles.title}>Sentí el campo en cada mate.</h1>
           <p style={styles.subtitle}>
             Nuestra tierra noble en tu mesa. Descubre la calidez rústica de una yerba premium, orgánica y estacionada al tiempo de la naturaleza.
