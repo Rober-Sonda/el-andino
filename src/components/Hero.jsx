@@ -53,10 +53,10 @@ const styles = {
     padding: '0 5%',
   },
   heroLogo: {
-    height: 'clamp(100px, 20vw, 250px)',
+    height: 'clamp(130px, 25vw, 300px)',
     width: 'auto',
     marginBottom: '3rem',
-    filter: 'drop-shadow(0 10px 25px rgba(0,0,0,0.8))',
+    filter: 'brightness(0) invert(1) drop-shadow(0 10px 25px rgba(0,0,0,0.8))',
     objectFit: 'contain'
   },
   title: {
