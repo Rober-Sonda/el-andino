@@ -146,7 +146,7 @@ const BlendCreator = () => {
           <p style={styles.subtitle}>Armá tu propia receta exclusiva. Elegí los porcentajes usando controles precisos y nuestro maestro yerbatero preparará tu bolsa.</p>
         </div>
         
-        <div style={styles.grid}>
+        <div className="blend-grid">
           {/* Controls Side */}
           <div style={styles.controlsSection}>
              <div style={styles.featuredBox}>
@@ -211,10 +211,13 @@ const BlendCreator = () => {
 
           {/* Visual Side */}
           <div style={styles.visualSection}>
-            <div style={styles.bagMockup}>
-                 <img src="/kraft_bag.png" alt="Kraft Bag Mockup" style={styles.bagImage} />
+            <div style={{
+                ...styles.bagMockup,
+                filter: `hue-rotate(${ratios.despalada * 0.8 + ratios.molida * 0.3}deg) saturate(${100 + ratios.ahumada * 0.2}%)`
+            }}>
+                 <img src="/premium_full.jpg" alt="Yerba Mate Bag" style={styles.bagImage} />
                  <div style={styles.bagLabelOverlay}>
-                     <img src="/logo_nav.png" alt="El Andino" style={styles.bagLogo} />
+                     <img src="/favicon.png" alt="El Andino" style={styles.bagLogo} />
                      <h4 style={styles.bagTitleLabel}>BLEND EXCLUSIVO</h4>
                      <h2 style={styles.bagBlendName}>{currentBlendName}</h2>
                      <div style={styles.bagDivider}></div>
@@ -259,12 +262,6 @@ const styles = {
     fontSize: '1.2rem',
     maxWidth: '700px',
     margin: '0 auto'
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'minmax(300px, 1.2fr) minmax(300px, 0.8fr)',
-    gap: '3rem',
-    alignItems: 'start'
   },
   controlsSection: {
     background: 'var(--glass-bg)',
@@ -502,6 +499,17 @@ if (typeof document !== 'undefined') {
     button[style*="background: var(--glass-bg)"]:hover {
       border-color: var(--color-accent) !important;
       background: rgba(189, 83, 25, 0.1) !important;
+    }
+    .blend-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    @media (min-width: 900px) {
+      .blend-grid {
+        grid-template-columns: 1.2fr 0.8fr;
+      }
     }
   `;
   document.head.appendChild(styleSheet);
