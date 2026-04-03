@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
-import { Scale, Beaker, Plus, Star } from 'lucide-react';
+import { Scale, Beaker, Plus, Star, Award, Flame, Leaf, Coffee } from 'lucide-react';
 
 const featuredBlends = [
-  { name: "La Gran Tradición", ratios: { premium: 50, ahumada: 0, molida: 0, despalada: 50 }, icon: "⭐" },
-  { name: "Fuego Profundo", ratios: { premium: 15, ahumada: 75, despalada: 10, molida: 0 }, icon: "🔥" },
-  { name: "Armonía Oriental", ratios: { premium: 40, ahumada: 0, despalada: 20, molida: 40 }, icon: "🌿" },
-  { name: "Gaucho Fuerte", ratios: { premium: 0, ahumada: 20, despalada: 80, molida: 0 }, icon: "🧉" }
+  { name: "La Gran Tradición", ratios: { premium: 50, ahumada: 0, molida: 0, despalada: 50 }, icon: <Award size={18} /> },
+  { name: "Fuego Profundo", ratios: { premium: 15, ahumada: 75, despalada: 10, molida: 0 }, icon: <Flame size={18} /> },
+  { name: "Armonía Oriental", ratios: { premium: 40, ahumada: 0, despalada: 20, molida: 40 }, icon: <Leaf size={18} /> },
+  { name: "Gaucho Fuerte", ratios: { premium: 0, ahumada: 20, despalada: 80, molida: 0 }, icon: <Coffee size={18} /> }
 ];
 
 const BlendCreator = () => {
@@ -485,9 +485,12 @@ const styles = {
     borderRadius: '16px',
     padding: '1.5rem',
     maxWidth: '380px',
+    width: '100%',
     textAlign: 'center',
-    color: 'var(--color-text-muted)',
-    fontStyle: 'italic',
+    color: 'var(--color-text)',
+    fontWeight: '500',
+    fontSize: '1.05rem',
+    fontStyle: 'normal',
     lineHeight: '1.6',
     boxShadow: 'var(--shadow-soft)'
   }

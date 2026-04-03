@@ -1,4 +1,5 @@
 import React from 'react';
+import { ArrowRight } from 'lucide-react';
 
 const Hero = () => {
   return (
@@ -11,8 +12,8 @@ const Hero = () => {
           <p style={styles.subtitle}>
             Nuestra tierra noble en tu mesa. Descubre la calidez rústica de una yerba premium, orgánica y estacionada al tiempo de la naturaleza.
           </p>
-          <button style={styles.button} onClick={() => document.getElementById('productos').scrollIntoView({ behavior: 'smooth' })}>
-            Explorar Sembrados
+          <button className="hero-btn" style={styles.button} onClick={() => document.getElementById('productos').scrollIntoView({ behavior: 'smooth' })}>
+            EXPLORAR SEMBRADOS <ArrowRight size={20} />
           </button>
         </div>
       </div>
@@ -77,16 +78,37 @@ const styles = {
     lineHeight: '1.6'
   },
   button: {
-    backgroundColor: 'var(--color-accent)',
-    color: '#1a1714',
-    padding: '1.2rem 3rem',
-    fontSize: '1.2rem',
-    fontWeight: '800',
+    backgroundColor: '#F4F0EA',
+    color: '#1a2315',
+    padding: '1.2rem 3.5rem',
+    fontSize: '1.05rem',
+    fontWeight: '900',
+    letterSpacing: '2px',
     borderRadius: '50px',
-    transition: 'var(--transition-fast)',
-    boxShadow: '0 8px 25px rgba(226, 186, 101, 0.3)',
-    display: 'inline-block'
+    transition: 'all 0.3s ease',
+    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.4)',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '12px',
+    cursor: 'pointer',
+    border: 'none',
+    outline: 'none',
+    textTransform: 'uppercase'
   }
 };
+
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.innerText = `
+    .hero-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
+      background-color: var(--color-accent) !important;
+      color: #FFF !important;
+    }
+  `;
+  document.head.appendChild(styleSheet);
+}
 
 export default Hero;
