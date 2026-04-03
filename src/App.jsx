@@ -25,8 +25,16 @@ const Navbar = () => {
 
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-      <div className="logo" style={{ display: 'flex', alignItems: 'center' }}>
-        <img src="/logo_nav.png" alt="El Andino Logo" className="nav-logo-img" style={{ height: '50px', objectFit: 'contain' }} />
+      <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <img src="/favicon.png" alt="El Andino Ícono" className="nav-logo-img" style={{ height: '36px', objectFit: 'contain' }} />
+        <span className="nav-logo-text" style={{ 
+          fontFamily: 'var(--font-serif)', 
+          fontWeight: '900', 
+          fontSize: '1.4rem', 
+          letterSpacing: '1.5px',
+          textTransform: 'uppercase',
+          marginTop: '2px' // optical alignment
+        }}>El Andino</span>
       </div>
       
       <div style={{display: 'flex', alignItems: 'center'}}>

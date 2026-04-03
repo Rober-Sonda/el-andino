@@ -52,6 +52,7 @@ const styles = {
     maxWidth: '1200px',
     width: '100%',
     padding: '0 5%',
+    paddingTop: '80px',
   },
   heroLogo: {
     height: 'auto',
