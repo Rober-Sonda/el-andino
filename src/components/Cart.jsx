@@ -21,7 +21,7 @@ const Cart = () => {
       <div style={styles.backdrop} onClick={() => setIsCartOpen(false)}></div>
       <div style={styles.sidebar} className="glass">
         <div style={styles.header}>
-          <h2 style={styles.title}>Tu Canasta Andina</h2>
+          <h2 style={styles.title}>Tu Cosecha Andina</h2>
           <button style={styles.closeBtn} onClick={() => setIsCartOpen(false)}>
             <X size={24} />
           </button>
@@ -42,12 +42,12 @@ const Cart = () => {
         <div style={styles.content}>
           {cart.length === 0 ? (
             <div style={styles.empty}>
-              <p>Aún no hay yerba en tu pedido.</p>
+              <p>Tu saco rústico está vacío. Es hora de acopiar yerba.</p>
               <button 
                 style={styles.continueBtn}
                 onClick={() => setIsCartOpen(false)}
               >
-                Volver al Campo
+                Volver a la plantación
               </button>
             </div>
           ) : (
@@ -82,7 +82,7 @@ const Cart = () => {
               setIsCartOpen(false);
               setIsCheckoutOpen(true);
             }}>
-              Completar Pedido
+              Preparar Envío
             </button>
           </div>
         )}
