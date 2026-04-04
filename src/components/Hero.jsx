@@ -25,7 +25,7 @@ const styles = {
     position: 'relative',
     height: '95vh',
     minHeight: '600px',
-    backgroundImage: 'url("/hero_campo.png")',
+    backgroundImage: 'url("/hero_argentino.png")',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundAttachment: 'fixed',
