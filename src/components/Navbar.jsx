@@ -33,7 +33,8 @@ const Navbar = () => {
     <>
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="logo" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleNavClick('inicio')}>
-          <img src="/isotipo.png" alt="El Andino Logo" className="nav-logo-img" style={{ height: '48px', width: '48px', objectFit: 'contain' }} />
+          <img src="/isotipo.png" alt="El Andino Logo" className="nav-logo-img logo-light" style={{ height: '44px', width: '44px', objectFit: 'contain' }} />
+          <img src="/isotipo_oscuro.png" alt="El Andino Logo" className="nav-logo-img logo-dark" style={{ height: '44px', width: '44px', objectFit: 'contain' }} />
         </div>
         
         {/* Desktop Links */}
@@ -76,8 +77,8 @@ const Navbar = () => {
       </nav>
 
       {/* Mobile Menu Overlay */}
-      <div className={`mobile-menu ${menuOpen ? 'open' : ''}`}>
-         <div className="mobile-menu-content">
+      <div className={`mobile-menu ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(false)}>
+         <div className="mobile-menu-content" onClick={(e) => e.stopPropagation()}>
             <button onClick={() => handleNavClick('inicio')} className="mobile-link">Inicio</button>
             <button onClick={() => handleNavClick('variedades')} className="mobile-link">Variedades Puras</button>
             <button onClick={() => handleNavClick('alquimista')} className="mobile-link">Armá tu Blend</button>
