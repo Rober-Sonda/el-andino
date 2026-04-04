@@ -2,8 +2,8 @@ const Jimp = require('jimp');
 
 async function createOgImage() {
     try {
-        console.log('Reading favicon.png (isotype)...');
-        const icon = await Jimp.read('public/favicon.png');
+        console.log('Reading logo...');
+        const icon = await Jimp.read('public/logo_nav.png');
         
         console.log('Turning icon white...');
         icon.scan(0, 0, icon.bitmap.width, icon.bitmap.height, function(x, y, idx) {
@@ -15,8 +15,8 @@ async function createOgImage() {
             }
         });
 
-        // Make it bigger
-        icon.contain(650, 650);
+        // Make it much bigger
+        icon.contain(1000, 450);
 
         console.log('Reading background image...');
         // Let's try hero_campo.png. If it fails, fallback to green.
@@ -38,9 +38,9 @@ async function createOgImage() {
         const y = (630 - icon.bitmap.height) / 2;
         bg.composite(icon, x, y);
 
-        console.log('Saving to og-image.png...');
-        await bg.writeAsync('public/og-image.png');
-        console.log('Successfully generated og-image.png!');
+        console.log('Saving to og-image.jpg...');
+        await bg.quality(80).writeAsync('public/og-image.jpg');
+        console.log('Successfully generated og-image.jpg (optimized size)!');
     } catch (err) {
         console.error('Error generating image:', err);
     }

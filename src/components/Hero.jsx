@@ -1,5 +1,4 @@
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
 
 const Hero = () => {
   return (
@@ -13,7 +12,7 @@ const Hero = () => {
             Nuestra tierra noble en tu mesa. Descubre la calidez rústica de una yerba premium, orgánica y estacionada al tiempo de la naturaleza.
           </p>
           <button className="hero-btn" style={styles.button} onClick={() => document.getElementById('productos').scrollIntoView({ behavior: 'smooth' })}>
-            EXPLORAR SEMBRADOS <ArrowRight size={20} />
+            EXPLORAR SEMBRADOS
           </button>
         </div>
       </div>
@@ -53,6 +52,7 @@ const styles = {
     width: '100%',
     padding: '0 5%',
     paddingTop: '80px',
+    paddingBottom: '80px',
   },
   heroLogo: {
     height: 'auto',
