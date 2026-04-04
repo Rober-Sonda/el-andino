@@ -157,8 +157,8 @@ const BlendCreator = () => {
                  <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center' }}>Blends Recomendados</p>
                  <div className="featured-scroll-container">
                     {featuredBlends.map((blend, idx) => (
-                        <button key={idx} className="featured-pill-btn" onClick={() => setRatios(blend.ratios)}>
-                           {blend.icon} {blend.name}
+                        <button key={idx} className="featured-pill-btn" onClick={() => setRatios(blend.ratios)} title={blend.name}>
+                           {blend.icon}
                         </button>
                     ))}
                  </div>
@@ -490,15 +490,13 @@ if (typeof document !== 'undefined') {
       background: transparent;
       border: 1.5px solid var(--color-accent);
       color: var(--color-text);
-      padding: 0.6rem 1.4rem;
-      border-radius: 50px;
-      font-weight: 700;
-      font-size: 0.9rem;
+      padding: 0.8rem;
+      border-radius: 50%;
       transition: all 0.2s ease;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
       flex-shrink: 0;
     }
     .featured-pill-btn:hover {
@@ -514,15 +512,11 @@ if (typeof document !== 'undefined') {
       overflow-x: auto;
       padding-bottom: 10px;
       flex-wrap: nowrap;
-      scrollbar-width: none; 
+      scrollbar-width: none;
+      justify-content: center;
     }
     .featured-scroll-container::-webkit-scrollbar {
       display: none;
-    }
-    @media (min-width: 768px) {
-      .featured-scroll-container {
-         justify-content: center;
-      }
     }
     button[style*="background: var(--glass-bg)"]:hover {
       border-color: var(--color-accent) !important;
