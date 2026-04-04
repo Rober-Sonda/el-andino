@@ -21,6 +21,10 @@ const BlendCreator = () => {
   });
 
   const getBlendData = (r) => {
+    const matchingFeature = featuredBlends.find(fb => 
+      fb.ratios.premium === r.premium && fb.ratios.ahumada === r.ahumada && 
+      fb.ratios.despalada === r.despalada && fb.ratios.molida === r.molida
+    );
     const sorted = Object.entries(r).sort((a,b) => b[1] - a[1]);
     const max = sorted[0];
     const second = sorted[1];
@@ -54,7 +58,7 @@ const BlendCreator = () => {
 
     // Prevent duplicates (e.g., Reserva de los Andes)
     const nucleus = max[0] === second[0] || (max[0] === 'premium' && second[0] === 'premium') ? "Mestra" : nuclei[second[0]];
-    const name = `${prefixes[max[0]]} ${nucleus} ${suffix}`;
+    const name = matchingFeature ? matchingFeature.name : `${prefixes[max[0]]} ${nucleus} ${suffix}`;
     
     const descriptions = [
         `Una combinación artesanal diseñada para verdaderos apasionados. Sus notas predominantes de yerba ${max[0]} resaltan en cada cebada, redondeando su perfil con la textura inconfundible de la ${second[0]}.`,
