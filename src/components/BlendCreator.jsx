@@ -3,10 +3,10 @@ import { useCart } from '../context/CartContext';
 import { Scale, Beaker, Plus, Star, Award, Flame, Leaf, Coffee } from 'lucide-react';
 
 const featuredBlends = [
-  { name: "La Gran Tradición", ratios: { premium: 50, ahumada: 0, molida: 0, despalada: 50 }, icon: <Award size={18} /> },
-  { name: "Fuego Profundo", ratios: { premium: 15, ahumada: 75, despalada: 10, molida: 0 }, icon: <Flame size={18} /> },
-  { name: "Armonía Oriental", ratios: { premium: 40, ahumada: 0, despalada: 20, molida: 40 }, icon: <Leaf size={18} /> },
-  { name: "Gaucho Fuerte", ratios: { premium: 0, ahumada: 20, despalada: 80, molida: 0 }, icon: <Coffee size={18} /> }
+  { name: "Herencia del Sembrador", ratios: { premium: 50, ahumada: 0, molida: 0, despalada: 50 }, icon: <Award size={18} /> },
+  { name: "Fuego del Andino", ratios: { premium: 15, ahumada: 75, despalada: 10, molida: 0 }, icon: <Flame size={18} /> },
+  { name: "Tradición Charrúa", ratios: { premium: 40, ahumada: 0, despalada: 20, molida: 40 }, icon: <Leaf size={18} /> },
+  { name: "Alma de Monte", ratios: { premium: 0, ahumada: 20, despalada: 80, molida: 0 }, icon: <Coffee size={18} /> }
 ];
 
 const BlendCreator = () => {
@@ -109,9 +109,9 @@ const BlendCreator = () => {
   };
 
   const getPrice = (format) => {
-    if (format === '500g') return 4500;
-    if (format === '1kg') return 8500;
-    return 6500; 
+    if (format === '500g') return 4000;
+    if (format === '1kg') return 7500;
+    return 6000; 
   };
   const isBulk = selectedFormat === 'granel';
   const price = getPrice(selectedFormat);
