@@ -33,7 +33,7 @@ const Navbar = () => {
     <>
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="logo" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleNavClick('inicio')}>
-          <img src="/logo_nav.png" alt="El Andino Logo" className="nav-logo-img" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
+          <img src="/logo_nav.png" alt="El Andino Logo" className="nav-logo-img" style={{ height: '48px', width: '48px', objectFit: 'contain' }} />
         </div>
         
         {/* Desktop Links */}
@@ -92,7 +92,7 @@ const Navbar = () => {
             {currentUser ? (
                <div className="mobile-user-section">
                   {currentUser.photoURL && <img src={currentUser.photoURL} alt="Profile" className="mobile-profile-pic"/>}
-                  <span style={{color: 'var(--color-primary)', fontWeight: 'bold'}}>{currentUser.displayName}</span>
+                  <span className="mobile-user-name">{currentUser.displayName}</span>
                   <button onClick={() => { logout(); setMenuOpen(false); }} className="mobile-logout"><LogOut size={16}/> Cerrar Sesión</button>
                </div>
             ) : (

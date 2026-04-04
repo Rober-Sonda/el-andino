@@ -140,6 +140,16 @@
   border-top: 1px solid var(--glass-border);
 }
 
+.mobile-user-name {
+  color: var(--color-primary);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+[data-theme='dark'] .mobile-user-name {
+  color: var(--color-text-light);
+}
+
 .mobile-profile-pic {
   width: 60px;
   height: 60px;
