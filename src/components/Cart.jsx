@@ -249,7 +249,7 @@ const styles = {
     fontWeight: '800',
     fontSize: '1.2rem',
     borderRadius: '16px',
-    boxShadow: '0 4px 15px rgba(226, 186, 101, 0.4)',
+    boxShadow: '0 4px 15px rgba(74, 124, 46, 0.4)',
   }
 };
 

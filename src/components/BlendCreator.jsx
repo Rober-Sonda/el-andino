@@ -155,10 +155,10 @@ const BlendCreator = () => {
           <div style={styles.controlsSection}>
              <div style={{ marginBottom: '2rem' }}>
                  <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center' }}>Blends Recomendados</p>
-                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                 <div className="featured-scroll-container">
                     {featuredBlends.map((blend, idx) => (
                         <button key={idx} className="featured-pill-btn" onClick={() => setRatios(blend.ratios)}>
-                           {blend.name}
+                           {blend.icon} {blend.name}
                         </button>
                     ))}
                  </div>
@@ -258,8 +258,8 @@ const styles = {
     boxShadow: 'var(--shadow-soft)'
   },
   featuredBox: {
-    background: 'rgba(189, 83, 25, 0.05)',
-    border: '1px solid rgba(189, 83, 25, 0.2)',
+    background: 'rgba(74, 124, 46, 0.05)',
+    border: '1px solid rgba(74, 124, 46, 0.2)',
     borderRadius: '16px',
     padding: '1.5rem',
     marginBottom: '2rem'
@@ -496,6 +496,10 @@ if (typeof document !== 'undefined') {
       font-size: 0.9rem;
       transition: all 0.2s ease;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
     }
     .featured-pill-btn:hover {
       background: var(--color-accent);
@@ -504,15 +508,25 @@ if (typeof document !== 'undefined') {
     [data-theme='dark'] .featured-pill-btn {
       color: #F4F0EA;
     }
-    [data-theme='dark'] .bag-blend-name {
-      color: #1a1a1a !important;
+    .featured-scroll-container {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      flex-wrap: nowrap;
+      scrollbar-width: none; 
     }
-    [data-theme='dark'] .bag-title-label {
-      color: var(--color-primary) !important;
+    .featured-scroll-container::-webkit-scrollbar {
+      display: none;
+    }
+    @media (min-width: 768px) {
+      .featured-scroll-container {
+         justify-content: center;
+      }
     }
     button[style*="background: var(--glass-bg)"]:hover {
       border-color: var(--color-accent) !important;
-      background: rgba(189, 83, 25, 0.1) !important;
+      background: rgba(74, 124, 46, 0.1) !important;
     }
     button[style*="background: var(--color-primary)"]:hover {
       background: var(--color-primary-dark) !important;
