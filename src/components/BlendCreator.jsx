@@ -164,7 +164,12 @@ const BlendCreator = () => {
                  </div>
              </div>
 
-             <h3 style={{marginBottom: '2rem', fontSize:'1.8rem'}}>Cantidades (Escala 5%)</h3>
+             <div style={{ background: 'var(--color-bg-light)', padding: '1.2rem', borderRadius: '12px', border: '1px solid var(--glass-border)', marginBottom: '2rem', textAlign: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
+                 <p style={{ margin: 0, fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px' }}>Resultado de tu Alquimia</p>
+                 <h4 className="live-blend-name" style={{ fontSize: '1.8rem', fontFamily: 'var(--font-serif)', color: 'var(--color-accent)', marginTop: '0.5rem', marginBottom: 0 }}>{currentBlendName}</h4>
+             </div>
+
+             <h3 style={{marginBottom: '1.5rem', fontSize:'1.1rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px'}}>Ajuste Fino (Escala 5%)</h3>
              
              <div style={styles.slidersWrapper}>
                  {Object.keys(ratios).map(key => (
