@@ -69,7 +69,7 @@ const Navbar = () => {
           </button>
 
           {/* Hamburger Icon */}
-          <button className="hamburger-btn mobile-only" onClick={toggleMenu}>
+          <button className={`hamburger-btn mobile-only ${menuOpen ? 'menu-open-btn' : ''}`} onClick={toggleMenu}>
             {menuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>

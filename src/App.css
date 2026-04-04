@@ -70,6 +70,14 @@
   color: var(--color-text-light);
 }
 
+.hamburger-btn.menu-open-btn {
+  color: var(--color-primary-dark) !important;
+}
+
+[data-theme='dark'] .hamburger-btn.menu-open-btn {
+  color: var(--color-text-light) !important;
+}
+
 /* Mobile Menu */
 .mobile-menu {
   position: fixed;
