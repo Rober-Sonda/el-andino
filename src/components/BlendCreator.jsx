@@ -218,8 +218,8 @@ const BlendCreator = () => {
                  <img src="/premium_full.jpg" alt="Yerba Mate Bag" style={styles.bagImage} />
                  <div style={styles.bagLabelOverlay}>
                      <img src="/favicon.png" alt="El Andino" style={styles.bagLogo} />
-                     <h4 style={styles.bagTitleLabel}>BLEND EXCLUSIVO</h4>
-                     <h2 style={styles.bagBlendName}>{currentBlendName}</h2>
+                     <h4 className="bag-title-label" style={styles.bagTitleLabel}>BLEND EXCLUSIVO</h4>
+                     <h2 className="bag-blend-name" style={styles.bagBlendName}>{currentBlendName}</h2>
                      <div style={styles.bagDivider}></div>
                      <ul style={styles.bagRatios}>
                          {ratios.premium > 0 && <li>Premium: {ratios.premium}%</li>}
@@ -501,6 +501,12 @@ if (typeof document !== 'undefined') {
   styleSheet.innerText = `
     [data-theme='dark'] .featured-btn {
       color: #F4F0EA !important;
+    }
+    [data-theme='dark'] .bag-blend-name {
+      color: #1a1a1a !important;
+    }
+    [data-theme='dark'] .bag-title-label {
+      color: var(--color-primary) !important;
     }
     button[style*="background: var(--glass-bg)"]:hover {
       border-color: var(--color-accent) !important;
