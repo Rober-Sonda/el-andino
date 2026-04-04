@@ -146,7 +146,7 @@ const BlendCreator = () => {
       <div style={styles.container}>
         <div style={styles.heading}>
           <Beaker size={48} color="var(--color-accent)" style={{marginBottom: '1rem'}} />
-          <h2 style={styles.title}>Alquimista del Mate</h2>
+          <h2 style={styles.title}>Maestría Yerbatera</h2>
           <p style={styles.subtitle}>Armá tu propia receta exclusiva. Elegí los porcentajes usando controles precisos y nuestro maestro yerbatero preparará tu bolsa.</p>
         </div>
         
@@ -164,9 +164,10 @@ const BlendCreator = () => {
                  </div>
              </div>
 
-             <div style={{ background: 'var(--color-bg-light)', padding: '1.2rem', borderRadius: '12px', border: '1px solid var(--glass-border)', marginBottom: '2rem', textAlign: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
-                 <p style={{ margin: 0, fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px' }}>Resultado de tu Alquimia</p>
-                 <h4 className="live-blend-name" style={{ fontSize: '1.8rem', fontFamily: 'var(--font-serif)', color: 'var(--color-accent)', marginTop: '0.5rem', marginBottom: 0 }}>{currentBlendName}</h4>
+             <div style={{ background: 'var(--color-bg-light)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--glass-border)', marginBottom: '2rem', textAlign: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
+                 <p style={{ margin: 0, fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px' }}>Tu Mezcla Exclusiva</p>
+                 <h4 className="live-blend-name" style={{ fontSize: '1.8rem', fontFamily: 'var(--font-serif)', color: 'var(--color-accent)', marginTop: '0.5rem', marginBottom: '0.8rem' }}>{currentBlendName}</h4>
+                 <p style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-text)', fontStyle: 'italic', lineHeight: '1.5' }}>{currentBlendDesc}</p>
              </div>
 
              <h3 style={{marginBottom: '1.5rem', fontSize:'1.1rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px'}}>Ajuste Fino (Escala 5%)</h3>
@@ -218,30 +219,7 @@ const BlendCreator = () => {
              </div>
           </div>
 
-          {/* Visual Side */}
-          <div style={styles.visualSection}>
-            <div style={{
-                ...styles.bagMockup,
-                filter: `hue-rotate(${ratios.despalada * 0.8 + ratios.molida * 0.3}deg) saturate(${100 + ratios.ahumada * 0.2}%)`
-            }}>
-                 <img src="/premium_full.jpg" alt="Yerba Mate Bag" style={styles.bagImage} />
-                 <div style={styles.bagLabelOverlay}>
-                     <img src="/favicon.png" alt="El Andino" style={styles.bagLogo} />
-                     <h4 className="bag-title-label" style={styles.bagTitleLabel}>BLEND EXCLUSIVO</h4>
-                     <h2 className="bag-blend-name" style={styles.bagBlendName}>{currentBlendName}</h2>
-                     <div style={styles.bagDivider}></div>
-                     <ul style={styles.bagRatios}>
-                         {ratios.premium > 0 && <li>Premium: {ratios.premium}%</li>}
-                         {ratios.ahumada > 0 && <li>Ahumada: {ratios.ahumada}%</li>}
-                         {ratios.despalada > 0 && <li>Despalada: {ratios.despalada}%</li>}
-                         {ratios.molida > 0 && <li>Molida: {ratios.molida}%</li>}
-                     </ul>
-                 </div>
-            </div>
-            <div style={styles.descriptionBox}>
-                <p>{currentBlendDesc}</p>
-            </div>
-          </div>
+
         </div>
       </div>
     </section>
@@ -529,11 +507,8 @@ if (typeof document !== 'undefined') {
       grid-template-columns: 1fr;
       gap: 3rem;
       align-items: start;
-    }
-    @media (min-width: 900px) {
-      .blend-grid {
-        grid-template-columns: 1.2fr 0.8fr;
-      }
+      max-width: 800px;
+      margin: 0 auto;
     }
   `;
   document.head.appendChild(styleSheet);
