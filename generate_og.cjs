@@ -38,9 +38,9 @@ async function createOgImage() {
         const y = (630 - icon.bitmap.height) / 2;
         bg.composite(icon, x, y);
 
-        console.log('Saving to og-image.jpg...');
-        await bg.quality(80).writeAsync('public/og-image.jpg');
-        console.log('Successfully generated og-image.jpg (optimized size)!');
+        console.log('Saving to og-banner.jpg...');
+        await bg.quality(80).writeAsync('public/og-banner.jpg');
+        console.log('Successfully generated og-banner.jpg (optimized size)!');
     } catch (err) {
         console.error('Error generating image:', err);
     }

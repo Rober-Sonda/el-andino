@@ -46,7 +46,7 @@ const ProductList = () => {
       <div style={styles.container}>
         <div style={styles.heading}>
           <h2 style={styles.title}>Nuestras Variedades</h2>
-          <p style={styles.subtitle}>Directas del sembradío, seleccionadas a mano para los paladares más exigentes</p>
+          <p style={styles.subtitle}>Directas del secadero natural, respetando el tiempo y la frescura de nuestra tierra noble.</p>
         </div>
         
         <div style={styles.grid}>

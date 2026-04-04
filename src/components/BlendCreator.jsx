@@ -153,7 +153,7 @@ const BlendCreator = () => {
                  <h4 style={styles.featuredTitle}><Star size={16}/> Recetas Destacadas</h4>
                  <div style={styles.featuredGrid}>
                     {featuredBlends.map((blend, idx) => (
-                        <button key={idx} style={styles.featuredBtn} onClick={() => setRatios(blend.ratios)}>
+                        <button key={idx} className="featured-btn" style={styles.featuredBtn} onClick={() => setRatios(blend.ratios)}>
                            {blend.icon} {blend.name}
                         </button>
                     ))}
@@ -499,6 +499,9 @@ const styles = {
 if (typeof document !== 'undefined') {
   const styleSheet = document.createElement("style");
   styleSheet.innerText = `
+    [data-theme='dark'] .featured-btn {
+      color: #F4F0EA !important;
+    }
     button[style*="background: var(--glass-bg)"]:hover {
       border-color: var(--color-accent) !important;
       background: rgba(189, 83, 25, 0.1) !important;

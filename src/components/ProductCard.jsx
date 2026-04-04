@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { Plus, Minus, Scale } from 'lucide-react';
+import { Plus, Minus, Scale, Leaf, Award, Droplets } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
   const { addToCart, getQuantity } = useCart();
@@ -46,9 +46,9 @@ const ProductCard = ({ product }) => {
       
       <div style={styles.content}>
         <div className="badge-group">
-          {product.isOrganic && <span className="health-badge badge-organic">🌿 Orgánica</span>}
-          {product.isSinTacc && <span className="health-badge badge-tacc">🌾 Sin T.A.C.C</span>}
-          {product.isAntiacid && <span className="health-badge badge-antiacid">💧 Antiácida</span>}
+          {product.isOrganic && <span className="health-badge badge-organic"><Leaf size={14} /> Orgánica</span>}
+          {product.isSinTacc && <span className="health-badge badge-tacc"><Award size={14} /> Sin T.A.C.C</span>}
+          {product.isAntiacid && <span className="health-badge badge-antiacid"><Droplets size={14} /> Antiácida</span>}
         </div>
 
         <h3 style={styles.name}>{product.name}</h3>
