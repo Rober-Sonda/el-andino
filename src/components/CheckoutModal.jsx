@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCart } from '../context/CartContext';
-import { X, Send } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { X, Send, User } from 'lucide-react';
 
 const CheckoutModal = () => {
   const { 
@@ -11,6 +12,13 @@ const CheckoutModal = () => {
     generateWhatsAppLink,
     cart 
   } = useCart();
+  const { currentUser, loginWithGoogle } = useAuth();
+
+  React.useEffect(() => {
+    if (currentUser && !userData.name) {
+      setUserData(prev => ({ ...prev, name: currentUser.displayName || '' }));
+    }
+  }, [currentUser]);
 
   if (!isCheckoutOpen) return null;
 
@@ -39,7 +47,19 @@ const CheckoutModal = () => {
           </button>
         </div>
 
-        <form style={styles.form} onSubmit={handleSubmit}>
+        {!currentUser ? (
+          <div style={styles.loginPrompt}>
+            <User size={48} color="var(--color-accent)" style={{marginBottom: '1rem'}} />
+            <h3 style={{fontFamily: 'var(--font-serif)', fontSize:'1.5rem', marginBottom:'0.5rem', color: 'var(--color-primary)'}}>Registro Necesario</h3>
+            <p style={styles.instruction}>
+              Para poder procesar y preparar tu pedido de manera segura, te pedimos que inicies sesión con tu cuenta de Google.
+            </p>
+            <button onClick={loginWithGoogle} style={{...styles.submitBtn, backgroundColor: '#4285F4', marginTop: '1.5rem'}}>
+              Continuar con Google
+            </button>
+          </div>
+        ) : (
+          <form style={styles.form} onSubmit={handleSubmit}>
           <p style={styles.instruction}>
             Por favor, ingresa tus datos. Al confirmar, te redirigiremos a WhatsApp para finalizar la atención de forma personalizada.
           </p>
@@ -99,6 +119,7 @@ const CheckoutModal = () => {
             Enviar a WhatsApp
           </button>
         </form>
+        )}
       </div>
     </div>
   );
@@ -147,6 +168,16 @@ const styles = {
   closeBtn: {
     color: 'var(--color-text)',
     padding: '0.5rem',
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer'
+  },
+  loginPrompt: {
+    padding: '0 2rem 3rem 2rem',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center'
   },
   form: {
     padding: '0 2rem 2rem 2rem',
