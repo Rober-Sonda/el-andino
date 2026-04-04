@@ -33,7 +33,7 @@ const Navbar = () => {
     <>
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="logo" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleNavClick('inicio')}>
-          <img src="/logo_nav.png" alt="El Andino Logo" className="nav-logo-img" style={{ height: '48px', width: '48px', objectFit: 'contain' }} />
+          <img src="/favicon-white.png" alt="El Andino Logo" className="nav-logo-img" style={{ height: '48px', width: '48px', objectFit: 'contain' }} />
         </div>
         
         {/* Desktop Links */}
