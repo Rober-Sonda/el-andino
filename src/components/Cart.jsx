@@ -21,7 +21,7 @@ const Cart = () => {
       <div style={styles.backdrop} onClick={() => setIsCartOpen(false)}></div>
       <div style={styles.sidebar} className="glass">
         <div style={styles.header}>
-          <h2 style={styles.title}>Tu Botín Mate</h2>
+          <h2 style={styles.title}>Tu Canasta Andina</h2>
           <button style={styles.closeBtn} onClick={() => setIsCartOpen(false)}>
             <X size={24} />
           </button>

@@ -4,6 +4,19 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
 
+const SackIcon = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 4V3h10v1c0 2.2-2 4-2 4h-6s-2-1.8-2-4Z" />
+    <path d="M6 7c-2 3-3 6.5-2 10 1 3.5 3.5 5 8 5s7-1.5 8-5c1-3.5 0-7-2-10" />
+    <path d="M11 12v.01" />
+    <path d="M8 13v.01" />
+    <path d="M16 13v.01" />
+    <path d="M10 16v.01" />
+    <path d="M14 16v.01" />
+    <path d="M12 2v2" />
+  </svg>
+);
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -65,7 +78,7 @@ const Navbar = () => {
           </div>
 
           <button className="cart-button" onClick={() => setIsCartOpen(true)} style={{ marginLeft: '4px' }}>
-            <ShoppingBag size={24} />
+            <SackIcon size={24} />
             {totalItemsCount > 0 && <span className="cart-badge">{totalItemsCount}</span>}
           </button>
 
@@ -76,9 +89,18 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay */}
-      <div className={`mobile-menu ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(false)}>
-         <div className="mobile-menu-content" onClick={(e) => e.stopPropagation()}>
+      {/* Mobile Menu Backdrop */}
+      {menuOpen && (
+         <div 
+           className="mobile-backdrop"
+           style={{position: 'fixed', top:0, left:0, width:'100vw', height:'100vh', background:'rgba(0,0,0,0.5)', zIndex:98, backdropFilter:'blur(2px)'}} 
+           onClick={() => setMenuOpen(false)} 
+         />
+      )}
+
+      {/* Mobile Menu Slide Panel */}
+      <div className={`mobile-menu ${menuOpen ? 'open' : ''}`}>
+         <div className="mobile-menu-content">
             <button onClick={() => handleNavClick('inicio')} className="mobile-link">Inicio</button>
             <button onClick={() => handleNavClick('variedades')} className="mobile-link">Variedades Puras</button>
             <button onClick={() => handleNavClick('alquimista')} className="mobile-link">Armá tu Blend</button>
