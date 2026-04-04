@@ -146,19 +146,19 @@ const BlendCreator = () => {
       <div style={styles.container}>
         <div style={styles.heading}>
           <Beaker size={48} color="var(--color-accent)" style={{marginBottom: '1rem'}} />
-          <h2 style={styles.title}>Maestría Yerbatera</h2>
+          <h2 style={styles.title}>Tu Receta de Autor</h2>
           <p style={styles.subtitle}>Armá tu propia receta exclusiva. Elegí los porcentajes usando controles precisos y nuestro maestro yerbatero preparará tu bolsa.</p>
         </div>
         
         <div className="blend-grid">
           {/* Controls Side */}
           <div style={styles.controlsSection}>
-             <div style={styles.featuredBox}>
-                 <h4 style={styles.featuredTitle}><Star size={16}/> Recetas Destacadas</h4>
-                 <div style={styles.featuredGrid}>
+             <div style={{ marginBottom: '2rem' }}>
+                 <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center' }}>Blends Recomendados</p>
+                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
                     {featuredBlends.map((blend, idx) => (
-                        <button key={idx} className="featured-btn" style={styles.featuredBtn} onClick={() => setRatios(blend.ratios)}>
-                           {blend.icon} {blend.name}
+                        <button key={idx} className="featured-pill-btn" onClick={() => setRatios(blend.ratios)}>
+                           {blend.name}
                         </button>
                     ))}
                  </div>
@@ -486,8 +486,23 @@ const styles = {
 if (typeof document !== 'undefined') {
   const styleSheet = document.createElement("style");
   styleSheet.innerText = `
-    [data-theme='dark'] .featured-btn {
-      color: #F4F0EA !important;
+    .featured-pill-btn {
+      background: transparent;
+      border: 1.5px solid var(--color-accent);
+      color: var(--color-text);
+      padding: 0.6rem 1.4rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .featured-pill-btn:hover {
+      background: var(--color-accent);
+      color: #1a1a1a !important;
+    }
+    [data-theme='dark'] .featured-pill-btn {
+      color: #F4F0EA;
     }
     [data-theme='dark'] .bag-blend-name {
       color: #1a1a1a !important;
