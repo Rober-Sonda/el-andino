@@ -186,7 +186,7 @@ const styles = {
   },
   formatBtnActive: {
     background: 'var(--color-text)',
-    color: 'var(--color-bg-light)',
+    color: '#ffffff',
     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
     borderColor: 'transparent'
   },
