@@ -250,11 +250,12 @@ const styles = {
     width: '100%',
     padding: '1.2rem',
     backgroundColor: 'var(--color-accent)',
-    color: '#1a1714',
+    color: '#ffffff',
     fontWeight: '800',
     fontSize: '1.2rem',
     borderRadius: '16px',
     boxShadow: '0 4px 15px rgba(74, 124, 46, 0.4)',
+    cursor: 'pointer'
   }
 };
 
