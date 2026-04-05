@@ -1,7 +1,7 @@
 import React from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { X, Send, User } from 'lucide-react';
+import { X, Send, User, Leaf } from 'lucide-react';
 
 const CheckoutModal = () => {
   const { 
@@ -52,7 +52,7 @@ const CheckoutModal = () => {
         ) : (
           <div style={styles.content}>
             <div style={styles.summaryBox}>
-              <h3 style={styles.summaryTitle}>🌾 Remito de Campo</h3>
+              <h3 style={styles.summaryTitle}><Leaf size={20} color="var(--color-accent)" style={{marginRight: '8px', verticalAlign: 'middle'}}/>Remito de Campo</h3>
               <div className="summary-scroll" style={styles.summaryScroll}>
                 {cart.map((item, idx) => (
                   <div key={idx} style={styles.summaryItem}>
