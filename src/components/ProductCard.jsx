@@ -254,7 +254,7 @@ if (typeof document !== 'undefined') {
     [data-theme='dark'] .formatSelector { background: rgba(0,0,0,0.2); }
     [data-theme='dark'] .format-btn[style*="background: var(--color-text)"] {
       background: var(--color-accent) !important;
-      color: #000 !important;
+      color: #ffffff !important;
     }
     [data-theme='dark'] .price-text {
       color: var(--color-accent) !important;
