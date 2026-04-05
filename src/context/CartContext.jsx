@@ -71,7 +71,8 @@ export const CartProvider = ({ children }) => {
     
     cart.forEach(item => {
       let variantText = item.format === '500g' ? '½ Kilo' : item.format === '1kg' ? '1 Kilo' : 'A Granel (Kilos)';
-      message += `• ${item.quantity} x ${item.name} (${variantText}) - $${item.formattedPrice * item.quantity}\n`;
+      let profileText = item.profile ? ` [Perfil: ${item.profile}]` : '';
+      message += `• ${item.quantity} x ${item.name}${profileText} (${variantText}) - $${item.formattedPrice * item.quantity}\n`;
     });
     
     message += `\n*Suma de Kilos: ${totalKilos}kg*\n`;

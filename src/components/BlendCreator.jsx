@@ -58,7 +58,8 @@ const BlendCreator = () => {
 
     // Prevent duplicates (e.g., Reserva de los Andes)
     const nucleus = max[0] === second[0] || (max[0] === 'premium' && second[0] === 'premium') ? "Mestra" : nuclei[second[0]];
-    const name = matchingFeature ? matchingFeature.name : `${prefixes[max[0]]} ${nucleus} ${suffix}`;
+    const name = matchingFeature ? matchingFeature.name : `${prefixes[max[0]]} ${nucleus}`;
+    const profile = suffix;
     
     const descriptions = [
         `Una combinación artesanal diseñada para verdaderos apasionados. Sus notas predominantes de yerba ${max[0]} resaltan en cada cebada, redondeando su perfil con la textura inconfundible de la ${second[0]}.`,
@@ -69,10 +70,10 @@ const BlendCreator = () => {
     let descIndex = (max[1] + second[1]) % 3;
     const description = descriptions[descIndex];
 
-    return { name, description };
+    return { name, profile, description };
   };
 
-  const { name: currentBlendName, description: currentBlendDesc } = getBlendData(ratios);
+  const { name: currentBlendName, profile: currentBlendProfile, description: currentBlendDesc } = getBlendData(ratios);
 
   const handleRatioChange = (key, newStringVal) => {
     let newVal = parseInt(newStringVal, 10);
@@ -124,6 +125,7 @@ const BlendCreator = () => {
     const product = {
         id: `blend-${ratios.premium}-${ratios.ahumada}-${ratios.despalada}-${ratios.molida}`,
         name: `Blend: ${currentBlendName}`,
+        profile: currentBlendProfile,
         description: currentBlendDesc,
         image: '/kraft_bag.png', // Using the photorealistic image generated
         isOrganic: true,
@@ -166,7 +168,8 @@ const BlendCreator = () => {
 
              <div style={{ background: 'var(--color-bg-light)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--glass-border)', marginBottom: '2rem', textAlign: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
                  <p style={{ margin: 0, fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px' }}>Tu Mezcla Exclusiva</p>
-                 <h4 className="live-blend-name" style={{ fontSize: '1.8rem', fontFamily: 'var(--font-serif)', color: 'var(--color-accent)', marginTop: '0.5rem', marginBottom: '0.8rem' }}>{currentBlendName}</h4>
+                 <h4 className="live-blend-name" style={{ fontSize: '1.8rem', fontFamily: 'var(--font-serif)', color: 'var(--color-accent)', marginTop: '0.5rem', marginBottom: '0.2rem' }}>{currentBlendName}</h4>
+                 <p style={{ margin: '0 0 0.8rem 0', fontSize: '1.1rem', color: 'var(--color-primary)', fontWeight: '600', fontStyle: 'italic' }}>Perfil: {currentBlendProfile}</p>
                  <p style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-text)', fontStyle: 'italic', lineHeight: '1.5' }}>{currentBlendDesc}</p>
              </div>
 

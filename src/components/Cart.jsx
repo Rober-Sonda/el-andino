@@ -57,6 +57,11 @@ const Cart = () => {
                   <img src={item.image} alt={item.name} style={styles.itemImg} />
                   <div style={styles.itemInfo}>
                     <h4 style={styles.itemName}>{item.name}</h4>
+                    {item.profile && (
+                      <p style={{ margin: '0 0 0.4rem 0', fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: '600', fontStyle: 'italic' }}>
+                        Perfil: {item.profile}
+                      </p>
+                    )}
                     <span style={styles.formatBadge}>
                       {item.format === '500g' ? '½ Kilo' : item.format === '1kg' ? '1 Kilo' : 'A Granel'}
                     </span>
