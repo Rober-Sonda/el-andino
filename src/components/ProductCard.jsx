@@ -137,7 +137,7 @@ const styles = {
     top: '15px',
     right: '15px',
     background: 'var(--color-accent)',
-    color: '#3b2d07',
+    color: '#ffffff',
     padding: '0.4rem 1rem',
     borderRadius: '20px',
     fontSize: '0.8rem',

@@ -209,7 +209,7 @@ const styles = {
     display: 'inline-block',
     fontSize: '0.75rem',
     backgroundColor: 'var(--color-accent)',
-    color: '#3b2d07',
+    color: '#ffffff',
     padding: '2px 6px',
     borderRadius: '6px',
     fontWeight: '800',
