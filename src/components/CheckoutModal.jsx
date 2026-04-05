@@ -14,25 +14,13 @@ const CheckoutModal = () => {
   } = useCart();
   const { currentUser, loginWithGoogle } = useAuth();
 
-  React.useEffect(() => {
-    if (currentUser && !userData.name) {
-      setUserData(prev => ({ ...prev, name: currentUser.displayName || '' }));
-    }
-  }, [currentUser]);
-
   if (!isCheckoutOpen) return null;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if(cart.length === 0) return;
     
     // Redirect to whatsapp
-    const link = generateWhatsAppLink(userData);
+    const link = generateWhatsAppLink(currentUser.displayName);
     window.location.href = link;
   };
 
@@ -59,66 +47,15 @@ const CheckoutModal = () => {
             </button>
           </div>
         ) : (
-          <form style={styles.form} onSubmit={handleSubmit}>
-          <p style={styles.instruction}>
-            Por favor, ingresa tus datos. Al confirmar, te redirigiremos a WhatsApp para finalizar la atención de forma personalizada.
-          </p>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Nombre y Apellido</label>
-            <input 
-              required
-              type="text" 
-              name="name" 
-              value={userData.name} 
-              onChange={handleChange}
-              style={styles.input}
-              placeholder="Ej: Juan Pérez"
-            />
+          <div style={styles.form}>
+            <p style={styles.instruction}>
+              ¡Hola, <strong>{currentUser.displayName}</strong>! Haz clic en el botón para enviar tu pedido directamente por WhatsApp y coordinar el pago y la entrega.
+            </p>
+            <button onClick={handleSubmit} style={styles.submitBtn}>
+              <Send size={20} />
+              Enviar a WhatsApp
+            </button>
           </div>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Teléfono</label>
-            <input 
-              required
-              type="tel" 
-              name="phone" 
-              value={userData.phone} 
-              onChange={handleChange}
-              style={styles.input}
-              placeholder="Ej: 2317..."
-            />
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Dirección de Envío</label>
-            <input 
-              required
-              type="text" 
-              name="address" 
-              value={userData.address} 
-              onChange={handleChange}
-              style={styles.input}
-              placeholder="Calle 123, Ciudad"
-            />
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Notas adicionales (Opcional)</label>
-            <textarea 
-              name="notes" 
-              value={userData.notes || ''} 
-              onChange={handleChange}
-              style={{...styles.input, minHeight: '80px', resize: 'none'}}
-              placeholder="Ej: Entregar por la tarde..."
-            />
-          </div>
-
-          <button type="submit" style={styles.submitBtn}>
-            <Send size={20} />
-            Enviar a WhatsApp
-          </button>
-        </form>
         )}
       </div>
     </div>

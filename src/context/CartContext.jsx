@@ -64,10 +64,10 @@ export const CartProvider = ({ children }) => {
 
   const isFreeShipping = totalKilos >= 40;
 
-  const generateWhatsAppLink = (checkoutData) => {
+  const generateWhatsAppLink = (userName) => {
     const WHATSAPP_NUMBER = "2317472432";
     
-    let message = `*¡Hola El Andino!* 🧉🌿\n\nQuiero hacer un pedido desde su tienda:\n\n`;
+    let message = `*¡Hola El Andino!* 🧉🌿\n\nSoy *${userName || 'un cliente'}* y quiero hacer un pedido desde su tienda:\n\n`;
     
     cart.forEach(item => {
       let variantText = item.format === '500g' ? '½ Kilo' : item.format === '1kg' ? '1 Kilo' : 'A Granel (Kilos)';
@@ -78,12 +78,6 @@ export const CartProvider = ({ children }) => {
     message += `*Total estimado: $${totalPrice}*\n`;
     if (isFreeShipping) {
       message += `🎁 *¡Califica para Envío Gratis (>40kg)!*\n`;
-    }
-    message += `\n*Mis Datos:*\n`;
-    message += `👤 Nombre: ${checkoutData.name}\n`;
-    message += `📍 Dirección: ${checkoutData.address}\n`;
-    if(checkoutData.notes) {
-      message += `📝 Notas: ${checkoutData.notes}\n`;
     }
     
     message += `\n¡Gracias!`;
