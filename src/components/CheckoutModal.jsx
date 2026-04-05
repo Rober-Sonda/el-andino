@@ -10,7 +10,10 @@ const CheckoutModal = () => {
     userData, 
     setUserData, 
     generateWhatsAppLink,
-    cart 
+    cart,
+    totalPrice,
+    totalKilos,
+    isFreeShipping
   } = useCart();
   const { currentUser, loginWithGoogle } = useAuth();
 
@@ -42,18 +45,39 @@ const CheckoutModal = () => {
             <p style={styles.instruction}>
               Para poder procesar y preparar tu pedido de manera segura, te pedimos que inicies sesión con tu cuenta de Google.
             </p>
-            <button onClick={loginWithGoogle} style={{...styles.submitBtn, backgroundColor: '#4285F4', marginTop: '1.5rem'}}>
+            <button onClick={loginWithGoogle} style={{...styles.rusticSubmitBtn, backgroundColor: '#4285F4', marginTop: '1.5rem', color: '#fff', border: 'none'}}>
               Continuar con Google
             </button>
           </div>
         ) : (
-          <div style={styles.form}>
+          <div style={styles.content}>
+            <div style={styles.summaryBox}>
+              <h3 style={styles.summaryTitle}>🌾 Remito de Campo</h3>
+              <div className="summary-scroll" style={styles.summaryScroll}>
+                {cart.map((item, idx) => (
+                  <div key={idx} style={styles.summaryItem}>
+                    <span style={styles.summaryItemQty}>{item.quantity}x</span>
+                    <span style={styles.summaryItemName}>{item.name.replace('Blend: ', '')} {item.format === '500g' ? '(½kg)' : item.format === '1kg' ? '(1kg)' : '(Granel)'}</span>
+                    <span style={styles.summaryItemPrice}>${item.formattedPrice * item.quantity}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={styles.summaryDivider}></div>
+              <div style={styles.summaryTotalRow}>
+                <span>Total ({totalKilos}kg):</span>
+                <span>${totalPrice}</span>
+              </div>
+              {isFreeShipping && (
+                <div style={styles.freeShippingBadge}>✨ ¡Envío Gratis Incluido!</div>
+              )}
+            </div>
+
             <p style={styles.instruction}>
-              ¡Hola, <strong>{currentUser.displayName}</strong>! Haz clic en el botón para enviar tu pedido directamente por WhatsApp y coordinar el pago y la entrega.
+              ¡Hola, <strong>{currentUser.displayName}</strong>! Revisa tu cosecha y envíala a nuestro equipo. Te abriremos un chat de WhatsApp para coordinar el pago y la tranquera de entrega.
             </p>
-            <button onClick={handleSubmit} style={styles.submitBtn}>
+            <button onClick={handleSubmit} className="rustic-submit-btn" style={styles.rusticSubmitBtn}>
               <Send size={20} />
-              Enviar a WhatsApp
+              Enviar y Coordinar al WhatsApp
             </button>
           </div>
         )}
@@ -84,22 +108,26 @@ const styles = {
   modal: {
     position: 'relative',
     width: '100%',
-    maxWidth: '500px',
+    maxWidth: '450px',
     backgroundColor: 'var(--color-bg-light)',
-    borderRadius: '24px',
+    backgroundImage: 'url("https://www.transparenttextures.com/patterns/cream-paper.png")',
+    borderRadius: '16px',
     zIndex: 2001,
     overflow: 'hidden',
     animation: 'zoomIn 0.3s forwards',
+    border: '1px solid var(--glass-border)',
+    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
   },
   header: {
     padding: '2rem 2rem 1rem 2rem',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    borderBottom: '1px solid rgba(0,0,0,0.05)'
   },
   title: {
     fontFamily: 'var(--font-serif)',
-    fontSize: '2rem',
+    fontSize: '1.8rem',
     color: 'var(--color-primary-dark)',
   },
   closeBtn: {
@@ -107,7 +135,8 @@ const styles = {
     padding: '0.5rem',
     background: 'none',
     border: 'none',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'transform 0.2s ease'
   },
   loginPrompt: {
     padding: '0 2rem 3rem 2rem',
@@ -116,55 +145,105 @@ const styles = {
     alignItems: 'center',
     textAlign: 'center'
   },
-  form: {
-    padding: '0 2rem 2rem 2rem',
+  content: {
+    padding: '1.5rem 2rem 2.5rem 2rem',
     display: 'flex',
     flexDirection: 'column',
     gap: '1.5rem'
   },
+  summaryBox: {
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    border: '1px dashed var(--color-primary)',
+    borderRadius: '12px',
+    padding: '1.5rem',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.8rem'
+  },
+  summaryTitle: {
+    fontFamily: 'var(--font-serif)',
+    color: 'var(--color-primary-dark)',
+    fontSize: '1.2rem',
+    marginBottom: '0.5rem',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: '2px'
+  },
+  summaryScroll: {
+    maxHeight: '150px',
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5rem',
+    paddingRight: '0.5rem'
+  },
+  summaryItem: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '0.95rem',
+    color: 'var(--color-text)',
+    gap: '10px'
+  },
+  summaryItemQty: {
+    fontWeight: 'bold',
+    color: 'var(--color-accent)',
+    width: '25px'
+  },
+  summaryItemName: {
+    flex: 1,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
+  },
+  summaryItemPrice: {
+    fontWeight: 'bold',
+    color: 'var(--color-text-muted)'
+  },
+  summaryDivider: {
+    height: '1px',
+    borderTop: '1px dashed rgba(74, 124, 46, 0.3)',
+    margin: '0.5rem 0'
+  },
+  summaryTotalRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '1.3rem',
+    fontFamily: 'var(--font-serif)',
+    fontWeight: 'bold',
+    color: 'var(--color-primary-dark)'
+  },
+  freeShippingBadge: {
+    backgroundColor: '#d4edda',
+    color: '#155724',
+    padding: '0.5rem',
+    borderRadius: '8px',
+    textAlign: 'center',
+    fontSize: '0.9rem',
+    fontWeight: '800',
+    marginTop: '0.5rem'
+  },
   instruction: {
     color: 'var(--color-text-muted)',
     fontSize: '0.95rem',
-    lineHeight: '1.5',
-    marginBottom: '0.5rem'
+    lineHeight: '1.6',
+    textAlign: 'center'
   },
-  inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5rem'
-  },
-  label: {
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    color: 'var(--color-text)',
-  },
-  input: {
-    width: '100%',
-    padding: '1rem',
-    borderRadius: '12px',
-    border: '1px solid var(--glass-border)',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    fontFamily: 'var(--font-sans)',
-    fontSize: '1rem',
-    color: 'var(--color-text)',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  },
-  submitBtn: {
-    marginTop: '1rem',
+  rusticSubmitBtn: {
     width: '100%',
     padding: '1.2rem',
-    backgroundColor: '#25D366', /* WhatsApp Green */
+    backgroundColor: 'var(--color-primary)',
     color: '#fff',
     fontWeight: '800',
-    fontSize: '1.2rem',
-    borderRadius: '16px',
+    fontSize: '1.1rem',
+    borderRadius: '12px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '10px',
-    boxShadow: '0 4px 15px rgba(37, 211, 102, 0.3)',
-    transition: 'transform 0.2s, background-color 0.2s',
+    boxShadow: '0 4px 15px rgba(74, 124, 46, 0.3)',
+    transition: 'all 0.2s ease',
+    border: '1px solid var(--color-primary-dark)',
+    cursor: 'pointer'
   }
 };
 
@@ -175,6 +254,28 @@ if (typeof document !== 'undefined') {
     @keyframes zoomIn {
       from { transform: scale(0.95); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
+    }
+    .summary-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .summary-scroll::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.05);
+      border-radius: 4px;
+    }
+    .summary-scroll::-webkit-scrollbar-thumb {
+      background: rgba(74, 124, 46, 0.3);
+      border-radius: 4px;
+    }
+    .rustic-submit-btn:hover {
+      background-color: var(--color-primary-dark) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(74, 124, 46, 0.5) !important;
+    }
+    [data-theme='dark'] .summary-scroll::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.05);
+    }
+    [data-theme='dark'] .summary-scroll::-webkit-scrollbar-thumb {
+      background: var(--color-accent);
     }
   `;
   document.head.appendChild(styleSheet);
