@@ -6,7 +6,7 @@ const Hero = () => {
       <div className="hero-overlay" style={styles.overlay}></div>
       <div className="hero-content" style={styles.content}>
         <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <img src="/favicon.png" alt="El Andino Logo" style={styles.heroLogo} />
+          <img src="/favicon.png" alt="El Andino Logo" className="hero-logo-img" style={styles.heroLogo} />
           <h1 style={styles.title}>Sentí el campo en cada mate.</h1>
           <p style={styles.subtitle}>
             Nuestra tierra noble en tu mesa. Descubre la calidez rústica de una yerba premium, orgánica y estacionada al tiempo de la naturaleza.
@@ -51,13 +51,13 @@ const styles = {
     maxWidth: '1200px',
     width: '100%',
     padding: '0 5%',
-    paddingTop: '80px',
+    paddingTop: '40px',
     paddingBottom: '80px',
   },
   heroLogo: {
     height: 'auto',
-    width: 'min(90vw, 800px)',
-    marginBottom: '0',
+    width: 'min(90vw, 450px)',
+    marginBottom: '1rem',
     filter: 'brightness(0) invert(1) drop-shadow(0 15px 35px rgba(0,0,0,0.9))',
     objectFit: 'contain'
   },
@@ -106,6 +106,30 @@ if (typeof document !== 'undefined') {
       transform: translateY(-3px) scale(1.02);
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
       background-color: var(--color-primary-dark) !important;
+    }
+    @media (min-width: 768px) {
+      .hero-content {
+        padding-top: 130px !important;
+        margin-top: 0 !important;
+      }
+      .hero-logo-img {
+        position: relative !important;
+        width: 550px !important;
+        max-width: 50vw !important;
+        margin-bottom: -60px !important;
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        opacity: 1 !important;
+      }
+      .hero-section h1 {
+        max-width: 1200px !important;
+        white-space: nowrap !important;
+        font-size: clamp(3rem, 5vw, 4.5rem) !important;
+      }
+      .hero-section p {
+        max-width: 650px !important;
+      }
     }
   `;
   document.head.appendChild(styleSheet);
