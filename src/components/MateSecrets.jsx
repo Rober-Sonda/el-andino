@@ -1,5 +1,6 @@
 import React from 'react';
-import { BookOpen, Droplets, Flame, ThermometerSun, MapPin } from 'lucide-react';
+import { BookOpen, Droplets, Flame, ThermometerSun, MapPin, Compass } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const secrets = [
   {
@@ -29,6 +30,8 @@ const secrets = [
 ];
 
 const MateSecrets = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="sabiduria" style={styles.section}>
       <div style={styles.container}>
@@ -51,6 +54,19 @@ const MateSecrets = () => {
               </div>
             </div>
           ))}
+
+        </div>
+        
+        {/* Portal History Button */}
+        <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+          <button 
+            className="hero-btn" 
+            style={{...styles.bottomButton, display: 'inline-flex', alignItems: 'center', gap: '0.8rem'}}
+            onClick={() => navigate('/historia')}
+          >
+            <Compass size={24} />
+            Explorar la Historia y Mística del Mate
+          </button>
         </div>
       </div>
     </section>
@@ -134,6 +150,19 @@ const styles = {
     lineHeight: '1.8',
     color: 'var(--color-text)',
     opacity: 0.9
+  },
+  bottomButton: {
+    background: 'var(--color-accent)',
+    color: '#fff',
+    border: 'none',
+    padding: '1.2rem 3rem',
+    borderRadius: '50px',
+    fontSize: '1.2rem',
+    fontWeight: '700',
+    cursor: 'pointer',
+    letterSpacing: '1px',
+    boxShadow: '0 10px 30px rgba(189, 83, 25, 0.3)',
+    transition: 'all 0.3s ease',
   }
 };
 
@@ -145,6 +174,11 @@ if (typeof document !== 'undefined') {
       transform: scale(1.15) translate(-10px, 10px);
       color: var(--color-accent);
       opacity: 0.08 !important;
+    }
+    .history-portal:hover {
+      transform: translateY(-5px) !important;
+      box-shadow: 0 15px 30px rgba(189, 83, 25, 0.15) !important;
+      border-color: var(--color-accent) !important;
     }
   `;
   document.head.appendChild(styleSheet);

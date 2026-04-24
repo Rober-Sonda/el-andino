@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingBag, User, LogOut, Menu, X } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
@@ -22,6 +23,9 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { totalItemsCount, setIsCartOpen } = useCart();
   const { currentUser, loginWithGoogle, logout } = useAuth();
+  
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,16 +39,29 @@ const Navbar = () => {
 
   const handleNavClick = (id) => {
     setMenuOpen(false);
-    const element = document.getElementById(id);
-    if (element) {
-      const topPos = element.getBoundingClientRect().top + window.scrollY - 80;
-      window.scrollTo({ top: topPos, behavior: 'smooth' });
+    
+    const scrollToId = () => {
+      if (id === 'inicio') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      const element = document.getElementById(id);
+      if (element) {
+        const topPos = element.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: topPos, behavior: 'smooth' });
+      }
+    };
+
+    if (location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: id } });
+    } else {
+      scrollToId();
     }
   };
 
   return (
     <>
-      <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+      <nav className={`navbar ${scrolled ? 'scrolled' : ''} ${location.pathname === '/historia' ? 'historia-nav' : ''}`}>
         <div className="logo" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleNavClick('inicio')}>
           <img src="/isotipo.png" alt="El Andino Logo" className="nav-logo-img logo-light" style={{ height: '44px', width: '44px', objectFit: 'contain' }} />
           <img src="/isotipo_oscuro.png" alt="El Andino Logo" className="nav-logo-img logo-dark" style={{ height: '44px', width: '44px', objectFit: 'contain' }} />
