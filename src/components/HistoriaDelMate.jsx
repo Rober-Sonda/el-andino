@@ -205,7 +205,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundImage: 'url("/hero_argentino.png")', // Traditional Argentine aesthetic
+    backgroundImage: 'url("/hero_historia.png")', // Dark green sunrise aesthetic
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundAttachment: 'fixed',
