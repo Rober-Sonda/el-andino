@@ -3,13 +3,13 @@ import { useCart } from '../context/CartContext';
 import { Plus, Minus, Scale, Leaf, Award, Droplets } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
-  const { addToCart, getQuantity } = useCart();
+  const { addToCart, getQuantity, totalKilos } = useCart();
   const [selectedFormat, setSelectedFormat] = useState('1kg');
 
   // Fixed Pricing Rule
   const getFormattedPrice = (format) => {
     if (format === '500g') return 4000;
-    if (format === 'granel') return 6000;
+    if (format === 'granel') return totalKilos > 40 ? 6000 : 7500;
     return 7500; // 1kg
   };
 

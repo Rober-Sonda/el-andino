@@ -3,14 +3,66 @@ import { useCart } from '../context/CartContext';
 import { Scale, Beaker, Plus, Star, Award, Flame, Leaf, Coffee } from 'lucide-react';
 
 const featuredBlends = [
-  { name: "Herencia del Sembrador", ratios: { premium: 50, ahumada: 0, molida: 0, despalada: 50 }, icon: <Award size={18} /> },
-  { name: "Fuego del Andino", ratios: { premium: 15, ahumada: 75, despalada: 10, molida: 0 }, icon: <Flame size={18} /> },
-  { name: "Tradición Charrúa", ratios: { premium: 40, ahumada: 0, despalada: 20, molida: 40 }, icon: <Leaf size={18} /> },
-  { name: "Alma de Monte", ratios: { premium: 0, ahumada: 20, despalada: 80, molida: 0 }, icon: <Coffee size={18} /> }
+  { 
+    name: "Herencia del Sembrador", 
+    ratios: { premium: 50, ahumada: 0, molida: 0, despalada: 50 }, 
+    icon: <Award size={18} />,
+    profile: "Equilibrada",
+    description: "Una combinación artesanal diseñada para verdaderos apasionados. Estacionada naturalmente con hoja uruguaya." 
+  },
+  { 
+    name: "Fuego del Andino", 
+    ratios: { premium: 15, ahumada: 75, despalada: 10, molida: 0 }, 
+    icon: <Flame size={18} />,
+    profile: "Intensa",
+    description: "Carácter de monte, secada con leña bajo el proceso Barbacuá. Intensa y maderera con un toque de reserva." 
+  },
+  { 
+    name: "Tradición Charrúa", 
+    ratios: { premium: 40, ahumada: 0, despalada: 20, molida: 40 }, 
+    icon: <Leaf size={18} />,
+    profile: "Clásica",
+    description: "Molienda fina perfecta. Rendimiento impecable para el cebador experimentado oriental." 
+  },
+  { 
+    name: "Alma de Monte", 
+    ratios: { premium: 0, ahumada: 20, despalada: 80, molida: 0 }, 
+    icon: <Coffee size={18} />,
+    profile: "Suave y Compleja",
+    description: "Pura hoja uruguaya, estilo canario para un mate fuerte, espumoso y prolongado que no perdona." 
+  },
+  {
+    name: "Pura Premium",
+    ratios: { premium: 100, ahumada: 0, despalada: 0, molida: 0 },
+    icon: <Star size={18} />,
+    profile: "Tradicional",
+    description: "Nuestra yerba base de la más alta calidad, sin mezclas. Sabor tradicional y duradero."
+  },
+  {
+    name: "Pura Ahumada",
+    ratios: { premium: 0, ahumada: 100, despalada: 0, molida: 0 },
+    icon: <Flame size={18} />,
+    profile: "Muy Intensa",
+    description: "100% secanza barbacuá. Un viaje directo al monte con notas profundas a madera y humo."
+  },
+  {
+    name: "Pura Despalada",
+    ratios: { premium: 0, ahumada: 0, despalada: 100, molida: 0 },
+    icon: <Leaf size={18} />,
+    profile: "Fuerte",
+    description: "Sin palo, pura hoja. Máxima intensidad y rendimiento para mates que no se lavan."
+  },
+  {
+    name: "Pura Molida",
+    ratios: { premium: 0, ahumada: 0, despalada: 0, molida: 100 },
+    icon: <Coffee size={18} />,
+    profile: "Estilo Uruguayo",
+    description: "Molienda extra fina. Sabor fuerte y constante desde el primer mate, ideal para mate de camionero."
+  }
 ];
 
 const BlendCreator = () => {
-  const { addToCart } = useCart();
+  const { addToCart, totalKilos } = useCart();
   const [selectedFormat, setSelectedFormat] = useState('500g');
   
   const [ratios, setRatios] = useState({
@@ -21,56 +73,34 @@ const BlendCreator = () => {
   });
 
   const getBlendData = (r) => {
-    const matchingFeature = featuredBlends.find(fb => 
-      fb.ratios.premium === r.premium && fb.ratios.ahumada === r.ahumada && 
-      fb.ratios.despalada === r.despalada && fb.ratios.molida === r.molida
+    const exactMatch = featuredBlends.find(fb => 
+      fb.ratios.premium === r.premium &&
+      fb.ratios.ahumada === r.ahumada &&
+      fb.ratios.despalada === r.despalada &&
+      fb.ratios.molida === r.molida
     );
-    const sorted = Object.entries(r).sort((a,b) => b[1] - a[1]);
-    const max = sorted[0];
-    const second = sorted[1];
-    
-    if (max[1] === 100) {
-       let n = "", d = "";
-       if (max[0] === 'premium') { n="Premium (Pura)"; d="Estacionada naturalmente por 24 meses. Suave, duradera y elegante. Directo de nuestro estacionamiento natural."; }
-       if (max[0] === 'ahumada') { n="Ahumada (Pura)"; d="Carácter de monte, secada con leña bajo el proceso Barbacuá. Intensa y maderera."; }
-       if (max[0] === 'despalada') { n="Despalada (Pura)"; d="Pura hoja uruguaya, estilo canario para un mate fuerte, espumoso y prolongado que no perdona."; }
-       if (max[0] === 'molida') { n="Molida (Pura)"; d="Clásica molienda fina perfecta. Rendimiento impecable para el cebador experimentado oriental."; }
-       return { name: n, description: d };
+    if (exactMatch) return { name: exactMatch.name, profile: exactMatch.profile, description: exactMatch.description };
+
+    let closestBlend = featuredBlends[0];
+    let minDistance = Infinity;
+
+    for (let i = 0; i < 4; i++) {
+        const fb = featuredBlends[i];
+        const dist = Math.abs(fb.ratios.premium - r.premium) + 
+                     Math.abs(fb.ratios.ahumada - r.ahumada) + 
+                     Math.abs(fb.ratios.despalada - r.despalada) + 
+                     Math.abs(fb.ratios.molida - r.molida);
+        if (dist < minDistance) {
+            minDistance = dist;
+            closestBlend = fb;
+        }
     }
 
-    const prefixes = {
-        premium: "Reserva",
-        ahumada: "Fuego",
-        despalada: "Alma",
-        molida: "Tradición"
+    return { 
+      name: closestBlend.name, 
+      profile: closestBlend.profile, 
+      description: closestBlend.description 
     };
-
-    const nuclei = {
-        premium: "de los Andes",
-        ahumada: "del Monte",
-        despalada: "Gaucha",
-        molida: "Oriental"
-    };
-
-    let suffix = "Equilibrada";
-    if (max[1] >= 65) suffix = "Intensa";
-    else if (max[1] <= 35) suffix = "Suave y Compleja";
-
-    // Prevent duplicates (e.g., Reserva de los Andes)
-    const nucleus = max[0] === second[0] || (max[0] === 'premium' && second[0] === 'premium') ? "Mestra" : nuclei[second[0]];
-    const name = matchingFeature ? matchingFeature.name : `${prefixes[max[0]]} ${nucleus}`;
-    const profile = suffix;
-    
-    const descriptions = [
-        `Una combinación artesanal diseñada para verdaderos apasionados. Sus notas predominantes de yerba ${max[0]} resaltan en cada cebada, redondeando su perfil con la textura inconfundible de la ${second[0]}.`,
-        `Directo de nuestros silos elaborada al momento. Esta alquimia perfecta lleva la fuerza de la variedad ${max[0]} equilibrada pacientemente con un toque ideal de ${second[0]}. Un mate de otro planeta.`,
-        `Tu propia receta maestra guardada bajo sello. La presencia dominante de ${max[0]} (en un exacto ${max[1]}%) le da su alma, mientras que la mezcla de acompañamiento moldea un amargor noble, sedoso y muy duradero.`
-    ];
-    
-    let descIndex = (max[1] + second[1]) % 3;
-    const description = descriptions[descIndex];
-
-    return { name, profile, description };
   };
 
   const { name: currentBlendName, profile: currentBlendProfile, description: currentBlendDesc } = getBlendData(ratios);
@@ -115,8 +145,8 @@ const BlendCreator = () => {
 
   const getPrice = (format) => {
     if (format === '500g') return 4000;
-    if (format === '1kg') return 7500;
-    return 6000; 
+    if (format === 'granel') return totalKilos > 40 ? 6000 : 7500;
+    return 7500; 
   };
   const isBulk = selectedFormat === 'granel';
   const price = getPrice(selectedFormat);
@@ -127,7 +157,7 @@ const BlendCreator = () => {
         name: `Blend: ${currentBlendName}`,
         profile: currentBlendProfile,
         description: currentBlendDesc,
-        image: '/kraft_bag.png', // Using the photorealistic image generated
+        image: '/kraft_bag.png',
         isOrganic: true,
         isSinTacc: true,
         isAntiacid: true
@@ -149,33 +179,50 @@ const BlendCreator = () => {
         <div style={styles.heading}>
           <Beaker size={48} color="var(--color-accent)" style={{marginBottom: '1rem'}} />
           <h2 style={styles.title}>Tu Receta de Autor</h2>
-          <p style={styles.subtitle}>Armá tu propia receta exclusiva. Elegí los porcentajes usando controles precisos y nuestro maestro yerbatero preparará tu bolsa.</p>
+          <p style={styles.subtitle}>Armá tu propia receta exclusiva. Elegí los porcentajes usando controles precisos o seleccioná una de nuestras combinaciones recomendadas.</p>
         </div>
         
         <div className="blend-grid">
-          {/* Controls Side */}
-          <div style={styles.controlsSection}>
+          <div className="controls-section">
              <div style={{ marginBottom: '2rem' }}>
-                 <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center' }}>Blends Recomendados</p>
-                 <div className="featured-scroll-container">
-                    {featuredBlends.map((blend, idx) => (
-                        <button key={idx} className="featured-pill-btn" onClick={() => setRatios(blend.ratios)} title={blend.name}>
-                           {blend.icon}
-                        </button>
-                    ))}
+                 <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center' }}>Nuestras 8 Variedades Clave</p>
+                 <div className="featured-grid">
+                    {featuredBlends.map((blend, idx) => {
+                        const isCurrent = currentBlendName === blend.name;
+                        return (
+                            <button 
+                                key={idx} 
+                                className={`featured-pill-btn ${isCurrent ? 'active' : ''}`} 
+                                onClick={() => setRatios(blend.ratios)} 
+                                title={blend.name}
+                            >
+                               {blend.icon}
+                            </button>
+                        );
+                    })}
                  </div>
              </div>
 
              <div style={{ background: 'var(--color-bg-light)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--glass-border)', marginBottom: '2rem', textAlign: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
                  <p style={{ margin: 0, fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px' }}>Tu Mezcla Exclusiva</p>
-                 <h4 className="live-blend-name" style={{ fontSize: '1.8rem', fontFamily: 'var(--font-serif)', color: 'var(--color-accent)', marginTop: '0.5rem', marginBottom: '0.2rem' }}>{currentBlendName}</h4>
-                 <p style={{ margin: '0 0 0.8rem 0', fontSize: '1.1rem', color: 'var(--color-primary)', fontWeight: '600', fontStyle: 'italic' }}>Perfil: {currentBlendProfile}</p>
-                 <p style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-text)', fontStyle: 'italic', lineHeight: '1.5' }}>{currentBlendDesc}</p>
+                 <h4 className="immersive-title">
+                     {currentBlendName.includes(' ') ? (
+                         <>
+                             {currentBlendName.substring(0, currentBlendName.lastIndexOf(' '))}
+                             <br />
+                             {currentBlendName.substring(currentBlendName.lastIndexOf(' ') + 1)}
+                         </>
+                     ) : currentBlendName}
+                 </h4>
+                 <p style={{ margin: '0 0 0.8rem 0', fontSize: '1.1rem', color: 'var(--color-text)', fontWeight: '600', fontStyle: 'italic' }}>Perfil: <span style={{ color: 'var(--color-accent)' }}>{currentBlendProfile}</span></p>
+                 <div style={{ minHeight: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                     <p style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-text)', fontStyle: 'italic', lineHeight: '1.5' }}>{currentBlendDesc}</p>
+                 </div>
              </div>
 
              <h3 style={{marginBottom: '1.5rem', fontSize:'1.1rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px'}}>Ajuste Fino (Escala 5%)</h3>
              
-             <div style={styles.slidersWrapper}>
+             <div className="sliders-wrapper">
                  {Object.keys(ratios).map(key => (
                      <div key={key} style={styles.sliderContainer}>
                          <div style={styles.sliderHeader}>
@@ -221,8 +268,6 @@ const BlendCreator = () => {
                 </button>
              </div>
           </div>
-
-
         </div>
       </div>
     </section>
@@ -253,13 +298,6 @@ const styles = {
     maxWidth: '700px',
     margin: '0 auto'
   },
-  controlsSection: {
-    background: 'var(--glass-bg)',
-    border: '1px solid var(--glass-border)',
-    borderRadius: '24px',
-    padding: '2.5rem',
-    boxShadow: 'var(--shadow-soft)'
-  },
   featuredBox: {
     background: 'rgba(74, 124, 46, 0.05)',
     border: '1px solid rgba(74, 124, 46, 0.2)',
@@ -275,30 +313,6 @@ const styles = {
     fontSize: '1.1rem',
     marginBottom: '1rem',
     textTransform: 'uppercase'
-  },
-  featuredGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '10px'
-  },
-  featuredBtn: {
-    background: 'var(--glass-bg)',
-    border: '1px solid var(--glass-border)',
-    padding: '0.8rem',
-    borderRadius: '8px',
-    fontWeight: '600',
-    color: 'var(--color-primary)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    fontSize: '0.9rem',
-    transition: 'all 0.2s ease'
-  },
-  slidersWrapper: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.5rem',
-    marginBottom: '3rem'
   },
   sliderContainer: {
     display: 'flex',
@@ -323,7 +337,12 @@ const styles = {
   rangeInput: {
     width: '100%',
     cursor: 'pointer',
-    accentColor: 'var(--color-accent)'
+    accentColor: 'var(--color-accent)',
+    height: '6px',
+    background: 'rgba(0,0,0,0.1)',
+    borderRadius: '8px',
+    outline: 'none',
+    WebkitAppearance: 'none'
   },
   checkoutBox: {
     marginTop: '2rem',
@@ -388,101 +407,6 @@ const styles = {
     border: 'none',
     boxShadow: '0 4px 20px rgba(42, 51, 37, 0.3)',
     cursor: 'pointer'
-  },
-  visualSection: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  bagMockup: {
-    width: '100%',
-    maxWidth: '380px',
-    aspectRatio: '3/4',
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '20px',
-    overflow: 'hidden',
-    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)',
-  },
-  bagImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    zIndex: 1
-  },
-  bagLabelOverlay: {
-    background: 'rgba(255, 255, 255, 0.85)',
-    backdropFilter: 'blur(4px)',
-    width: '80%',
-    padding: '1.5rem',
-    borderRadius: '8px',
-    position: 'relative',
-    zIndex: 2,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    textAlign: 'center',
-    border: '1px solid rgba(0,0,0,0.1)',
-    boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
-  },
-  bagLogo: {
-    height: '35px',
-    marginBottom: '1rem',
-    opacity: 0.9
-  },
-  bagTitleLabel: {
-    fontSize: '0.75rem',
-    fontWeight: '800',
-    color: 'var(--color-primary)',
-    letterSpacing: '2px',
-    marginBottom: '0.5rem',
-    textTransform: 'uppercase'
-  },
-  bagBlendName: {
-    fontSize: '1.6rem',
-    color: '#1a1a1a', 
-    fontFamily: 'var(--font-serif)',
-    lineHeight: '1.1',
-    marginBottom: '1rem'
-  },
-  bagDivider: {
-    width: '40px',
-    height: '2px',
-    backgroundColor: 'var(--color-accent)',
-    marginBottom: '1rem'
-  },
-  bagRatios: {
-    listStyle: 'none',
-    padding: 0,
-    margin: 0,
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.2rem',
-    color: '#333',
-    fontSize: '0.9rem',
-    fontWeight: '700'
-  },
-  descriptionBox: {
-    marginTop: '2rem',
-    background: 'var(--glass-bg)',
-    border: '1px solid var(--glass-border)',
-    borderRadius: '16px',
-    padding: '1.5rem',
-    maxWidth: '380px',
-    width: '100%',
-    textAlign: 'center',
-    color: 'var(--color-text)',
-    fontWeight: '500',
-    fontSize: '1.05rem',
-    fontStyle: 'normal',
-    lineHeight: '1.6',
-    boxShadow: 'var(--shadow-soft)'
   }
 };
 
@@ -493,48 +417,113 @@ if (typeof document !== 'undefined') {
       background: transparent;
       border: 1.5px solid var(--color-accent);
       color: var(--color-text);
-      padding: 0.8rem;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       transition: all 0.2s ease;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
+      padding: 0;
     }
     .featured-pill-btn:hover {
       background: var(--color-accent);
       color: #1a1a1a !important;
     }
-    [data-theme='dark'] .featured-pill-btn {
+    .featured-pill-btn.active {
+      background: var(--color-accent);
+      color: #1a1a1a !important;
+      box-shadow: 0 0 10px rgba(74, 124, 46, 0.5);
+    }
+    [data-theme='dark'] .featured-pill-btn:not(.active) {
       color: #F4F0EA;
     }
-    .featured-scroll-container {
+    .featured-grid {
       display: flex;
-      gap: 12px;
-      overflow-x: auto;
-      padding-bottom: 10px;
-      flex-wrap: nowrap;
-      scrollbar-width: none;
+      flex-wrap: wrap;
       justify-content: center;
-    }
-    .featured-scroll-container::-webkit-scrollbar {
-      display: none;
-    }
-    button[style*="background: var(--glass-bg)"]:hover {
-      border-color: var(--color-accent) !important;
-      background: rgba(74, 124, 46, 0.1) !important;
-    }
-    button[style*="background: var(--color-primary)"]:hover {
-      background: var(--color-primary-dark) !important;
+      gap: 12px;
+      margin-bottom: 20px;
     }
     .blend-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 3rem;
       align-items: start;
       max-width: 800px;
       margin: 0 auto;
+    }
+    .controls-section {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-soft);
+    }
+    .sliders-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    @media (min-width: 768px) {
+      .featured-grid {
+        gap: 16px;
+      }
+      .controls-section {
+        padding: 2.5rem;
+      }
+      .sliders-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+      .immersive-title {
+        max-width: 100%;
+      }
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .immersive-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.8rem, 6vw, 2.4rem);
+      text-transform: uppercase;
+      background: linear-gradient(45deg, var(--color-accent), #8dd660);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 4px 12px rgba(74, 124, 46, 0.15);
+      margin: 0.5rem auto 0.2rem auto;
+      line-height: 1.1;
+      height: 2.2em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    [data-theme='dark'] .immersive-title {
+      background: linear-gradient(45deg, #76b54d, #a2f277);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 4px 20px rgba(118, 181, 77, 0.3);
     }
   `;
   document.head.appendChild(styleSheet);

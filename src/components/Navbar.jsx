@@ -59,8 +59,8 @@ const Navbar = () => {
         </div>
         
         <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+          <ThemeToggle />
           <div className="desktop-only" style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-             <ThemeToggle />
             {currentUser ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 {currentUser.photoURL && (
@@ -107,10 +107,6 @@ const Navbar = () => {
             <button onClick={() => handleNavClick('sabiduria')} className="mobile-link">Sabiduría del Mate</button>
             
             <div className="mobile-divider"></div>
-            
-            <div style={{display: 'flex', justifyContent: 'center', marginBottom: '1rem'}}>
-               <ThemeToggle />
-            </div>
 
             {currentUser ? (
                <div className="mobile-user-section">

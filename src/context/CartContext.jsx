@@ -53,14 +53,21 @@ export const CartProvider = ({ children }) => {
   // Total distinct items in cart UI
   const totalItemsCount = cart.length;
 
-  // Calculate total kilograms in the cart
   const totalKilos = cart.reduce((acc, item) => {
     if (item.format === '500g') return acc + (item.quantity * 0.5);
     if (item.format === '1kg' || item.format === 'granel') return acc + item.quantity;
     return acc;
   }, 0);
 
-  const totalPrice = cart.reduce((acc, item) => acc + (item.formattedPrice * item.quantity), 0);
+  const calculatedCart = cart.map(item => {
+    let computedPrice = item.formattedPrice;
+    if (item.format === 'granel') {
+       computedPrice = totalKilos > 40 ? 6000 : 7500;
+    }
+    return { ...item, formattedPrice: computedPrice };
+  });
+
+  const totalPrice = calculatedCart.reduce((acc, item) => acc + (item.formattedPrice * item.quantity), 0);
 
   const isFreeShipping = totalKilos >= 40;
 
@@ -69,7 +76,7 @@ export const CartProvider = ({ children }) => {
     
     let message = `*¡Hola El Andino!* 🧉🌿\n\nSoy *${userName || 'un cliente'}* y quiero hacer un pedido desde su tienda:\n\n`;
     
-    cart.forEach(item => {
+    calculatedCart.forEach(item => {
       let variantText = item.format === '500g' ? '½ Kilo' : item.format === '1kg' ? '1 Kilo' : 'A Granel (Kilos)';
       let profileText = item.profile ? ` [Perfil: ${item.profile}]` : '';
       message += `• ${item.quantity} x ${item.name}${profileText} (${variantText}) - $${item.formattedPrice * item.quantity}\n`;
@@ -89,7 +96,7 @@ export const CartProvider = ({ children }) => {
 
   return (
     <CartContext.Provider value={{
-      cart,
+      cart: calculatedCart,
       addToCart,
       removeFromCart,
       getQuantity,

@@ -20,8 +20,26 @@ const ThemeToggle = () => {
       onClick={toggleTheme} 
       className="theme-btn"
       title="Cambiar Modo"
+      style={{
+          border: '1px solid rgba(255,255,255,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '0.5rem 1rem',
+          borderRadius: '24px'
+      }}
     >
-      {theme === 'light' ? <Moon size={22} /> : <Sun size={22} />}
+      {theme === 'light' ? (
+          <>
+            <Moon size={18} />
+            <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Oscuro</span>
+          </>
+      ) : (
+          <>
+            <Sun size={18} color="#facc15" />
+            <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#facc15' }}>Claro</span>
+          </>
+      )}
     </button>
   );
 };
