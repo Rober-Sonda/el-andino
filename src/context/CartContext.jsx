@@ -17,6 +17,11 @@ export const CartProvider = ({ children }) => {
     setCurrentOrderId(null);
   };
   
+  const [userData, setUserData] = useState(() => {
+    const saved = localStorage.getItem('el_andino_user');
+    return saved ? JSON.parse(saved) : { name: '', phone: '', address: '' };
+  });
+
   const DEFAULT_CATALOG = {
     'premium': {
       id: 'premium',
