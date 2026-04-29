@@ -5,10 +5,10 @@ import { useCart } from '../context/CartContext';
 const ProductList = () => {
   const { catalog } = useCart();
   
-  const yerbas = catalog?.filter(p => p.category === 'yerbas') || [];
-  const blends = catalog?.filter(p => p.category === 'blends') || [];
-  const accesorios = catalog?.filter(p => p.category === 'accesorios') || [];
-  const otros = catalog?.filter(p => p.category === 'otros' || !p.category) || [];
+  const yerbas = catalog?.filter(p => p.category === 'yerbas' && p.isActive !== false) || [];
+  const blends = catalog?.filter(p => p.category === 'blends' && p.isActive !== false) || [];
+  const accesorios = catalog?.filter(p => p.category === 'accesorios' && p.isActive !== false) || [];
+  const otros = catalog?.filter(p => (p.category === 'otros' || !p.category) && p.isActive !== false) || [];
 
   return (
     <section id="productos" style={styles.section}>
@@ -22,7 +22,7 @@ const ProductList = () => {
           {yerbas.length > 0 && (
             <div style={styles.categorySection}>
               <h3 style={styles.categoryTitle}>Yerbas Clásicas</h3>
-              <div style={styles.grid}>
+              <div className="product-carousel">
                 {yerbas.map(product => <ProductCard key={product.id} product={product} />)}
               </div>
             </div>
@@ -31,7 +31,7 @@ const ProductList = () => {
           {blends.length > 0 && (
             <div style={styles.categorySection}>
               <h3 style={styles.categoryTitle}>Blends de Autor</h3>
-              <div style={styles.grid}>
+              <div className="product-carousel">
                 {blends.map(product => <ProductCard key={product.id} product={product} />)}
               </div>
             </div>
@@ -40,7 +40,7 @@ const ProductList = () => {
           {accesorios.length > 0 && (
             <div style={styles.categorySection}>
               <h3 style={styles.categoryTitle}>Accesorios y Equipamiento</h3>
-              <div style={styles.grid}>
+              <div className="product-carousel">
                 {accesorios.map(product => <ProductCard key={product.id} product={product} />)}
               </div>
             </div>
@@ -49,7 +49,7 @@ const ProductList = () => {
           {otros.length > 0 && (
             <div style={styles.categorySection}>
               <h3 style={styles.categoryTitle}>Otras Variedades</h3>
-              <div style={styles.grid}>
+              <div className="product-carousel">
                 {otros.map(product => <ProductCard key={product.id} product={product} />)}
               </div>
             </div>
@@ -101,11 +101,57 @@ const styles = {
     textTransform: 'uppercase',
     letterSpacing: '1px',
   },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '2.5rem',
+  categoryTitle: {
+    fontSize: '2rem',
+    color: 'var(--color-primary-dark)',
+    borderBottom: '2px solid var(--color-accent)',
+    paddingBottom: '0.5rem',
+    width: 'fit-content',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    marginBottom: '1rem',
   }
 };
+
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.innerText = `
+    .product-carousel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2.5rem;
+    }
+    @media (max-width: 900px) {
+      .product-carousel {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 2rem;
+        gap: 1.5rem;
+        -webkit-overflow-scrolling: touch;
+      }
+      .product-carousel > div {
+        min-width: 85vw;
+        scroll-snap-align: center;
+        flex: 0 0 auto;
+      }
+      .product-carousel::-webkit-scrollbar {
+        height: 6px;
+      }
+      .product-carousel::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.05);
+        border-radius: 10px;
+      }
+      .product-carousel::-webkit-scrollbar-thumb {
+        background: var(--color-accent);
+        border-radius: 10px;
+      }
+      [data-theme='dark'] .product-carousel::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.05);
+      }
+    }
+  `;
+  document.head.appendChild(styleSheet);
+}
 
 export default ProductList;

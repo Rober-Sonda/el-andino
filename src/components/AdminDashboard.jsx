@@ -25,36 +25,36 @@ const AdminDashboard = () => {
   const DEFAULT_CONFIG = {
     products: {
       'premium': {
-        id: 'premium', name: 'Yerba Premium', category: 'yerbas', description: 'Estacionada naturalmente por 24 meses.', image: '/premium_full.jpg',
-        costo_produccion: 3500, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        id: 'premium', name: 'Yerba Premium', category: 'yerbas', description: 'Estacionada naturalmente por 24 meses. Suave, duradera y de molienda equilibrada. Ideal para largas rondas.', image: '/premium_full.jpg',
+        isActive: true, discountPercentage: 0, costo_produccion: 3500, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'ahumada': {
-        id: 'ahumada', name: 'Yerba Ahumada', category: 'yerbas', description: 'Secada con maderas seleccionadas (Barbacuá).', image: '/ahumada_full.jpg',
-        costo_produccion: 4000, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        id: 'ahumada', name: 'Yerba Ahumada', category: 'yerbas', description: 'Secada con maderas seleccionadas (Barbacuá). Un sabor intenso, profundo y con carácter de monte.', image: '/ahumada_full.jpg',
+        isActive: true, discountPercentage: 0, costo_produccion: 4000, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'uruguaya-despalada': {
-        id: 'uruguaya-despalada', name: 'Uruguaya Despalada', category: 'yerbas', description: 'Corte fino sin palo, pura hoja.', image: '/despalada_full.jpg',
-        costo_produccion: 3800, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        id: 'uruguaya-despalada', name: 'Uruguaya Despalada', category: 'yerbas', description: 'Corte fino sin palo, pura hoja. Estilo canario para un mate fuerte, espumoso y de sabor prologando.', image: '/despalada_full.jpg',
+        isActive: true, discountPercentage: 0, costo_produccion: 3800, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'uruguaya-molida': {
-        id: 'uruguaya-molida', name: 'Uruguaya Molida', category: 'yerbas', description: 'Tradicional molienda fina.', image: '/molida_full.jpg',
-        costo_produccion: 3200, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        id: 'uruguaya-molida', name: 'Uruguaya Molida', category: 'yerbas', description: 'Tradicional molienda fina con equilibrio perfecto. La clásica y elegante elección oriental.', image: '/molida_full.jpg',
+        isActive: true, discountPercentage: 0, costo_produccion: 3200, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'blend-herencia': {
-        id: 'blend-herencia', name: 'Blend: Herencia del Sembrador', category: 'blends', description: 'Equilibrada. Combinación artesanal.', image: '/kraft_bag.png',
-        costo_produccion: 3500, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        id: 'blend-herencia', name: 'Blend: Herencia del Sembrador', category: 'blends', description: 'Equilibrada. Una combinación artesanal diseñada para verdaderos apasionados. Estacionada naturalmente con hoja uruguaya.', image: '/kraft_bag.png',
+        isActive: true, discountPercentage: 0, costo_produccion: 3500, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'blend-fuego': {
-        id: 'blend-fuego', name: 'Blend: Fuego del Andino', category: 'blends', description: 'Intensa. Carácter de monte.', image: '/kraft_bag.png',
-        costo_produccion: 3800, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        id: 'blend-fuego', name: 'Blend: Fuego del Andino', category: 'blends', description: 'Intensa. Carácter de monte, secada con leña bajo el proceso Barbacuá. Intensa y maderera con un toque de reserva.', image: '/kraft_bag.png',
+        isActive: true, discountPercentage: 0, costo_produccion: 3800, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'blend-charrua': {
-        id: 'blend-charrua', name: 'Blend: Tradición Charrúa', category: 'blends', description: 'Clásica. Molienda fina perfecta.', image: '/kraft_bag.png',
-        costo_produccion: 3400, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        id: 'blend-charrua', name: 'Blend: Tradición Charrúa', category: 'blends', description: 'Clásica. Molienda fina perfecta. Rendimiento impecable para el cebador experimentado oriental.', image: '/kraft_bag.png',
+        isActive: true, discountPercentage: 0, costo_produccion: 3400, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'blend-alma': {
-        id: 'blend-alma', name: 'Blend: Alma de Monte', category: 'blends', description: 'Suave y Compleja. Pura hoja uruguaya.', image: '/kraft_bag.png',
-        costo_produccion: 3900, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        id: 'blend-alma', name: 'Blend: Alma de Monte', category: 'blends', description: 'Suave y Compleja. Pura hoja uruguaya, estilo canario para un mate fuerte, espumoso y prolongado que no perdona.', image: '/kraft_bag.png',
+        isActive: true, discountPercentage: 0, costo_produccion: 3900, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       }
     },
     general: {
@@ -104,6 +104,8 @@ const AdminDashboard = () => {
               }
               if (!p.id) p.id = key;
               if (!p.category) p.category = 'otros';
+              if (p.isActive === undefined) p.isActive = true;
+              if (p.discountPercentage === undefined) p.discountPercentage = 0;
               if (p.costo_produccion === undefined) p.costo_produccion = p.costo_kg || 3500;
             });
             
@@ -213,6 +215,8 @@ const AdminDashboard = () => {
           id: newId,
           name: 'Nuevo Producto',
           category: 'otros',
+          isActive: true,
+          discountPercentage: 0,
           description: '',
           image: '',
           costo_produccion: 0,
@@ -441,9 +445,11 @@ const AdminDashboard = () => {
                   .map(key => {
                    const prod = config.products[key];
                    return (
-                     <div key={key} style={styles.catalogItemCard} onClick={() => setEditingProductKey(key)}>
+                     <div key={key} style={{...styles.catalogItemCard, opacity: prod.isActive ? 1 : 0.5}} onClick={() => setEditingProductKey(key)}>
                         <div style={styles.catalogItemImgContainer}>
                            <img src={prod.image || '/blend_bg.jpg'} alt={prod.name} style={styles.catalogItemImg} />
+                           {!prod.isActive && <span style={{...styles.catalogItemBadge, position: 'absolute', top: 10, left: 10, background: '#555'}}>Pausado</span>}
+                           {prod.discountPercentage > 0 && <span style={{...styles.catalogItemBadge, position: 'absolute', top: 10, right: 10, background: '#ef4444'}}>{prod.discountPercentage}% OFF</span>}
                         </div>
                         <div style={styles.catalogItemBody}>
                            <h4 style={styles.catalogItemTitle}>{prod.name}</h4>
@@ -498,6 +504,23 @@ const AdminDashboard = () => {
                          <option value="accesorios">Accesorios</option>
                          <option value="otros">Otros</option>
                        </select>
+                     </div>
+                   </div>
+
+                   <div style={{display:'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem', background: '#f9f9f9', padding: '1rem', borderRadius: '8px', border: '1px solid #eee'}}>
+                     <div style={{...styles.inputGroup, flex: 1, marginBottom: 0}}>
+                       <label style={{fontWeight: 'bold'}}>Estado del Producto</label>
+                       <select value={prod.isActive ? 'true' : 'false'} onChange={(e) => updateProduct(key, 'isActive', e.target.value === 'true')} style={{...styles.input, fontWeight: 'bold', color: prod.isActive ? '#10b981' : '#555'}}>
+                         <option value="true">🟢 Activo (Visible en tienda)</option>
+                         <option value="false">⚪ Pausado (Oculto)</option>
+                       </select>
+                     </div>
+                     <div style={{...styles.inputGroup, flex: 1, marginBottom: 0}}>
+                       <label style={{fontWeight: 'bold', color: '#ef4444'}}>% de Oferta (Descuento)</label>
+                       <div style={styles.inputPrefix}>
+                         <input type="number" min="0" max="100" value={prod.discountPercentage || 0} onChange={(e) => updateProduct(key, 'discountPercentage', Number(e.target.value))} style={styles.inputNoBorder} />
+                         <span style={{fontWeight: 'bold', color: '#ef4444'}}>% OFF</span>
+                       </div>
                      </div>
                    </div>
                    <div style={styles.inputGroup}>

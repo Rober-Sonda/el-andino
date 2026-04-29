@@ -3,12 +3,13 @@ import { useCart } from '../context/CartContext';
 import { Plus, Minus, Scale, Leaf, Award, Droplets } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
-  const { addToCart, getQuantity, totalKilos, getPriceForProduct } = useCart();
+  const { addToCart, getQuantity, totalKilos, getPriceForProduct, getOriginalPriceForProduct } = useCart();
   const formats = product.formats || [];
   const defaultFormat = formats.find(f => f.id === '1kg')?.id || formats[0]?.id;
   const [selectedFormat, setSelectedFormat] = useState(defaultFormat);
 
   const currentPrice = getPriceForProduct(product.id, selectedFormat, totalKilos);
+  const originalPrice = getOriginalPriceForProduct(product.id, selectedFormat, totalKilos);
   const quantity = getQuantity(product.id, selectedFormat);
 
   const isBulk = selectedFormat === 'granel';
@@ -35,6 +36,7 @@ const ProductCard = ({ product }) => {
     <div className="product-card" style={styles.card}>
       <div style={styles.imageContainer}>
         <img src={product.image} alt={product.name} style={styles.image} />
+        {product.discountPercentage > 0 && <div style={styles.discountBadge}>{product.discountPercentage}% OFF</div>}
         {quantity > 0 && <div style={styles.badge}>{quantity} {isBulk ? 'kg (Granel)' : 'paquetes'}</div>}
       </div>
       
@@ -66,6 +68,9 @@ const ProductCard = ({ product }) => {
         </div>
 
         <div style={styles.priceRow}>
+          {product.discountPercentage > 0 && (
+             <span style={{textDecoration: 'line-through', color: '#999', fontSize: '1.2rem', fontWeight: 'bold'}}>${originalPrice}</span>
+          )}
           <p className="price-text" style={styles.price}>${currentPrice}</p>
           <span style={styles.perKg}>
              {selectedFormat === '500g' ? '/ 500g' : isBulk ? '/ kg (Mín. 5Kg)' : (selectedFormat === 'unidad' ? '/ u' : '/ kg')}
@@ -128,7 +133,21 @@ const styles = {
     borderRadius: '20px',
     fontSize: '0.8rem',
     fontWeight: '800',
-    boxShadow: '0 4px 10px rgba(0,0,0,0.4)'
+    boxShadow: '0 4px 10px rgba(0,0,0,0.4)',
+    zIndex: 2
+  },
+  discountBadge: {
+    position: 'absolute',
+    top: '15px',
+    left: '15px',
+    background: '#ef4444',
+    color: '#ffffff',
+    padding: '0.4rem 1rem',
+    borderRadius: '20px',
+    fontSize: '0.9rem',
+    fontWeight: '800',
+    boxShadow: '0 4px 10px rgba(239, 68, 68, 0.4)',
+    zIndex: 2
   },
   content: {
     padding: '1.5rem',

@@ -32,6 +32,8 @@ export const CartProvider = ({ children }) => {
       isOrganic: true,
       isSinTacc: true,
       isAntiacid: true,
+      isActive: true,
+      discountPercentage: 0,
       costo_produccion: 3500,
       formats: [
         { id: '500g', name: '½ Kilo', price: 4000 },
@@ -49,6 +51,8 @@ export const CartProvider = ({ children }) => {
       isOrganic: true,
       isSinTacc: true,
       isAntiacid: true,
+      isActive: true,
+      discountPercentage: 0,
       costo_produccion: 4000,
       formats: [
         { id: '500g', name: '½ Kilo', price: 4000 },
@@ -66,6 +70,8 @@ export const CartProvider = ({ children }) => {
       isOrganic: true,
       isSinTacc: true,
       isAntiacid: true,
+      isActive: true,
+      discountPercentage: 0,
       costo_produccion: 3800,
       formats: [
         { id: '500g', name: '½ Kilo', price: 4000 },
@@ -83,6 +89,8 @@ export const CartProvider = ({ children }) => {
       isOrganic: true,
       isSinTacc: true,
       isAntiacid: true,
+      isActive: true,
+      discountPercentage: 0,
       costo_produccion: 3200,
       formats: [
         { id: '500g', name: '½ Kilo', price: 4000 },
@@ -100,6 +108,8 @@ export const CartProvider = ({ children }) => {
       isOrganic: true,
       isSinTacc: true,
       isAntiacid: true,
+      isActive: true,
+      discountPercentage: 0,
       costo_produccion: 3500,
       formats: [
         { id: '500g', name: '½ Kilo', price: 4000 },
@@ -116,6 +126,8 @@ export const CartProvider = ({ children }) => {
       isOrganic: true,
       isSinTacc: true,
       isAntiacid: true,
+      isActive: true,
+      discountPercentage: 0,
       costo_produccion: 3800,
       formats: [
         { id: '500g', name: '½ Kilo', price: 4000 },
@@ -132,6 +144,8 @@ export const CartProvider = ({ children }) => {
       isOrganic: true,
       isSinTacc: true,
       isAntiacid: true,
+      isActive: true,
+      discountPercentage: 0,
       costo_produccion: 3400,
       formats: [
         { id: '500g', name: '½ Kilo', price: 4000 },
@@ -148,6 +162,8 @@ export const CartProvider = ({ children }) => {
       isOrganic: true,
       isSinTacc: true,
       isAntiacid: true,
+      isActive: true,
+      discountPercentage: 0,
       costo_produccion: 3900,
       formats: [
         { id: '500g', name: '½ Kilo', price: 4000 },
@@ -206,6 +222,8 @@ export const CartProvider = ({ children }) => {
               isOrganic: dbProd.isOrganic ?? defProd.isOrganic ?? false,
               isSinTacc: dbProd.isSinTacc ?? defProd.isSinTacc ?? false,
               isAntiacid: dbProd.isAntiacid ?? defProd.isAntiacid ?? false,
+              isActive: dbProd.isActive ?? defProd.isActive ?? true,
+              discountPercentage: dbProd.discountPercentage ?? defProd.discountPercentage ?? 0,
               costo_produccion: dbProd.costo_produccion ?? dbProd.costo_kg ?? defProd.costo_produccion ?? 3500,
               formats: finalFormats || defProd.formats || [{id: 'unidad', name: '1 Unidad', price: 5000}]
             };
@@ -266,6 +284,7 @@ export const CartProvider = ({ children }) => {
 
   const getPriceForProduct = (productId, formatId, totalKilosCart) => {
     let productKey = productId;
+    let basePrice = 7500;
     
     // We don't override custom dynamic blends starting with 'blend-' unless it exists in config
     if (!pricingConfig.products[productKey]) {
@@ -273,23 +292,60 @@ export const CartProvider = ({ children }) => {
       if (productKey?.startsWith('blend-')) {
          return formatId === 'granel' && totalKilosCart > 40 ? 6000 : (formatId === '500g' ? 4000 : 7500);
       }
-      return 7500;
+      return basePrice;
     }
     
     const prodConfig = pricingConfig.products[productKey];
-    if (!prodConfig?.formats) return 7500;
+    if (!prodConfig?.formats) return basePrice;
+
+    const formatObj = prodConfig.formats.find(f => f.id === formatId);
+    if (!formatObj) {
+        basePrice = prodConfig.formats[0]?.price || 7500;
+    } else {
+        basePrice = formatObj.price;
+        if (formatId === 'granel') {
+           const isWholesale = totalKilosCart > 40;
+           if (isWholesale) {
+              const wholesaleFormat = prodConfig.formats.find(f => f.id === 'granel_mayorista');
+              if (wholesaleFormat) basePrice = wholesaleFormat.price;
+           }
+        }
+    }
+
+    // Apply discount if any
+    const discount = Number(prodConfig.discountPercentage || 0);
+    if (discount > 0 && discount <= 100) {
+      return basePrice - (basePrice * (discount / 100));
+    }
+    return basePrice;
+  };
+
+  const getOriginalPriceForProduct = (productId, formatId, totalKilosCart) => {
+    let productKey = productId;
+    let basePrice = 7500;
+    
+    if (!pricingConfig.products[productKey]) {
+      if (productKey?.startsWith('blend-')) {
+         return formatId === 'granel' && totalKilosCart > 40 ? 6000 : (formatId === '500g' ? 4000 : 7500);
+      }
+      return basePrice;
+    }
+    
+    const prodConfig = pricingConfig.products[productKey];
+    if (!prodConfig?.formats) return basePrice;
 
     const formatObj = prodConfig.formats.find(f => f.id === formatId);
     if (!formatObj) return prodConfig.formats[0]?.price || 7500;
-
+    
+    basePrice = formatObj.price;
     if (formatId === 'granel') {
        const isWholesale = totalKilosCart > 40;
        if (isWholesale) {
           const wholesaleFormat = prodConfig.formats.find(f => f.id === 'granel_mayorista');
-          if (wholesaleFormat) return wholesaleFormat.price;
+          if (wholesaleFormat) basePrice = wholesaleFormat.price;
        }
     }
-    return formatObj.price;
+    return basePrice;
   };
 
   const calculatedCart = cart.map(item => {
@@ -346,6 +402,7 @@ export const CartProvider = ({ children }) => {
       clearCart,
       pricingConfig,
       getPriceForProduct,
+      getOriginalPriceForProduct,
       catalog: Object.values(pricingConfig.products)
     }}>
       {children}
