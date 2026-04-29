@@ -1,26 +1,76 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { X, Send, User, Leaf } from 'lucide-react';
+import { X, Send, User, Leaf, Loader2 } from 'lucide-react';
+import { db } from '../firebase';
+import { collection, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
 const CheckoutModal = () => {
   const { 
     isCheckoutOpen, 
     setIsCheckoutOpen, 
-    userData, 
-    setUserData, 
     generateWhatsAppLink,
     cart,
     totalPrice,
     totalKilos,
-    isFreeShipping
+    isFreeShipping,
+    currentOrderId,
+    setCurrentOrderId
   } = useCart();
   const { currentUser, loginWithGoogle } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isCheckoutOpen) return null;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if(cart.length === 0) return;
+    setIsSubmitting(true);
+    
+    try {
+      let orderId = currentOrderId;
+      let createNew = false;
+      
+      const orderData = {
+        customerName: currentUser.displayName,
+        customerEmail: currentUser.email,
+        customerId: currentUser.uid,
+        items: cart,
+        totalPrice,
+        totalKilos,
+        isFreeShipping,
+        status: 'pending',
+        updatedAt: serverTimestamp()
+      };
+
+      if (orderId) {
+        const orderRef = doc(db, 'orders', orderId);
+        const orderSnap = await getDoc(orderRef);
+        if (orderSnap.exists()) {
+          if (orderSnap.data().status !== 'pending') {
+            createNew = true;
+          }
+        } else {
+          createNew = true;
+        }
+      } else {
+        createNew = true;
+      }
+
+      if (createNew) {
+        const newOrderRef = doc(collection(db, 'orders'));
+        orderId = newOrderRef.id;
+        orderData.createdAt = serverTimestamp();
+        setCurrentOrderId(orderId);
+        await setDoc(newOrderRef, orderData);
+      } else {
+        const orderRef = doc(db, 'orders', orderId);
+        await setDoc(orderRef, orderData, { merge: true });
+      }
+    } catch (error) {
+      console.error("Error saving order:", error);
+    }
+
+    setIsSubmitting(false);
     
     // Redirect to whatsapp
     const link = generateWhatsAppLink(currentUser.displayName);
@@ -75,9 +125,9 @@ const CheckoutModal = () => {
             <p style={styles.instruction}>
               ¡Hola, <strong>{currentUser.displayName}</strong>! Revisa tu cosecha y envíala a nuestro equipo. Te abriremos un chat de WhatsApp para coordinar el pago y la tranquera de entrega.
             </p>
-            <button onClick={handleSubmit} className="rustic-submit-btn" style={styles.rusticSubmitBtn}>
-              <Send size={20} />
-              Enviar y Coordinar al WhatsApp
+            <button onClick={handleSubmit} disabled={isSubmitting} className="rustic-submit-btn" style={{...styles.rusticSubmitBtn, opacity: isSubmitting ? 0.7 : 1}}>
+              {isSubmitting ? <Loader2 className="spin" size={20} /> : <Send size={20} />}
+              {isSubmitting ? 'Procesando...' : 'Enviar y Coordinar al WhatsApp'}
             </button>
           </div>
         )}
@@ -254,6 +304,13 @@ if (typeof document !== 'undefined') {
     @keyframes zoomIn {
       from { transform: scale(0.95); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin {
+      animation: spin 1s linear infinite;
     }
     .summary-scroll::-webkit-scrollbar {
       width: 4px;

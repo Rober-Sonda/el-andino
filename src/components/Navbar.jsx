@@ -59,9 +59,11 @@ const Navbar = () => {
     }
   };
 
+  const isScrolled = scrolled || location.pathname === '/admin';
+
   return (
     <>
-      <nav className={`navbar ${scrolled ? 'scrolled' : ''} ${location.pathname === '/historia' ? 'historia-nav' : ''}`}>
+      <nav className={`navbar ${isScrolled ? 'scrolled' : ''} ${location.pathname === '/historia' ? 'historia-nav' : ''}`}>
         <div className="logo" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleNavClick('inicio')}>
           <img src="/isotipo.png" alt="El Andino Logo" className="nav-logo-img logo-light" style={{ height: '44px', width: '44px', objectFit: 'contain' }} />
           <img src="/isotipo_oscuro.png" alt="El Andino Logo" className="nav-logo-img logo-dark" style={{ height: '44px', width: '44px', objectFit: 'contain' }} />
@@ -73,6 +75,9 @@ const Navbar = () => {
           <button onClick={() => handleNavClick('variedades')} className="nav-link">Variedades</button>
           <button onClick={() => handleNavClick('alquimista')} className="nav-link">Blend Creator</button>
           <button onClick={() => handleNavClick('sabiduria')} className="nav-link">Secretos</button>
+          {currentUser?.email === 'rober.junin@gmail.com' && (
+            <button onClick={() => navigate('/admin')} className="nav-link">Dashboard</button>
+          )}
         </div>
         
         <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
@@ -122,6 +127,9 @@ const Navbar = () => {
             <button onClick={() => handleNavClick('variedades')} className="mobile-link">Variedades Puras</button>
             <button onClick={() => handleNavClick('alquimista')} className="mobile-link">Armá tu Blend</button>
             <button onClick={() => handleNavClick('sabiduria')} className="mobile-link">Sabiduría del Mate</button>
+            {currentUser?.email === 'rober.junin@gmail.com' && (
+              <button onClick={() => { navigate('/admin'); setMenuOpen(false); }} className="mobile-link">Dashboard</button>
+            )}
             
             <div className="mobile-divider"></div>
 

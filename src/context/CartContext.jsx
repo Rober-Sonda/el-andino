@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const CartContext = createContext();
 
@@ -8,15 +10,54 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [currentOrderId, setCurrentOrderId] = useState(null);
+  
+  const clearCart = () => {
+    setCart([]);
+    setCurrentOrderId(null);
+  };
   
   const [userData, setUserData] = useState(() => {
     const saved = localStorage.getItem('el_andino_user');
     return saved ? JSON.parse(saved) : { name: '', phone: '', address: '' };
   });
 
+  const DEFAULT_PRICING = {
+    products: {
+      'premium': { costo_kg: 3500, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
+      'ahumada': { costo_kg: 4000, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
+      'uruguaya-despalada': { costo_kg: 3800, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
+      'uruguaya-molida': { costo_kg: 3200, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
+      'blend': { costo_kg: 4500, prices: { '500g': 4500, '1kg': 8500, 'granel': 8500, 'granel_mayorista': 7000 } }
+    },
+    general: {
+      costo_paquete_500g: 150,
+      costo_paquete_1kg: 200,
+      costo_etiqueta: 50,
+      costo_distribucion: 1000
+    }
+  };
+
+  const [pricingConfig, setPricingConfig] = useState(DEFAULT_PRICING);
+
   useEffect(() => {
     localStorage.setItem('el_andino_user', JSON.stringify(userData));
   }, [userData]);
+
+  useEffect(() => {
+    const fetchPricing = async () => {
+      try {
+        const docRef = doc(db, 'config', 'admin');
+        const snap = await getDoc(docRef);
+        if (snap.exists() && snap.data().products) {
+          setPricingConfig(snap.data());
+        }
+      } catch (e) {
+        console.error("No se pudo cargar la configuración de precios dinámica. Usando por defecto.", e);
+      }
+    };
+    fetchPricing();
+  }, []);
 
   const addToCart = (product, format, formattedPrice, quantity) => {
     const cartItemId = `${product.id}-${format}`;
@@ -59,11 +100,26 @@ export const CartProvider = ({ children }) => {
     return acc;
   }, 0);
 
-  const calculatedCart = cart.map(item => {
-    let computedPrice = item.formattedPrice;
-    if (item.format === 'granel') {
-       computedPrice = totalKilos > 40 ? 6000 : 7500;
+  const getPriceForProduct = (productId, format, totalKilosCart) => {
+    // Determine the product key (blends are custom ids, so fallback to 'blend' or 'premium')
+    let productKey = productId;
+    if (productId?.startsWith('blend-')) productKey = 'blend';
+    if (!pricingConfig.products[productKey]) productKey = 'premium'; // safe fallback
+    
+    const prodConfig = pricingConfig.products[productKey];
+    if (!prodConfig?.prices) return 7500; // ultimate fallback
+
+    if (format === '500g') return prodConfig.prices['500g'] || 4000;
+    if (format === '1kg') return prodConfig.prices['1kg'] || 7500;
+    if (format === 'granel') {
+       const isWholesale = totalKilosCart > 40;
+       return isWholesale ? (prodConfig.prices['granel_mayorista'] || 6000) : (prodConfig.prices['granel'] || 7500);
     }
+    return prodConfig.prices['1kg'] || 7500;
+  };
+
+  const calculatedCart = cart.map(item => {
+    const computedPrice = getPriceForProduct(item.id, item.format, totalKilos);
     return { ...item, formattedPrice: computedPrice };
   });
 
@@ -110,7 +166,12 @@ export const CartProvider = ({ children }) => {
       setIsCheckoutOpen,
       userData,
       setUserData,
-      generateWhatsAppLink
+      generateWhatsAppLink,
+      currentOrderId,
+      setCurrentOrderId,
+      clearCart,
+      pricingConfig,
+      getPriceForProduct
     }}>
       {children}
     </CartContext.Provider>

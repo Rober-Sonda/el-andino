@@ -3,17 +3,10 @@ import { useCart } from '../context/CartContext';
 import { Plus, Minus, Scale, Leaf, Award, Droplets } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
-  const { addToCart, getQuantity, totalKilos } = useCart();
+  const { addToCart, getQuantity, totalKilos, getPriceForProduct } = useCart();
   const [selectedFormat, setSelectedFormat] = useState('1kg');
 
-  // Fixed Pricing Rule
-  const getFormattedPrice = (format) => {
-    if (format === '500g') return 4000;
-    if (format === 'granel') return totalKilos > 40 ? 6000 : 7500;
-    return 7500; // 1kg
-  };
-
-  const currentPrice = getFormattedPrice(selectedFormat);
+  const currentPrice = getPriceForProduct(product.id, selectedFormat, totalKilos);
   const quantity = getQuantity(product.id, selectedFormat);
 
   // Bulk requires min 5kg

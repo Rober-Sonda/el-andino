@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, Suspense, lazy } from 'react';
 import { CartProvider, useCart } from './context/CartContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import BenefitsBanner from './components/BenefitsBanner';
@@ -59,18 +59,42 @@ const Home = () => {
   );
 };
 
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+const AdminNotificationListener = lazy(() => import('./components/AdminNotificationListener'));
+
+const AppRoutes = () => {
+  const { currentUser } = useAuth();
+  const isAdmin = currentUser?.email === 'rober.junin@gmail.com';
+
+  return (
+    <div className="app-container">
+      <Navbar />
+      {isAdmin && (
+        <Suspense fallback={null}>
+          <AdminNotificationListener />
+        </Suspense>
+      )}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/historia" element={<HistoriaDelMate />} />
+        {isAdmin && (
+          <Route path="/admin" element={
+            <Suspense fallback={<div style={{marginTop: '100px', textAlign: 'center'}}>Cargando panel seguro...</div>}>
+              <AdminDashboard />
+            </Suspense>
+          } />
+        )}
+      </Routes>
+    </div>
+  );
+};
+
 function App() {
   return (
     <AuthProvider>
       <CartProvider>
         <Router>
-          <div className="app-container">
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/historia" element={<HistoriaDelMate />} />
-            </Routes>
-          </div>
+          <AppRoutes />
         </Router>
       </CartProvider>
     </AuthProvider>

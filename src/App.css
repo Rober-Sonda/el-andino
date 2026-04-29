@@ -238,6 +238,36 @@
   .navbar {
     padding: 1rem 5%;
   }
+  
+  /* Admin Dashboard Mobile View */
+  .admin-container {
+    padding: 1rem !important;
+  }
+  .admin-tabs {
+    width: 100%;
+    display: flex;
+  }
+  .admin-tab-btn {
+    flex: 1;
+    text-align: center;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    font-size: 0.9rem !important;
+  }
+  .admin-board {
+    display: flex !important;
+    flex-direction: column;
+  }
+  .admin-column {
+    display: none !important;
+  }
+  .admin-column.active-mobile {
+    display: flex !important;
+    flex-direction: column;
+    padding: 0.5rem 0 !important;
+    background: transparent !important;
+    border: none !important;
+  }
 }
 
 

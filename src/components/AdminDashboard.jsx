@@ -1,0 +1,737 @@
+import React, { useState, useEffect } from 'react';
+import { db } from '../firebase';
+import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+
+const ADMIN_EMAIL = 'rober.junin@gmail.com';
+
+const STATUSES = [
+  { id: 'pending', label: 'Pendiente', color: '#f59e0b', icon: ListTodo },
+  { id: 'prepared', label: 'Preparado', color: '#3b82f6', icon: Package },
+  { id: 'shipped', label: 'Enviado', color: '#8b5cf6', icon: Truck },
+  { id: 'closed', label: 'Cerrado', color: '#10b981', icon: CheckCircle2 }
+];
+
+const AdminDashboard = () => {
+  const { currentUser } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [activeTab, setActiveTab] = useState('board');
+  const [mobileActiveStatus, setMobileActiveStatus] = useState('pending');
+  const [loading, setLoading] = useState(true);
+  
+  const DEFAULT_CONFIG = {
+    products: {
+      'premium': { name: 'Yerba Premium', costo_kg: 3500, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
+      'ahumada': { name: 'Yerba Ahumada', costo_kg: 4000, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
+      'uruguaya-despalada': { name: 'Uruguaya Despalada', costo_kg: 3800, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
+      'uruguaya-molida': { name: 'Uruguaya Molida', costo_kg: 3200, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
+      'blend': { name: 'Blends de Autor', costo_kg: 4500, prices: { '500g': 4500, '1kg': 8500, 'granel': 8500, 'granel_mayorista': 7000 } }
+    },
+    general: {
+      costo_paquete_500g: 150,
+      costo_paquete_1kg: 200,
+      costo_etiqueta: 50,
+      costo_distribucion: 1000
+    }
+  };
+
+  // Cost config
+  const [config, setConfig] = useState(DEFAULT_CONFIG);
+
+  useEffect(() => {
+    if (currentUser?.email !== ADMIN_EMAIL) return;
+
+    // Load config
+    const loadConfig = async () => {
+      try {
+        const docRef = doc(db, 'config', 'admin');
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.products) {
+            let mergedData = { ...data };
+            if (!mergedData.general.costo_paquete_500g) {
+               mergedData.general.costo_paquete_500g = data.general?.costo_envasado || 150;
+               mergedData.general.costo_paquete_1kg = data.general?.costo_envasado || 200;
+               mergedData.general.costo_etiqueta = 50;
+            }
+            setConfig(mergedData);
+          } else {
+            // Migration from flat old config
+            setConfig(prev => ({
+              ...prev,
+              general: {
+                costo_paquete_500g: data.costo_envasado || 150,
+                costo_paquete_1kg: data.costo_envasado || 200,
+                costo_etiqueta: 50,
+                costo_distribucion: data.costo_distribucion || 1000
+              },
+              products: {
+                ...prev.products,
+                'premium': { ...prev.products['premium'], costo_kg: data.costo_kg_premium || 3500 },
+                'ahumada': { ...prev.products['ahumada'], costo_kg: data.costo_kg_ahumada || 4000 },
+                'uruguaya-despalada': { ...prev.products['uruguaya-despalada'], costo_kg: data.costo_kg_despalada || 3800 },
+                'uruguaya-molida': { ...prev.products['uruguaya-molida'], costo_kg: data.costo_kg_molida || 3200 },
+                'blend': { ...prev.products['blend'], costo_kg: data.costo_kg_blend || 4500 }
+              }
+            }));
+          }
+        }
+      } catch (e) {
+        console.log("Error loading config, using defaults:", e);
+      }
+    };
+    loadConfig();
+
+    // Listen to orders
+    const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const ordersData = [];
+      snapshot.forEach(doc => {
+        ordersData.push({ id: doc.id, ...doc.data() });
+      });
+      setOrders(ordersData);
+    });
+
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  const updateStatus = async (orderId, newStatus) => {
+    try {
+      const orderRef = doc(db, 'orders', orderId);
+      await updateDoc(orderRef, { status: newStatus });
+    } catch (e) {
+      console.error('Error updating status', e);
+    }
+  };
+
+  const saveConfig = async () => {
+    try {
+      await setDoc(doc(db, 'config', 'admin'), config);
+      alert('Configuración y precios guardados! Si tenés abierta la tienda pública, recargá para ver los cambios.');
+    } catch (e) {
+      console.error('Error saving config', e);
+    }
+  };
+
+  const updateGeneral = (field, value) => {
+    setConfig(prev => ({ ...prev, general: { ...prev.general, [field]: Number(value) } }));
+  };
+
+  const updateProduct = (key, field, value) => {
+    setConfig(prev => ({
+      ...prev,
+      products: {
+        ...prev.products,
+        [key]: { ...prev.products[key], [field]: Number(value) }
+      }
+    }));
+  };
+
+  const updatePrice = (key, format, value) => {
+    setConfig(prev => ({
+      ...prev,
+      products: {
+        ...prev.products,
+        [key]: {
+          ...prev.products[key],
+          prices: { ...prev.products[key].prices, [format]: Number(value) }
+        }
+      }
+    }));
+  };
+
+  if (currentUser?.email !== ADMIN_EMAIL) {
+    return <div style={{padding: '5rem', textAlign:'center'}}>Cargando o Acceso Denegado...</div>;
+  }
+
+  // Calculate Metrics
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  
+  let monthlySales = 0;
+  let totalKilosSold = 0;
+  let totalOrdersThisMonth = 0;
+  let totalCost = 0;
+
+  orders.forEach(o => {
+    if (o.createdAt) {
+      const d = o.createdAt.toDate();
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+        monthlySales += o.totalPrice || 0;
+        totalOrdersThisMonth += 1;
+        
+        o.items?.forEach(item => {
+           let kilos = 0;
+           let unitCost = 0;
+           if (item.format === '500g') {
+             kilos = 0.5 * item.quantity;
+             unitCost = (config.general.costo_paquete_500g || 150) + (config.general.costo_etiqueta || 50);
+           } else if (item.format === '1kg') {
+             kilos = 1 * item.quantity;
+             unitCost = (config.general.costo_paquete_1kg || 200) + (config.general.costo_etiqueta || 50);
+           } else {
+             kilos = 1 * item.quantity;
+             unitCost = 0;
+           }
+           
+           totalKilosSold += kilos;
+
+           let productKey = item.id;
+           if (productKey?.startsWith('blend-')) productKey = 'blend';
+           if (!config.products[productKey]) productKey = 'premium';
+           
+           totalCost += kilos * (config.products[productKey]?.costo_kg || 3500);
+           totalCost += unitCost * item.quantity;
+        });
+      }
+    }
+  });
+
+  totalCost += (totalOrdersThisMonth * config.general.costo_distribucion);
+  const netProfit = monthlySales - totalCost;
+
+  return (
+    <div style={styles.container} className="admin-container glass">
+      <div style={styles.header}>
+        <h1 style={styles.title}><LayoutDashboard size={28} /> Centro de Control El Andino</h1>
+        <div style={styles.tabs} className="admin-tabs">
+          <button className="admin-tab-btn" style={{...styles.tabBtn, ...(activeTab === 'board' ? styles.tabActive : {})}} onClick={() => setActiveTab('board')}>
+            Gestión de Pedidos
+          </button>
+          <button className="admin-tab-btn" style={{...styles.tabBtn, ...(activeTab === 'finance' ? styles.tabActive : {})}} onClick={() => setActiveTab('finance')}>
+            Finanzas y Ajustes
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'board' ? (
+        <div className="admin-board-wrapper">
+          <div className="mobile-only" style={styles.segmentControl}>
+            {STATUSES.map(s => {
+               const count = orders.filter(o => (o.status || 'pending') === s.id).length;
+               const showIndicator = count > 0 && s.id !== 'closed';
+               return (
+                 <button 
+                   key={`seg-${s.id}`} 
+                   onClick={() => setMobileActiveStatus(s.id)}
+                   style={{
+                     ...styles.segmentBtn, 
+                     ...(mobileActiveStatus === s.id ? { background: s.color, color: 'white' } : {})
+                   }}
+                 >
+                   {s.label}
+                   {showIndicator && (
+                     <span style={{
+                       display: 'inline-block',
+                       width: '8px',
+                       height: '8px',
+                       backgroundColor: mobileActiveStatus === s.id ? '#fff' : s.color,
+                       borderRadius: '50%',
+                       marginLeft: '6px'
+                     }} />
+                   )}
+                 </button>
+               );
+            })}
+          </div>
+          <div style={styles.board} className="admin-board">
+            {STATUSES.map(col => {
+              const colOrders = orders.filter(o => (o.status || 'pending') === col.id);
+              const Icon = col.icon;
+              return (
+                <div key={col.id} className={`admin-column ${mobileActiveStatus === col.id ? 'active-mobile' : ''}`} style={styles.column}>
+                  <div style={{...styles.columnHeader, borderBottom: `3px solid ${col.color}`}}>
+                  <Icon size={20} color={col.color} />
+                  <h3>{col.label}</h3>
+                  <span style={styles.countBadge}>{colOrders.length}</span>
+                </div>
+                <div style={styles.columnContent}>
+                  {colOrders.map(order => (
+                    <div key={order.id} style={styles.orderCard}>
+                      <div style={styles.cardHeader}>
+                        <strong>{order.customerName}</strong>
+                        <span style={styles.date}>{order.createdAt ? order.createdAt.toDate().toLocaleDateString() : ''}</span>
+                      </div>
+                      <div style={styles.cardBody}>
+                        <p>{order.items?.length || 0} items ({order.totalKilos}kg)</p>
+                        <p style={styles.price}>${order.totalPrice}</p>
+                      </div>
+                      <div style={styles.cardFooter}>
+                        <select 
+                          value={order.status || 'pending'} 
+                          onChange={(e) => updateStatus(order.id, e.target.value)}
+                          style={styles.statusSelect}
+                        >
+                          {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                        </select>
+                        <a 
+                          href={`https://wa.me/2317472432`} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          style={styles.waBtn}
+                        >
+                          Chat
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+          </div>
+        </div>
+      ) : (
+        <div style={styles.financePanel}>
+          <div style={styles.metricsGrid}>
+            <div style={{...styles.metricCard, borderLeft: '4px solid #3b82f6'}}>
+              <div style={styles.metricTitle}>Ventas del Mes (Bruto)</div>
+              <div style={styles.metricValue}>${monthlySales.toLocaleString()}</div>
+            </div>
+            <div style={{...styles.metricCard, borderLeft: '4px solid #f59e0b'}}>
+              <div style={styles.metricTitle}>Costos Totales</div>
+              <div style={styles.metricValue}>${totalCost.toLocaleString()}</div>
+            </div>
+            <div style={{...styles.metricCard, borderLeft: '4px solid #10b981'}}>
+              <div style={styles.metricTitle}>Ganancia Neta</div>
+              <div style={{...styles.metricValue, color: '#10b981'}}>${netProfit.toLocaleString()}</div>
+            </div>
+            <div style={{...styles.metricCard, borderLeft: '4px solid #8b5cf6'}}>
+              <div style={styles.metricTitle}>Kilos Vendidos</div>
+              <div style={styles.metricValue}>{totalKilosSold} kg</div>
+            </div>
+          </div>
+
+          <div style={styles.settingsGrid}>
+            <div style={styles.generalCostsCard}>
+              <h3 style={{display:'flex', alignItems:'center', gap:'10px', marginBottom: '1.5rem'}}><Settings size={20}/> Costos Globales</h3>
+              <div style={styles.inputGroup}>
+                <label>Costo Paquete ½ Kilo</label>
+                <input type="number" value={config.general.costo_paquete_500g} onChange={(e) => updateGeneral('costo_paquete_500g', e.target.value)} style={styles.input} />
+              </div>
+              <div style={styles.inputGroup}>
+                <label>Costo Paquete 1 Kilo</label>
+                <input type="number" value={config.general.costo_paquete_1kg} onChange={(e) => updateGeneral('costo_paquete_1kg', e.target.value)} style={styles.input} />
+              </div>
+              <div style={styles.inputGroup}>
+                <label>Costo Etiqueta (Uniforme)</label>
+                <input type="number" value={config.general.costo_etiqueta} onChange={(e) => updateGeneral('costo_etiqueta', e.target.value)} style={styles.input} />
+              </div>
+              <div style={styles.inputGroup}>
+                <label>Costo Distribución (por Pedido total)</label>
+                <input type="number" value={config.general.costo_distribucion} onChange={(e) => updateGeneral('costo_distribucion', e.target.value)} style={styles.input} />
+              </div>
+              <div style={styles.infoBox}>
+                <p>El costo de envasado (Paquete + Etiqueta) se descuenta al calcular la ganancia de <strong>½ Kilo</strong> y <strong>1 Kilo</strong> correspondientes. La venta a Granel asume despacho directo sin estos costos unitarios.</p>
+              </div>
+            </div>
+
+            {Object.keys(config.products).map(key => {
+               const prod = config.products[key];
+               const costoEnvase500 = (config.general.costo_paquete_500g || 150) + (config.general.costo_etiqueta || 50);
+               const costoEnvase1kg = (config.general.costo_paquete_1kg || 200) + (config.general.costo_etiqueta || 50);
+
+               return (
+                 <div key={key} style={styles.productCostCard}>
+                   <h3 style={{color:'var(--color-primary-dark)', marginBottom: '1rem', borderBottom:'1px solid #eee', paddingBottom:'10px'}}>{prod.name}</h3>
+                   <div style={styles.inputGroup}>
+                     <label>Costo Producción (por KG)</label>
+                     <div style={styles.inputPrefix}>
+                       <span>$</span>
+                       <input type="number" value={prod.costo_kg} onChange={(e) => updateProduct(key, 'costo_kg', e.target.value)} style={styles.inputNoBorder} />
+                     </div>
+                   </div>
+
+                   <div style={styles.formatBreakdown}>
+                     <h4 style={{marginTop: '1.5rem', marginBottom: '1rem', color: '#555', fontSize: '0.9rem', textTransform: 'uppercase'}}>Precios de Venta</h4>
+                     
+                     <div style={styles.formatRow}>
+                       <div style={{flex: 1}}>
+                         <label style={styles.smallLabel}>½ Kilo (500g)</label>
+                         <div style={styles.inputPrefixSmall}>
+                           <span>$</span>
+                           <input type="number" value={prod.prices['500g']} onChange={(e) => updatePrice(key, '500g', e.target.value)} style={styles.inputNoBorderSmall} />
+                         </div>
+                       </div>
+                       <div style={styles.profitInfo}>
+                         <strong style={{color: 'var(--color-primary)'}}>Ganancia: ${prod.prices['500g'] - (prod.costo_kg/2) - costoEnvase500} c/u</strong>
+                         <span style={{fontSize: '0.7rem'}}>Cálculo: ${prod.prices['500g']} - $${prod.costo_kg/2} (Costo) - $${costoEnvase500} (Envase+Etiq)</span>
+                       </div>
+                     </div>
+
+                     <div style={styles.formatRow}>
+                       <div style={{flex: 1}}>
+                         <label style={styles.smallLabel}>1 Kilo</label>
+                         <div style={styles.inputPrefixSmall}>
+                           <span>$</span>
+                           <input type="number" value={prod.prices['1kg']} onChange={(e) => updatePrice(key, '1kg', e.target.value)} style={styles.inputNoBorderSmall} />
+                         </div>
+                       </div>
+                       <div style={styles.profitInfo}>
+                         <strong style={{color: 'var(--color-primary)'}}>Ganancia: ${prod.prices['1kg'] - prod.costo_kg - costoEnvase1kg} c/u</strong>
+                         <span style={{fontSize: '0.7rem'}}>Cálculo: ${prod.prices['1kg']} - $${prod.costo_kg} (Costo) - $${costoEnvase1kg} (Envase+Etiq)</span>
+                       </div>
+                     </div>
+
+                     <div style={styles.formatRow}>
+                       <div style={{flex: 1}}>
+                         <label style={styles.smallLabel}>Granel (Precio x KG)</label>
+                         <div style={styles.inputPrefixSmall}>
+                           <span>$</span>
+                           <input type="number" value={prod.prices['granel']} onChange={(e) => updatePrice(key, 'granel', e.target.value)} style={styles.inputNoBorderSmall} />
+                         </div>
+                       </div>
+                       <div style={styles.profitInfo}>
+                         <strong style={{color: 'var(--color-primary)'}}>Ganancia: ${prod.prices['granel'] - prod.costo_kg} x KG</strong>
+                         <span style={{fontSize: '0.7rem'}}>Cálculo: ${prod.prices['granel']} - $${prod.costo_kg} (Costo)</span>
+                       </div>
+                     </div>
+
+                     <div style={styles.formatRow}>
+                       <div style={{flex: 1}}>
+                         <label style={styles.smallLabel}>Mayorista {'>'}40kg (Precio x KG)</label>
+                         <div style={styles.inputPrefixSmall}>
+                           <span>$</span>
+                           <input type="number" value={prod.prices['granel_mayorista']} onChange={(e) => updatePrice(key, 'granel_mayorista', e.target.value)} style={styles.inputNoBorderSmall} />
+                         </div>
+                       </div>
+                       <div style={styles.profitInfo}>
+                         <strong style={{color: 'var(--color-primary)'}}>Ganancia: ${prod.prices['granel_mayorista'] - prod.costo_kg} x KG</strong>
+                         <span style={{fontSize: '0.7rem'}}>Cálculo: ${prod.prices['granel_mayorista']} - $${prod.costo_kg} (Costo)</span>
+                       </div>
+                     </div>
+
+                   </div>
+                 </div>
+               )
+            })}
+          </div>
+          <button onClick={saveConfig} style={styles.saveBtnFull}>Guardar Configuración y Precios</button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const styles = {
+  container: {
+    padding: '2rem',
+    minHeight: '80vh',
+    marginTop: '100px',
+    marginBottom: '20px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    maxWidth: '1200px',
+    borderRadius: '16px',
+    backgroundColor: 'var(--color-bg-light)',
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--glass-shadow)',
+    fontFamily: 'var(--font-sans)',
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '2rem',
+    borderBottom: '1px solid rgba(0,0,0,0.1)',
+    paddingBottom: '1rem',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  },
+  title: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    color: 'var(--color-primary-dark)',
+    fontSize: '1.8rem',
+    fontFamily: 'var(--font-serif)',
+  },
+  tabs: {
+    display: 'flex',
+    gap: '0.5rem',
+  },
+  tabBtn: {
+    padding: '0.8rem 1.5rem',
+    border: 'none',
+    background: 'rgba(0,0,0,0.05)',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    color: 'var(--color-text)',
+    transition: 'all 0.2s',
+  },
+  tabActive: {
+    background: 'var(--color-primary)',
+    color: 'white',
+    boxShadow: '0 4px 10px rgba(74, 124, 46, 0.3)',
+  },
+  board: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+    gap: '1.5rem',
+    alignItems: 'start',
+  },
+  segmentControl: {
+    width: '100%',
+    marginBottom: '1.5rem',
+    background: 'rgba(255,255,255,0.7)',
+    borderRadius: '12px',
+    padding: '4px',
+    gap: '2px',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+  },
+  segmentBtn: {
+    flex: 1,
+    padding: '8px 2px',
+    border: 'none',
+    background: 'transparent',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    fontSize: '0.8rem',
+    color: '#555',
+    transition: 'all 0.2s',
+    textAlign: 'center',
+    whiteSpace: 'nowrap',
+  },
+  column: {
+    background: 'rgba(255,255,255,0.5)',
+    borderRadius: '12px',
+    padding: '1rem',
+    border: '1px solid rgba(0,0,0,0.05)',
+    minHeight: '500px'
+  },
+  columnHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    paddingBottom: '0.5rem',
+    marginBottom: '1rem',
+  },
+  countBadge: {
+    marginLeft: 'auto',
+    background: 'rgba(0,0,0,0.1)',
+    padding: '2px 8px',
+    borderRadius: '12px',
+    fontSize: '0.8rem',
+    fontWeight: 'bold'
+  },
+  orderCard: {
+    background: '#fff',
+    padding: '1rem',
+    borderRadius: '8px',
+    marginBottom: '1rem',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+    border: '1px solid rgba(0,0,0,0.05)',
+  },
+  cardHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: '0.5rem',
+    fontSize: '0.9rem'
+  },
+  date: {
+    color: '#888',
+    fontSize: '0.8rem'
+  },
+  cardBody: {
+    fontSize: '0.9rem',
+    color: '#444',
+    marginBottom: '1rem'
+  },
+  price: {
+    fontWeight: 'bold',
+    color: 'var(--color-primary)',
+    fontSize: '1.1rem',
+    marginTop: '4px'
+  },
+  cardFooter: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '10px'
+  },
+  statusSelect: {
+    padding: '4px 8px',
+    borderRadius: '4px',
+    border: '1px solid #ccc',
+    fontSize: '0.8rem',
+    cursor: 'pointer'
+  },
+  waBtn: {
+    padding: '4px 8px',
+    background: '#25D366',
+    color: '#fff',
+    textDecoration: 'none',
+    borderRadius: '4px',
+    fontSize: '0.8rem',
+    fontWeight: 'bold'
+  },
+  financePanel: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2rem'
+  },
+  metricsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '1.5rem'
+  },
+  metricCard: {
+    background: '#fff',
+    padding: '1.5rem',
+    borderRadius: '12px',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+  },
+  metricTitle: {
+    color: '#666',
+    fontSize: '0.9rem',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    marginBottom: '0.5rem'
+  },
+  metricValue: {
+    fontSize: '2rem',
+    fontWeight: '800',
+    color: '#222'
+  },
+  settingsBox: {
+    background: 'rgba(255,255,255,0.7)',
+    padding: '2rem',
+    borderRadius: '12px',
+    border: '1px solid var(--glass-border)',
+    maxWidth: '500px'
+  },
+  inputGroup: {
+    marginBottom: '1rem',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '5px'
+  },
+  input: {
+    padding: '0.8rem',
+    borderRadius: '8px',
+    border: '1px solid #ccc',
+    fontSize: '1rem'
+  },
+  saveBtn: {
+    marginTop: '1rem',
+    width: '100%',
+    padding: '1rem',
+    background: 'var(--color-primary-dark)',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    fontSize: '1.1rem'
+  },
+  settingsGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2rem'
+  },
+  generalCostsCard: {
+    background: 'rgba(255,255,255,0.8)',
+    padding: '2rem',
+    borderRadius: '12px',
+    border: '1px solid var(--glass-border)',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+  },
+  infoBox: {
+    background: 'rgba(0,0,0,0.03)',
+    padding: '1rem',
+    borderRadius: '8px',
+    fontSize: '0.85rem',
+    color: '#666',
+    marginTop: '1rem',
+    borderLeft: '4px solid var(--color-primary)'
+  },
+  productCostCard: {
+    background: '#fff',
+    padding: '2rem',
+    borderRadius: '12px',
+    border: '1px solid var(--glass-border)',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+  },
+  inputPrefix: {
+    display: 'flex',
+    alignItems: 'center',
+    border: '1px solid #ccc',
+    borderRadius: '8px',
+    padding: '0 1rem',
+    background: '#f9f9f9'
+  },
+  inputNoBorder: {
+    flex: 1,
+    padding: '0.8rem',
+    border: 'none',
+    background: 'transparent',
+    fontSize: '1rem',
+    outline: 'none'
+  },
+  formatBreakdown: {
+    marginTop: '1rem',
+    padding: '1rem',
+    background: '#fafafa',
+    borderRadius: '8px',
+    border: '1px solid #eaeaea'
+  },
+  formatRow: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5rem',
+    paddingBottom: '1rem',
+    marginBottom: '1rem',
+    borderBottom: '1px solid #eee'
+  },
+  smallLabel: {
+    fontSize: '0.85rem',
+    fontWeight: 'bold',
+    color: '#444',
+    display: 'block',
+    marginBottom: '4px'
+  },
+  inputPrefixSmall: {
+    display: 'flex',
+    alignItems: 'center',
+    border: '1px solid #ddd',
+    borderRadius: '6px',
+    padding: '0 0.5rem',
+    background: '#fff'
+  },
+  inputNoBorderSmall: {
+    flex: 1,
+    padding: '0.5rem',
+    border: 'none',
+    background: 'transparent',
+    fontSize: '0.9rem',
+    outline: 'none'
+  },
+  profitInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    background: 'rgba(74, 124, 46, 0.05)',
+    padding: '0.8rem',
+    borderRadius: '8px',
+    marginTop: '0.5rem'
+  },
+  saveBtnFull: {
+    marginTop: '2rem',
+    width: '100%',
+    padding: '1.2rem',
+    background: 'var(--color-primary-dark)',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '12px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    fontSize: '1.2rem',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+  }
+};
+
+export default AdminDashboard;
