@@ -525,7 +525,7 @@ const styles = {
     marginBottom: '20px',
     marginLeft: 'auto',
     marginRight: 'auto',
-    maxWidth: '1200px',
+    maxWidth: '98%',
     borderRadius: '16px',
     backgroundColor: 'var(--color-bg-light)',
     border: '1px solid var(--glass-border)',
@@ -571,9 +571,11 @@ const styles = {
   },
   board: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+    gridTemplateColumns: 'repeat(4, minmax(280px, 1fr))',
     gap: '1.5rem',
     alignItems: 'start',
+    overflowX: 'auto',
+    paddingBottom: '1rem',
   },
   segmentControl: {
     width: '100%',
