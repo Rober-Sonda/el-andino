@@ -18,6 +18,7 @@ const AdminDashboard = () => {
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState('board');
   const [mobileActiveStatus, setMobileActiveStatus] = useState('pending');
+  const [editingProductKey, setEditingProductKey] = useState(null);
   const [loading, setLoading] = useState(true);
   
   const DEFAULT_CONFIG = {
@@ -186,6 +187,7 @@ const AdminDashboard = () => {
         }
       }
     }));
+    setEditingProductKey(newId);
   };
 
   const removeProduct = (key) => {
@@ -195,6 +197,7 @@ const AdminDashboard = () => {
       delete newProds[key];
       return { ...prev, products: newProds };
     });
+    setEditingProductKey(null);
   };
 
   if (currentUser?.email !== ADMIN_EMAIL) {
@@ -255,8 +258,11 @@ const AdminDashboard = () => {
           <button className="admin-tab-btn" style={{...styles.tabBtn, ...(activeTab === 'board' ? styles.tabActive : {})}} onClick={() => setActiveTab('board')}>
             Gestión de Pedidos
           </button>
-          <button className="admin-tab-btn" style={{...styles.tabBtn, ...(activeTab === 'finance' ? styles.tabActive : {})}} onClick={() => setActiveTab('finance')}>
-            Finanzas y Ajustes
+          <button className="admin-tab-btn" style={{...styles.tabBtn, ...(activeTab === 'finance' ? styles.tabActive : {})}} onClick={() => { setActiveTab('finance'); setEditingProductKey(null); }}>
+            Finanzas
+          </button>
+          <button className="admin-tab-btn" style={{...styles.tabBtn, ...(activeTab === 'catalog' ? styles.tabActive : {})}} onClick={() => setActiveTab('catalog')}>
+            Catálogo
           </button>
         </div>
       </div>
@@ -338,7 +344,7 @@ const AdminDashboard = () => {
           })}
           </div>
         </div>
-      ) : (
+      ) : activeTab === 'finance' ? (
         <div style={styles.financePanel}>
           <div style={styles.metricsGrid}>
             <div style={{...styles.metricCard, borderLeft: '4px solid #3b82f6'}}>
@@ -382,20 +388,54 @@ const AdminDashboard = () => {
                 <p>El costo de envasado (Paquete + Etiqueta) se descuenta al calcular la ganancia de <strong>½ Kilo</strong> y <strong>1 Kilo</strong> correspondientes. La venta a Granel asume despacho directo sin estos costos unitarios.</p>
               </div>
             </div>
-
-            {Object.keys(config.products).map(key => {
+          </div>
+          <button onClick={saveConfig} style={styles.saveBtnFull}>Guardar Costos Globales</button>
+        </div>
+      ) : activeTab === 'catalog' ? (
+        <div style={styles.financePanel}>
+          {!editingProductKey ? (
+            <>
+              <div style={styles.catalogGrid}>
+                {Object.keys(config.products).map(key => {
+                   const prod = config.products[key];
+                   return (
+                     <div key={key} style={styles.catalogItemCard} onClick={() => setEditingProductKey(key)}>
+                        <div style={styles.catalogItemImgContainer}>
+                           <img src={prod.image || '/blend_bg.jpg'} alt={prod.name} style={styles.catalogItemImg} />
+                        </div>
+                        <div style={styles.catalogItemBody}>
+                           <h4 style={styles.catalogItemTitle}>{prod.name}</h4>
+                           <p style={styles.catalogItemCost}>Costo: ${prod.costo_produccion}</p>
+                           <span style={styles.catalogItemBadge}>{prod.formats?.length || 0} formatos</span>
+                        </div>
+                     </div>
+                   );
+                })}
+              </div>
+              <div style={{display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap'}}>
+                 <button onClick={addProduct} style={{...styles.saveBtnFull, background: '#3b82f6', marginTop: 0, flex: 1}}>+ Añadir Producto</button>
+                 <button onClick={saveConfig} style={{...styles.saveBtnFull, marginTop: 0, flex: 1}}>Guardar Cambios de Catálogo</button>
+              </div>
+            </>
+          ) : (
+            (() => {
+               const key = editingProductKey;
                const prod = config.products[key];
+               if (!prod) { setEditingProductKey(null); return null; }
+               
                const costoEnvase500 = (config.general.costo_paquete_500g || 150) + (config.general.costo_etiqueta || 50);
                const costoEnvase1kg = (config.general.costo_paquete_1kg || 200) + (config.general.costo_etiqueta || 50);
 
                return (
-                 <div key={key} style={styles.productCostCard}>
+                 <div style={styles.productCostCard}>
+                   <button onClick={() => setEditingProductKey(null)} style={styles.backBtn}>← Volver al Listado</button>
+                   
                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: '1.5rem', borderBottom:'1px solid #eee', paddingBottom:'10px'}}>
                      <input 
                         type="text" 
                         value={prod.name} 
                         onChange={(e) => updateProduct(key, 'name', e.target.value)}
-                        style={{...styles.inputNoBorder, fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--color-primary-dark)', padding: '0'}}
+                        style={{...styles.inputNoBorder, fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-primary-dark)', padding: '0'}}
                      />
                      <button onClick={() => removeProduct(key)} style={styles.deleteBtn}>Eliminar</button>
                    </div>
@@ -424,7 +464,6 @@ const AdminDashboard = () => {
                      </h4>
                      
                      {prod.formats?.map((format, index) => {
-                       // Deduct costs based on format id matching
                        let deductions = 0;
                        let calculationText = `Cálculo: $${format.price} - $${prod.costo_produccion} (Costo base)`;
                        
@@ -464,14 +503,16 @@ const AdminDashboard = () => {
                        )
                      })}
                    </div>
+                   
+                   <div style={{marginTop: '2rem'}}>
+                      <button onClick={saveConfig} style={styles.saveBtnFull}>Guardar Catálogo</button>
+                   </div>
                  </div>
-               )
-            })}
-            <button onClick={addProduct} style={{...styles.saveBtnFull, background: '#3b82f6'}}>+ Añadir Producto Nuevo al Catálogo</button>
-          </div>
-          <button onClick={saveConfig} style={styles.saveBtnFull}>Guardar Configuración de Catálogo</button>
+               );
+            })()
+          )}
         </div>
-      )}
+      ) : null}
     </div>
   );
 };
@@ -812,6 +853,64 @@ const styles = {
     cursor: 'pointer',
     fontSize: '0.75rem',
     fontWeight: 'bold'
+  },
+  catalogGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+    gap: '1.5rem',
+  },
+  catalogItemCard: {
+    background: '#fff',
+    borderRadius: '12px',
+    overflow: 'hidden',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+    border: '1px solid var(--glass-border)',
+    cursor: 'pointer',
+    transition: 'transform 0.2s',
+  },
+  catalogItemImgContainer: {
+    height: '140px',
+    background: '#1a1a1a',
+    overflow: 'hidden'
+  },
+  catalogItemImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover'
+  },
+  catalogItemBody: {
+    padding: '1rem',
+  },
+  catalogItemTitle: {
+    fontSize: '1rem',
+    color: 'var(--color-primary-dark)',
+    marginBottom: '0.2rem'
+  },
+  catalogItemCost: {
+    fontSize: '0.85rem',
+    color: '#666',
+    marginBottom: '0.5rem'
+  },
+  catalogItemBadge: {
+    fontSize: '0.75rem',
+    background: 'rgba(74, 124, 46, 0.1)',
+    color: 'var(--color-primary)',
+    padding: '2px 8px',
+    borderRadius: '12px',
+    fontWeight: 'bold'
+  },
+  backBtn: {
+    background: 'none',
+    border: 'none',
+    color: 'var(--color-primary)',
+    fontWeight: 'bold',
+    fontSize: '1rem',
+    cursor: 'pointer',
+    marginBottom: '1rem',
+    padding: '0.5rem 0',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.5rem'
   }
 };
 
