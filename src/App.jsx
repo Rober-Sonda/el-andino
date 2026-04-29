@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useEffect, Suspense, lazy } from 'react';
 import { CartProvider, useCart } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -84,6 +84,7 @@ const AppRoutes = () => {
             </Suspense>
           } />
         )}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );
