@@ -22,11 +22,14 @@ const AdminDashboard = () => {
   
   const DEFAULT_CONFIG = {
     products: {
-      'premium': { name: 'Yerba Premium', costo_kg: 3500, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
-      'ahumada': { name: 'Yerba Ahumada', costo_kg: 4000, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
-      'uruguaya-despalada': { name: 'Uruguaya Despalada', costo_kg: 3800, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
-      'uruguaya-molida': { name: 'Uruguaya Molida', costo_kg: 3200, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
-      'blend': { name: 'Blends de Autor', costo_kg: 4500, prices: { '500g': 4500, '1kg': 8500, 'granel': 8500, 'granel_mayorista': 7000 } }
+      'premium': {
+        id: 'premium', name: 'Yerba Premium', description: 'Estacionada naturalmente por 24 meses.', image: '/premium_full.jpg',
+        costo_produccion: 3500, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 } ]
+      },
+      'ahumada': {
+        id: 'ahumada', name: 'Yerba Ahumada', description: 'Secada con maderas seleccionadas (Barbacuá).', image: '/ahumada_full.jpg',
+        costo_produccion: 4000, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 } ]
+      }
     },
     general: {
       costo_paquete_500g: 150,
@@ -56,26 +59,23 @@ const AdminDashboard = () => {
                mergedData.general.costo_paquete_1kg = data.general?.costo_envasado || 200;
                mergedData.general.costo_etiqueta = 50;
             }
-            setConfig(mergedData);
-          } else {
-            // Migration from flat old config
-            setConfig(prev => ({
-              ...prev,
-              general: {
-                costo_paquete_500g: data.costo_envasado || 150,
-                costo_paquete_1kg: data.costo_envasado || 200,
-                costo_etiqueta: 50,
-                costo_distribucion: data.costo_distribucion || 1000
-              },
-              products: {
-                ...prev.products,
-                'premium': { ...prev.products['premium'], costo_kg: data.costo_kg_premium || 3500 },
-                'ahumada': { ...prev.products['ahumada'], costo_kg: data.costo_kg_ahumada || 4000 },
-                'uruguaya-despalada': { ...prev.products['uruguaya-despalada'], costo_kg: data.costo_kg_despalada || 3800 },
-                'uruguaya-molida': { ...prev.products['uruguaya-molida'], costo_kg: data.costo_kg_molida || 3200 },
-                'blend': { ...prev.products['blend'], costo_kg: data.costo_kg_blend || 4500 }
+
+            // Convert old prices object to formats array
+            Object.keys(mergedData.products).forEach(key => {
+              const p = mergedData.products[key];
+              if (!p.formats && p.prices) {
+                p.formats = [
+                  { id: '500g', name: '½ Kilo', price: p.prices['500g'] || 4000 },
+                  { id: '1kg', name: '1 Kilo', price: p.prices['1kg'] || 7500 },
+                  { id: 'granel', name: 'A Granel', price: p.prices['granel'] || 7500 },
+                  { id: 'granel_mayorista', name: 'Mayorista >40kg', price: p.prices['granel_mayorista'] || 6000 }
+                ];
               }
-            }));
+              if (!p.id) p.id = key;
+              if (p.costo_produccion === undefined) p.costo_produccion = p.costo_kg || 3500;
+            });
+
+            setConfig(mergedData);
           }
         }
       } catch (e) {
@@ -124,22 +124,77 @@ const AdminDashboard = () => {
       ...prev,
       products: {
         ...prev.products,
-        [key]: { ...prev.products[key], [field]: Number(value) }
+        [key]: { ...prev.products[key], [field]: value }
       }
     }));
   };
 
-  const updatePrice = (key, format, value) => {
+  const updateFormat = (prodKey, formatId, field, value) => {
+    setConfig(prev => {
+      const prod = prev.products[prodKey];
+      const newFormats = prod.formats.map(f => f.id === formatId ? { ...f, [field]: value } : f);
+      return {
+        ...prev,
+        products: {
+          ...prev.products,
+          [prodKey]: { ...prod, formats: newFormats }
+        }
+      };
+    });
+  };
+
+  const addFormat = (prodKey) => {
+    const id = Date.now().toString();
+    setConfig(prev => {
+      const prod = prev.products[prodKey];
+      return {
+        ...prev,
+        products: {
+          ...prev.products,
+          [prodKey]: { ...prod, formats: [...prod.formats, { id, name: 'Nuevo Formato', price: 0 }] }
+        }
+      };
+    });
+  };
+
+  const removeFormat = (prodKey, formatId) => {
+    setConfig(prev => {
+      const prod = prev.products[prodKey];
+      return {
+        ...prev,
+        products: {
+          ...prev.products,
+          [prodKey]: { ...prod, formats: prod.formats.filter(f => f.id !== formatId) }
+        }
+      };
+    });
+  };
+
+  const addProduct = () => {
+    const newId = 'prod_' + Date.now();
     setConfig(prev => ({
       ...prev,
       products: {
         ...prev.products,
-        [key]: {
-          ...prev.products[key],
-          prices: { ...prev.products[key].prices, [format]: Number(value) }
+        [newId]: {
+          id: newId,
+          name: 'Nuevo Producto',
+          description: '',
+          image: '',
+          costo_produccion: 0,
+          formats: [{ id: 'unidad', name: '1 Unidad', price: 0 }]
         }
       }
     }));
+  };
+
+  const removeProduct = (key) => {
+    if(!window.confirm("¿Estás seguro de eliminar este producto del catálogo?")) return;
+    setConfig(prev => {
+      const newProds = { ...prev.products };
+      delete newProds[key];
+      return { ...prev, products: newProds };
+    });
   };
 
   if (currentUser?.email !== ADMIN_EMAIL) {
@@ -182,7 +237,7 @@ const AdminDashboard = () => {
            if (productKey?.startsWith('blend-')) productKey = 'blend';
            if (!config.products[productKey]) productKey = 'premium';
            
-           totalCost += kilos * (config.products[productKey]?.costo_kg || 3500);
+           totalCost += kilos * (config.products[productKey]?.costo_produccion || 3500);
            totalCost += unitCost * item.quantity;
         });
       }
@@ -335,80 +390,86 @@ const AdminDashboard = () => {
 
                return (
                  <div key={key} style={styles.productCostCard}>
-                   <h3 style={{color:'var(--color-primary-dark)', marginBottom: '1rem', borderBottom:'1px solid #eee', paddingBottom:'10px'}}>{prod.name}</h3>
+                   <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: '1.5rem', borderBottom:'1px solid #eee', paddingBottom:'10px'}}>
+                     <input 
+                        type="text" 
+                        value={prod.name} 
+                        onChange={(e) => updateProduct(key, 'name', e.target.value)}
+                        style={{...styles.inputNoBorder, fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--color-primary-dark)', padding: '0'}}
+                     />
+                     <button onClick={() => removeProduct(key)} style={styles.deleteBtn}>Eliminar</button>
+                   </div>
+                   
                    <div style={styles.inputGroup}>
-                     <label>Costo Producción (por KG)</label>
+                     <label>URL de Imagen</label>
+                     <input type="text" value={prod.image || ''} onChange={(e) => updateProduct(key, 'image', e.target.value)} style={styles.input} placeholder="/premium_full.jpg o https://..." />
+                   </div>
+                   <div style={styles.inputGroup}>
+                     <label>Descripción corta</label>
+                     <textarea value={prod.description || ''} onChange={(e) => updateProduct(key, 'description', e.target.value)} style={{...styles.input, minHeight: '60px'}} />
+                   </div>
+
+                   <div style={styles.inputGroup}>
+                     <label>Costo Producción (por Unidad base o KG)</label>
                      <div style={styles.inputPrefix}>
                        <span>$</span>
-                       <input type="number" value={prod.costo_kg} onChange={(e) => updateProduct(key, 'costo_kg', e.target.value)} style={styles.inputNoBorder} />
+                       <input type="number" value={prod.costo_produccion || 0} onChange={(e) => updateProduct(key, 'costo_produccion', Number(e.target.value))} style={styles.inputNoBorder} />
                      </div>
                    </div>
 
                    <div style={styles.formatBreakdown}>
-                     <h4 style={{marginTop: '1.5rem', marginBottom: '1rem', color: '#555', fontSize: '0.9rem', textTransform: 'uppercase'}}>Precios de Venta</h4>
+                     <h4 style={{marginTop: '1.5rem', marginBottom: '1rem', color: '#555', fontSize: '0.9rem', textTransform: 'uppercase', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                        Formatos y Precios
+                        <button onClick={() => addFormat(key)} style={styles.addFormatBtn}>+ Agregar Formato</button>
+                     </h4>
                      
-                     <div style={styles.formatRow}>
-                       <div style={{flex: 1}}>
-                         <label style={styles.smallLabel}>½ Kilo (500g)</label>
-                         <div style={styles.inputPrefixSmall}>
-                           <span>$</span>
-                           <input type="number" value={prod.prices['500g']} onChange={(e) => updatePrice(key, '500g', e.target.value)} style={styles.inputNoBorderSmall} />
-                         </div>
-                       </div>
-                       <div style={styles.profitInfo}>
-                         <strong style={{color: 'var(--color-primary)'}}>Ganancia: ${prod.prices['500g'] - (prod.costo_kg/2) - costoEnvase500} c/u</strong>
-                         <span style={{fontSize: '0.7rem'}}>Cálculo: ${prod.prices['500g']} - $${prod.costo_kg/2} (Costo) - $${costoEnvase500} (Envase+Etiq)</span>
-                       </div>
-                     </div>
+                     {prod.formats?.map((format, index) => {
+                       // Deduct costs based on format id matching
+                       let deductions = 0;
+                       let calculationText = `Cálculo: $${format.price} - $${prod.costo_produccion} (Costo base)`;
+                       
+                       if (format.id === '500g') {
+                         deductions = (prod.costo_produccion/2) + costoEnvase500;
+                         calculationText = `Cálculo: $${format.price} - $${prod.costo_produccion/2} (Costo/2) - $${costoEnvase500} (Envase)`;
+                       } else if (format.id === '1kg') {
+                         deductions = prod.costo_produccion + costoEnvase1kg;
+                         calculationText = `Cálculo: $${format.price} - $${prod.costo_produccion} (Costo) - $${costoEnvase1kg} (Envase)`;
+                       } else {
+                         deductions = prod.costo_produccion;
+                       }
+                       
+                       const ganancia = format.price - deductions;
 
-                     <div style={styles.formatRow}>
-                       <div style={{flex: 1}}>
-                         <label style={styles.smallLabel}>1 Kilo</label>
-                         <div style={styles.inputPrefixSmall}>
-                           <span>$</span>
-                           <input type="number" value={prod.prices['1kg']} onChange={(e) => updatePrice(key, '1kg', e.target.value)} style={styles.inputNoBorderSmall} />
+                       return (
+                         <div key={format.id} style={styles.formatRow}>
+                           <div style={{display:'flex', gap: '10px'}}>
+                             <div style={{flex: 1}}>
+                               <label style={styles.smallLabel}>Nombre del Formato</label>
+                               <input type="text" value={format.name} onChange={(e) => updateFormat(key, format.id, 'name', e.target.value)} style={styles.inputPrefixSmall} />
+                             </div>
+                             <div style={{flex: 1}}>
+                               <label style={styles.smallLabel}>Precio Final</label>
+                               <div style={styles.inputPrefixSmall}>
+                                 <span>$</span>
+                                 <input type="number" value={format.price} onChange={(e) => updateFormat(key, format.id, 'price', Number(e.target.value))} style={styles.inputNoBorderSmall} />
+                               </div>
+                             </div>
+                             <button onClick={() => removeFormat(key, format.id)} style={{...styles.deleteBtn, padding: '0 10px', marginTop: '1.2rem'}}>X</button>
+                           </div>
+                           <div style={styles.profitInfo}>
+                             <strong style={{color: 'var(--color-primary)'}}>Ganancia Neta: ${ganancia}</strong>
+                             <span style={{fontSize: '0.7rem'}}>{calculationText}</span>
+                           </div>
                          </div>
-                       </div>
-                       <div style={styles.profitInfo}>
-                         <strong style={{color: 'var(--color-primary)'}}>Ganancia: ${prod.prices['1kg'] - prod.costo_kg - costoEnvase1kg} c/u</strong>
-                         <span style={{fontSize: '0.7rem'}}>Cálculo: ${prod.prices['1kg']} - $${prod.costo_kg} (Costo) - $${costoEnvase1kg} (Envase+Etiq)</span>
-                       </div>
-                     </div>
-
-                     <div style={styles.formatRow}>
-                       <div style={{flex: 1}}>
-                         <label style={styles.smallLabel}>Granel (Precio x KG)</label>
-                         <div style={styles.inputPrefixSmall}>
-                           <span>$</span>
-                           <input type="number" value={prod.prices['granel']} onChange={(e) => updatePrice(key, 'granel', e.target.value)} style={styles.inputNoBorderSmall} />
-                         </div>
-                       </div>
-                       <div style={styles.profitInfo}>
-                         <strong style={{color: 'var(--color-primary)'}}>Ganancia: ${prod.prices['granel'] - prod.costo_kg} x KG</strong>
-                         <span style={{fontSize: '0.7rem'}}>Cálculo: ${prod.prices['granel']} - $${prod.costo_kg} (Costo)</span>
-                       </div>
-                     </div>
-
-                     <div style={styles.formatRow}>
-                       <div style={{flex: 1}}>
-                         <label style={styles.smallLabel}>Mayorista {'>'}40kg (Precio x KG)</label>
-                         <div style={styles.inputPrefixSmall}>
-                           <span>$</span>
-                           <input type="number" value={prod.prices['granel_mayorista']} onChange={(e) => updatePrice(key, 'granel_mayorista', e.target.value)} style={styles.inputNoBorderSmall} />
-                         </div>
-                       </div>
-                       <div style={styles.profitInfo}>
-                         <strong style={{color: 'var(--color-primary)'}}>Ganancia: ${prod.prices['granel_mayorista'] - prod.costo_kg} x KG</strong>
-                         <span style={{fontSize: '0.7rem'}}>Cálculo: ${prod.prices['granel_mayorista']} - $${prod.costo_kg} (Costo)</span>
-                       </div>
-                     </div>
-
+                       )
+                     })}
                    </div>
                  </div>
                )
             })}
+            <button onClick={addProduct} style={{...styles.saveBtnFull, background: '#3b82f6'}}>+ Añadir Producto Nuevo al Catálogo</button>
           </div>
-          <button onClick={saveConfig} style={styles.saveBtnFull}>Guardar Configuración y Precios</button>
+          <button onClick={saveConfig} style={styles.saveBtnFull}>Guardar Configuración de Catálogo</button>
         </div>
       )}
     </div>
@@ -731,6 +792,26 @@ const styles = {
     cursor: 'pointer',
     fontSize: '1.2rem',
     boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+  },
+  deleteBtn: {
+    padding: '4px 8px',
+    background: '#ef4444',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '0.8rem',
+    fontWeight: 'bold'
+  },
+  addFormatBtn: {
+    padding: '4px 10px',
+    background: '#10b981',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '16px',
+    cursor: 'pointer',
+    fontSize: '0.75rem',
+    fontWeight: 'bold'
   }
 };
 

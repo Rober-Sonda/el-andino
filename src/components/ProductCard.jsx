@@ -4,12 +4,13 @@ import { Plus, Minus, Scale, Leaf, Award, Droplets } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
   const { addToCart, getQuantity, totalKilos, getPriceForProduct } = useCart();
-  const [selectedFormat, setSelectedFormat] = useState('1kg');
+  const formats = product.formats || [];
+  const defaultFormat = formats.find(f => f.id === '1kg')?.id || formats[0]?.id;
+  const [selectedFormat, setSelectedFormat] = useState(defaultFormat);
 
   const currentPrice = getPriceForProduct(product.id, selectedFormat, totalKilos);
   const quantity = getQuantity(product.id, selectedFormat);
 
-  // Bulk requires min 5kg
   const isBulk = selectedFormat === 'granel';
 
   const handleIncrement = () => {
@@ -48,34 +49,26 @@ const ProductCard = ({ product }) => {
         <p style={styles.description}>{product.description}</p>
         
         <div style={styles.formatSelector}>
-          <button 
-            className="format-btn"
-            style={{...styles.formatBtn, ...(selectedFormat === '500g' ? styles.formatBtnActive : {})}} 
-            onClick={() => setSelectedFormat('500g')}
-          >
-            ½ Kilo
-          </button>
-          <button 
-            className="format-btn"
-            style={{...styles.formatBtn, ...(selectedFormat === '1kg' ? styles.formatBtnActive : {})}} 
-            onClick={() => setSelectedFormat('1kg')}
-          >
-            1 Kilo
-          </button>
-          <button 
-            className="format-btn"
-            style={{...styles.formatBtn, ...(isBulk ? styles.formatBtnActive : {})}} 
-            onClick={() => setSelectedFormat('granel')}
-          >
-            <Scale size={14} style={{marginRight: '4px'}}/>
-            A Granel
-          </button>
+          {formats.filter(f => f.id !== 'granel_mayorista').map(format => {
+            const isGranel = format.id === 'granel';
+            return (
+              <button 
+                key={format.id}
+                className="format-btn"
+                style={{...styles.formatBtn, ...(selectedFormat === format.id ? styles.formatBtnActive : {})}} 
+                onClick={() => setSelectedFormat(format.id)}
+              >
+                {isGranel && <Scale size={14} style={{marginRight: '4px'}}/>}
+                {format.name}
+              </button>
+            )
+          })}
         </div>
 
         <div style={styles.priceRow}>
           <p className="price-text" style={styles.price}>${currentPrice}</p>
           <span style={styles.perKg}>
-             {selectedFormat === '500g' ? '/ 500g' : isBulk ? '/ kg (Mín. 5Kg)' : '/ kg'}
+             {selectedFormat === '500g' ? '/ 500g' : isBulk ? '/ kg (Mín. 5Kg)' : (selectedFormat === 'unidad' ? '/ u' : '/ kg')}
           </span>
         </div>
         

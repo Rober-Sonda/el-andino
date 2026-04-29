@@ -17,19 +17,75 @@ export const CartProvider = ({ children }) => {
     setCurrentOrderId(null);
   };
   
-  const [userData, setUserData] = useState(() => {
-    const saved = localStorage.getItem('el_andino_user');
-    return saved ? JSON.parse(saved) : { name: '', phone: '', address: '' };
-  });
+  const DEFAULT_CATALOG = {
+    'premium': {
+      id: 'premium',
+      name: 'Yerba Premium',
+      description: 'Estacionada naturalmente por 24 meses. Suave, duradera y de molienda equilibrada. Ideal para largas rondas.',
+      image: '/premium_full.jpg',
+      isOrganic: true,
+      isSinTacc: true,
+      isAntiacid: true,
+      costo_produccion: 3500,
+      formats: [
+        { id: '500g', name: '½ Kilo', price: 4000 },
+        { id: '1kg', name: '1 Kilo', price: 7500 },
+        { id: 'granel', name: 'A Granel', price: 7500 },
+        { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
+      ]
+    },
+    'ahumada': {
+      id: 'ahumada',
+      name: 'Yerba Ahumada',
+      description: 'Secada con maderas seleccionadas (Barbacuá). Un sabor intenso, profundo y con carácter de monte.',
+      image: '/ahumada_full.jpg',
+      isOrganic: true,
+      isSinTacc: true,
+      isAntiacid: true,
+      costo_produccion: 4000,
+      formats: [
+        { id: '500g', name: '½ Kilo', price: 4000 },
+        { id: '1kg', name: '1 Kilo', price: 7500 },
+        { id: 'granel', name: 'A Granel', price: 7500 },
+        { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
+      ]
+    },
+    'uruguaya-despalada': {
+      id: 'uruguaya-despalada',
+      name: 'Uruguaya Despalada',
+      description: 'Corte fino sin palo, pura hoja. Estilo canario para un mate fuerte, espumoso y de sabor prologando.',
+      image: '/despalada_full.jpg',
+      isOrganic: true,
+      isSinTacc: true,
+      isAntiacid: true,
+      costo_produccion: 3800,
+      formats: [
+        { id: '500g', name: '½ Kilo', price: 4000 },
+        { id: '1kg', name: '1 Kilo', price: 7500 },
+        { id: 'granel', name: 'A Granel', price: 7500 },
+        { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
+      ]
+    },
+    'uruguaya-molida': {
+      id: 'uruguaya-molida',
+      name: 'Uruguaya Molida',
+      description: 'Tradicional molienda fina con equilibrio perfecto. La clásica y elegante elección oriental.',
+      image: '/molida_full.jpg',
+      isOrganic: true,
+      isSinTacc: true,
+      isAntiacid: true,
+      costo_produccion: 3200,
+      formats: [
+        { id: '500g', name: '½ Kilo', price: 4000 },
+        { id: '1kg', name: '1 Kilo', price: 7500 },
+        { id: 'granel', name: 'A Granel', price: 7500 },
+        { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
+      ]
+    }
+  };
 
   const DEFAULT_PRICING = {
-    products: {
-      'premium': { costo_kg: 3500, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
-      'ahumada': { costo_kg: 4000, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
-      'uruguaya-despalada': { costo_kg: 3800, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
-      'uruguaya-molida': { costo_kg: 3200, prices: { '500g': 4000, '1kg': 7500, 'granel': 7500, 'granel_mayorista': 6000 } },
-      'blend': { costo_kg: 4500, prices: { '500g': 4500, '1kg': 8500, 'granel': 8500, 'granel_mayorista': 7000 } }
-    },
+    products: DEFAULT_CATALOG,
     general: {
       costo_paquete_500g: 150,
       costo_paquete_1kg: 200,
@@ -50,7 +106,41 @@ export const CartProvider = ({ children }) => {
         const docRef = doc(db, 'config', 'admin');
         const snap = await getDoc(docRef);
         if (snap.exists() && snap.data().products) {
-          setPricingConfig(snap.data());
+          const dbData = snap.data();
+          const mergedProducts = {};
+
+          Object.keys(dbData.products).forEach(key => {
+            const dbProd = dbData.products[key];
+            const defProd = DEFAULT_CATALOG[key] || {};
+            
+            // Si el producto en DB tiene 'prices' (estructura vieja), lo convertimos a formats array
+            let finalFormats = dbProd.formats;
+            if (!finalFormats && dbProd.prices) {
+               finalFormats = [
+                 { id: '500g', name: '½ Kilo', price: dbProd.prices['500g'] || 4000 },
+                 { id: '1kg', name: '1 Kilo', price: dbProd.prices['1kg'] || 7500 },
+                 { id: 'granel', name: 'A Granel', price: dbProd.prices['granel'] || 7500 },
+                 { id: 'granel_mayorista', name: 'Mayorista >40kg', price: dbProd.prices['granel_mayorista'] || 6000 }
+               ];
+            }
+
+            mergedProducts[key] = {
+              id: key,
+              name: dbProd.name || defProd.name || 'Producto Nuevo',
+              description: dbProd.description || defProd.description || '',
+              image: dbProd.image || defProd.image || '/blend_bg.jpg',
+              isOrganic: dbProd.isOrganic ?? defProd.isOrganic ?? false,
+              isSinTacc: dbProd.isSinTacc ?? defProd.isSinTacc ?? false,
+              isAntiacid: dbProd.isAntiacid ?? defProd.isAntiacid ?? false,
+              costo_produccion: dbProd.costo_produccion ?? dbProd.costo_kg ?? defProd.costo_produccion ?? 3500,
+              formats: finalFormats || defProd.formats || [{id: 'unidad', name: '1 Unidad', price: 5000}]
+            };
+          });
+
+          setPricingConfig({
+            general: { ...DEFAULT_PRICING.general, ...dbData.general },
+            products: mergedProducts
+          });
         }
       } catch (e) {
         console.error("No se pudo cargar la configuración de precios dinámica. Usando por defecto.", e);
@@ -100,22 +190,28 @@ export const CartProvider = ({ children }) => {
     return acc;
   }, 0);
 
-  const getPriceForProduct = (productId, format, totalKilosCart) => {
-    // Determine the product key (blends are custom ids, so fallback to 'blend' or 'premium')
+  const getPriceForProduct = (productId, formatId, totalKilosCart) => {
     let productKey = productId;
-    if (productId?.startsWith('blend-')) productKey = 'blend';
-    if (!pricingConfig.products[productKey]) productKey = 'premium'; // safe fallback
+    if (productId?.startsWith('blend-')) productKey = 'blend'; // Si hubiera un blend base, pero ahora cada blend podría ser un producto
+    if (!pricingConfig.products[productKey]) {
+      // Intenta buscar si el producto se guardó con otro ID
+      return 7500;
+    }
     
     const prodConfig = pricingConfig.products[productKey];
-    if (!prodConfig?.prices) return 7500; // ultimate fallback
+    if (!prodConfig?.formats) return 7500;
 
-    if (format === '500g') return prodConfig.prices['500g'] || 4000;
-    if (format === '1kg') return prodConfig.prices['1kg'] || 7500;
-    if (format === 'granel') {
+    const formatObj = prodConfig.formats.find(f => f.id === formatId);
+    if (!formatObj) return prodConfig.formats[0]?.price || 7500;
+
+    if (formatId === 'granel') {
        const isWholesale = totalKilosCart > 40;
-       return isWholesale ? (prodConfig.prices['granel_mayorista'] || 6000) : (prodConfig.prices['granel'] || 7500);
+       if (isWholesale) {
+          const wholesaleFormat = prodConfig.formats.find(f => f.id === 'granel_mayorista');
+          if (wholesaleFormat) return wholesaleFormat.price;
+       }
     }
-    return prodConfig.prices['1kg'] || 7500;
+    return formatObj.price;
   };
 
   const calculatedCart = cart.map(item => {
@@ -171,7 +267,8 @@ export const CartProvider = ({ children }) => {
       setCurrentOrderId,
       clearCart,
       pricingConfig,
-      getPriceForProduct
+      getPriceForProduct,
+      catalog: Object.values(pricingConfig.products)
     }}>
       {children}
     </CartContext.Provider>

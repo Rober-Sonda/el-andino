@@ -1,46 +1,10 @@
 import React from 'react';
 import ProductCard from './ProductCard';
-
-const products = [
-  {
-    id: 'premium',
-    name: 'Yerba Premium',
-    description: 'Estacionada naturalmente por 24 meses. Suave, duradera y de molienda equilibrada. Ideal para largas rondas.',
-    image: '/premium_full.jpg',
-    isOrganic: true,
-    isSinTacc: true,
-    isAntiacid: true
-  },
-  {
-    id: 'ahumada',
-    name: 'Yerba Ahumada',
-    description: 'Secada con maderas seleccionadas (Barbacuá). Un sabor intenso, profundo y con carácter de monte.',
-    image: '/ahumada_full.jpg',
-    isOrganic: true,
-    isSinTacc: true,
-    isAntiacid: true
-  },
-  {
-    id: 'uruguaya-despalada',
-    name: 'Uruguaya Despalada',
-    description: 'Corte fino sin palo, pura hoja. Estilo canario para un mate fuerte, espumoso y de sabor prologando.',
-    image: '/despalada_full.jpg',
-    isOrganic: true,
-    isSinTacc: true,
-    isAntiacid: true
-  },
-  {
-    id: 'uruguaya-molida',
-    name: 'Uruguaya Molida',
-    description: 'Tradicional molienda fina con equilibrio perfecto. La clásica y elegante elección oriental.',
-    image: '/molida_full.jpg',
-    isOrganic: true,
-    isSinTacc: true,
-    isAntiacid: true
-  }
-];
+import { useCart } from '../context/CartContext';
 
 const ProductList = () => {
+  const { catalog } = useCart();
+  
   return (
     <section id="productos" style={styles.section}>
       <div style={styles.container}>
@@ -50,7 +14,7 @@ const ProductList = () => {
         </div>
         
         <div style={styles.grid}>
-          {products.map(product => (
+          {catalog?.map(product => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
