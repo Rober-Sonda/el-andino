@@ -25,11 +25,35 @@ const AdminDashboard = () => {
     products: {
       'premium': {
         id: 'premium', name: 'Yerba Premium', description: 'Estacionada naturalmente por 24 meses.', image: '/premium_full.jpg',
-        costo_produccion: 3500, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 } ]
+        costo_produccion: 3500, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'ahumada': {
         id: 'ahumada', name: 'Yerba Ahumada', description: 'Secada con maderas seleccionadas (Barbacuá).', image: '/ahumada_full.jpg',
-        costo_produccion: 4000, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 } ]
+        costo_produccion: 4000, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+      },
+      'uruguaya-despalada': {
+        id: 'uruguaya-despalada', name: 'Uruguaya Despalada', description: 'Corte fino sin palo, pura hoja.', image: '/despalada_full.jpg',
+        costo_produccion: 3800, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+      },
+      'uruguaya-molida': {
+        id: 'uruguaya-molida', name: 'Uruguaya Molida', description: 'Tradicional molienda fina.', image: '/molida_full.jpg',
+        costo_produccion: 3200, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+      },
+      'blend-herencia': {
+        id: 'blend-herencia', name: 'Blend: Herencia del Sembrador', description: 'Equilibrada. Combinación artesanal.', image: '/kraft_bag.png',
+        costo_produccion: 3500, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+      },
+      'blend-fuego': {
+        id: 'blend-fuego', name: 'Blend: Fuego del Andino', description: 'Intensa. Carácter de monte.', image: '/kraft_bag.png',
+        costo_produccion: 3800, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+      },
+      'blend-charrua': {
+        id: 'blend-charrua', name: 'Blend: Tradición Charrúa', description: 'Clásica. Molienda fina perfecta.', image: '/kraft_bag.png',
+        costo_produccion: 3400, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+      },
+      'blend-alma': {
+        id: 'blend-alma', name: 'Blend: Alma de Monte', description: 'Suave y Compleja. Pura hoja uruguaya.', image: '/kraft_bag.png',
+        costo_produccion: 3900, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       }
     },
     general: {
@@ -61,9 +85,14 @@ const AdminDashboard = () => {
                mergedData.general.costo_etiqueta = 50;
             }
 
+            let mergedProducts = { ...DEFAULT_CONFIG.products };
+            Object.keys(mergedData.products || {}).forEach(key => {
+              mergedProducts[key] = mergedData.products[key];
+            });
+
             // Convert old prices object to formats array
-            Object.keys(mergedData.products).forEach(key => {
-              const p = mergedData.products[key];
+            Object.keys(mergedProducts).forEach(key => {
+              const p = mergedProducts[key];
               if (!p.formats && p.prices) {
                 p.formats = [
                   { id: '500g', name: '½ Kilo', price: p.prices['500g'] || 4000 },
@@ -75,7 +104,8 @@ const AdminDashboard = () => {
               if (!p.id) p.id = key;
               if (p.costo_produccion === undefined) p.costo_produccion = p.costo_kg || 3500;
             });
-
+            
+            mergedData.products = mergedProducts;
             setConfig(mergedData);
           }
         }

@@ -86,6 +86,66 @@ export const CartProvider = ({ children }) => {
         { id: 'granel', name: 'A Granel', price: 7500 },
         { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
       ]
+    },
+    'blend-herencia': {
+      id: 'blend-herencia',
+      name: 'Blend: Herencia del Sembrador',
+      description: 'Equilibrada. Una combinación artesanal diseñada para verdaderos apasionados. Estacionada naturalmente con hoja uruguaya.',
+      image: '/kraft_bag.png',
+      isOrganic: true,
+      isSinTacc: true,
+      isAntiacid: true,
+      costo_produccion: 3500,
+      formats: [
+        { id: '500g', name: '½ Kilo', price: 4000 },
+        { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 },
+        { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
+      ]
+    },
+    'blend-fuego': {
+      id: 'blend-fuego',
+      name: 'Blend: Fuego del Andino',
+      description: 'Intensa. Carácter de monte, secada con leña bajo el proceso Barbacuá. Intensa y maderera con un toque de reserva.',
+      image: '/kraft_bag.png',
+      isOrganic: true,
+      isSinTacc: true,
+      isAntiacid: true,
+      costo_produccion: 3800,
+      formats: [
+        { id: '500g', name: '½ Kilo', price: 4000 },
+        { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 },
+        { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
+      ]
+    },
+    'blend-charrua': {
+      id: 'blend-charrua',
+      name: 'Blend: Tradición Charrúa',
+      description: 'Clásica. Molienda fina perfecta. Rendimiento impecable para el cebador experimentado oriental.',
+      image: '/kraft_bag.png',
+      isOrganic: true,
+      isSinTacc: true,
+      isAntiacid: true,
+      costo_produccion: 3400,
+      formats: [
+        { id: '500g', name: '½ Kilo', price: 4000 },
+        { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 },
+        { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
+      ]
+    },
+    'blend-alma': {
+      id: 'blend-alma',
+      name: 'Blend: Alma de Monte',
+      description: 'Suave y Compleja. Pura hoja uruguaya, estilo canario para un mate fuerte, espumoso y prolongado que no perdona.',
+      image: '/kraft_bag.png',
+      isOrganic: true,
+      isSinTacc: true,
+      isAntiacid: true,
+      costo_produccion: 3900,
+      formats: [
+        { id: '500g', name: '½ Kilo', price: 4000 },
+        { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 },
+        { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
+      ]
     }
   };
 
@@ -112,7 +172,7 @@ export const CartProvider = ({ children }) => {
         const snap = await getDoc(docRef);
         if (snap.exists() && snap.data().products) {
           const dbData = snap.data();
-          const mergedProducts = {};
+          const mergedProducts = { ...DEFAULT_CATALOG }; // Keep defaults for missing items
 
           Object.keys(dbData.products).forEach(key => {
             const dbProd = dbData.products[key];
@@ -197,9 +257,13 @@ export const CartProvider = ({ children }) => {
 
   const getPriceForProduct = (productId, formatId, totalKilosCart) => {
     let productKey = productId;
-    if (productId?.startsWith('blend-')) productKey = 'blend'; // Si hubiera un blend base, pero ahora cada blend podría ser un producto
+    
+    // We don't override custom dynamic blends starting with 'blend-' unless it exists in config
     if (!pricingConfig.products[productKey]) {
-      // Intenta buscar si el producto se guardó con otro ID
+      // Dynamic fallback for generated blends not stored in config
+      if (productKey?.startsWith('blend-')) {
+         return formatId === 'granel' && totalKilosCart > 40 ? 6000 : (formatId === '500g' ? 4000 : 7500);
+      }
       return 7500;
     }
     
