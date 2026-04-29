@@ -26,6 +26,7 @@ export const CartProvider = ({ children }) => {
     'premium': {
       id: 'premium',
       name: 'Yerba Premium',
+      category: 'yerbas',
       description: 'Estacionada naturalmente por 24 meses. Suave, duradera y de molienda equilibrada. Ideal para largas rondas.',
       image: '/premium_full.jpg',
       isOrganic: true,
@@ -42,6 +43,7 @@ export const CartProvider = ({ children }) => {
     'ahumada': {
       id: 'ahumada',
       name: 'Yerba Ahumada',
+      category: 'yerbas',
       description: 'Secada con maderas seleccionadas (Barbacuá). Un sabor intenso, profundo y con carácter de monte.',
       image: '/ahumada_full.jpg',
       isOrganic: true,
@@ -58,6 +60,7 @@ export const CartProvider = ({ children }) => {
     'uruguaya-despalada': {
       id: 'uruguaya-despalada',
       name: 'Uruguaya Despalada',
+      category: 'yerbas',
       description: 'Corte fino sin palo, pura hoja. Estilo canario para un mate fuerte, espumoso y de sabor prologando.',
       image: '/despalada_full.jpg',
       isOrganic: true,
@@ -74,6 +77,7 @@ export const CartProvider = ({ children }) => {
     'uruguaya-molida': {
       id: 'uruguaya-molida',
       name: 'Uruguaya Molida',
+      category: 'yerbas',
       description: 'Tradicional molienda fina con equilibrio perfecto. La clásica y elegante elección oriental.',
       image: '/molida_full.jpg',
       isOrganic: true,
@@ -90,6 +94,7 @@ export const CartProvider = ({ children }) => {
     'blend-herencia': {
       id: 'blend-herencia',
       name: 'Blend: Herencia del Sembrador',
+      category: 'blends',
       description: 'Equilibrada. Una combinación artesanal diseñada para verdaderos apasionados. Estacionada naturalmente con hoja uruguaya.',
       image: '/kraft_bag.png',
       isOrganic: true,
@@ -105,6 +110,7 @@ export const CartProvider = ({ children }) => {
     'blend-fuego': {
       id: 'blend-fuego',
       name: 'Blend: Fuego del Andino',
+      category: 'blends',
       description: 'Intensa. Carácter de monte, secada con leña bajo el proceso Barbacuá. Intensa y maderera con un toque de reserva.',
       image: '/kraft_bag.png',
       isOrganic: true,
@@ -120,6 +126,7 @@ export const CartProvider = ({ children }) => {
     'blend-charrua': {
       id: 'blend-charrua',
       name: 'Blend: Tradición Charrúa',
+      category: 'blends',
       description: 'Clásica. Molienda fina perfecta. Rendimiento impecable para el cebador experimentado oriental.',
       image: '/kraft_bag.png',
       isOrganic: true,
@@ -135,6 +142,7 @@ export const CartProvider = ({ children }) => {
     'blend-alma': {
       id: 'blend-alma',
       name: 'Blend: Alma de Monte',
+      category: 'blends',
       description: 'Suave y Compleja. Pura hoja uruguaya, estilo canario para un mate fuerte, espumoso y prolongado que no perdona.',
       image: '/kraft_bag.png',
       isOrganic: true,
@@ -192,6 +200,7 @@ export const CartProvider = ({ children }) => {
             mergedProducts[key] = {
               id: key,
               name: dbProd.name || defProd.name || 'Producto Nuevo',
+              category: dbProd.category || defProd.category || 'otros',
               description: dbProd.description || defProd.description || '',
               image: dbProd.image || defProd.image || '/blend_bg.jpg',
               isOrganic: dbProd.isOrganic ?? defProd.isOrganic ?? false,

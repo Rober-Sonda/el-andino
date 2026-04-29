@@ -19,40 +19,41 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('board');
   const [mobileActiveStatus, setMobileActiveStatus] = useState('pending');
   const [editingProductKey, setEditingProductKey] = useState(null);
+  const [catalogFilter, setCatalogFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   
   const DEFAULT_CONFIG = {
     products: {
       'premium': {
-        id: 'premium', name: 'Yerba Premium', description: 'Estacionada naturalmente por 24 meses.', image: '/premium_full.jpg',
+        id: 'premium', name: 'Yerba Premium', category: 'yerbas', description: 'Estacionada naturalmente por 24 meses.', image: '/premium_full.jpg',
         costo_produccion: 3500, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'ahumada': {
-        id: 'ahumada', name: 'Yerba Ahumada', description: 'Secada con maderas seleccionadas (Barbacuá).', image: '/ahumada_full.jpg',
+        id: 'ahumada', name: 'Yerba Ahumada', category: 'yerbas', description: 'Secada con maderas seleccionadas (Barbacuá).', image: '/ahumada_full.jpg',
         costo_produccion: 4000, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'uruguaya-despalada': {
-        id: 'uruguaya-despalada', name: 'Uruguaya Despalada', description: 'Corte fino sin palo, pura hoja.', image: '/despalada_full.jpg',
+        id: 'uruguaya-despalada', name: 'Uruguaya Despalada', category: 'yerbas', description: 'Corte fino sin palo, pura hoja.', image: '/despalada_full.jpg',
         costo_produccion: 3800, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'uruguaya-molida': {
-        id: 'uruguaya-molida', name: 'Uruguaya Molida', description: 'Tradicional molienda fina.', image: '/molida_full.jpg',
+        id: 'uruguaya-molida', name: 'Uruguaya Molida', category: 'yerbas', description: 'Tradicional molienda fina.', image: '/molida_full.jpg',
         costo_produccion: 3200, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'blend-herencia': {
-        id: 'blend-herencia', name: 'Blend: Herencia del Sembrador', description: 'Equilibrada. Combinación artesanal.', image: '/kraft_bag.png',
+        id: 'blend-herencia', name: 'Blend: Herencia del Sembrador', category: 'blends', description: 'Equilibrada. Combinación artesanal.', image: '/kraft_bag.png',
         costo_produccion: 3500, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'blend-fuego': {
-        id: 'blend-fuego', name: 'Blend: Fuego del Andino', description: 'Intensa. Carácter de monte.', image: '/kraft_bag.png',
+        id: 'blend-fuego', name: 'Blend: Fuego del Andino', category: 'blends', description: 'Intensa. Carácter de monte.', image: '/kraft_bag.png',
         costo_produccion: 3800, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'blend-charrua': {
-        id: 'blend-charrua', name: 'Blend: Tradición Charrúa', description: 'Clásica. Molienda fina perfecta.', image: '/kraft_bag.png',
+        id: 'blend-charrua', name: 'Blend: Tradición Charrúa', category: 'blends', description: 'Clásica. Molienda fina perfecta.', image: '/kraft_bag.png',
         costo_produccion: 3400, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       },
       'blend-alma': {
-        id: 'blend-alma', name: 'Blend: Alma de Monte', description: 'Suave y Compleja. Pura hoja uruguaya.', image: '/kraft_bag.png',
+        id: 'blend-alma', name: 'Blend: Alma de Monte', category: 'blends', description: 'Suave y Compleja. Pura hoja uruguaya.', image: '/kraft_bag.png',
         costo_produccion: 3900, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
       }
     },
@@ -102,6 +103,7 @@ const AdminDashboard = () => {
                 ];
               }
               if (!p.id) p.id = key;
+              if (!p.category) p.category = 'otros';
               if (p.costo_produccion === undefined) p.costo_produccion = p.costo_kg || 3500;
             });
             
@@ -210,6 +212,7 @@ const AdminDashboard = () => {
         [newId]: {
           id: newId,
           name: 'Nuevo Producto',
+          category: 'otros',
           description: '',
           image: '',
           costo_produccion: 0,
@@ -425,8 +428,17 @@ const AdminDashboard = () => {
         <div style={styles.financePanel}>
           {!editingProductKey ? (
             <>
+              <div style={{display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap'}}>
+                 <button onClick={() => setCatalogFilter('all')} style={{...styles.segmentBtn, background: catalogFilter === 'all' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'all' ? '#fff' : '#555'}}>Todos</button>
+                 <button onClick={() => setCatalogFilter('yerbas')} style={{...styles.segmentBtn, background: catalogFilter === 'yerbas' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'yerbas' ? '#fff' : '#555'}}>Yerbas Clásicas</button>
+                 <button onClick={() => setCatalogFilter('blends')} style={{...styles.segmentBtn, background: catalogFilter === 'blends' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'blends' ? '#fff' : '#555'}}>Blends de Autor</button>
+                 <button onClick={() => setCatalogFilter('accesorios')} style={{...styles.segmentBtn, background: catalogFilter === 'accesorios' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'accesorios' ? '#fff' : '#555'}}>Accesorios</button>
+                 <button onClick={() => setCatalogFilter('otros')} style={{...styles.segmentBtn, background: catalogFilter === 'otros' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'otros' ? '#fff' : '#555'}}>Otros</button>
+              </div>
               <div style={styles.catalogGrid}>
-                {Object.keys(config.products).map(key => {
+                {Object.keys(config.products)
+                  .filter(key => catalogFilter === 'all' || (config.products[key].category || 'otros') === catalogFilter)
+                  .map(key => {
                    const prod = config.products[key];
                    return (
                      <div key={key} style={styles.catalogItemCard} onClick={() => setEditingProductKey(key)}>
@@ -436,7 +448,10 @@ const AdminDashboard = () => {
                         <div style={styles.catalogItemBody}>
                            <h4 style={styles.catalogItemTitle}>{prod.name}</h4>
                            <p style={styles.catalogItemCost}>Costo: ${prod.costo_produccion}</p>
-                           <span style={styles.catalogItemBadge}>{prod.formats?.length || 0} formatos</span>
+                           <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                              <span style={styles.catalogItemBadge}>{prod.formats?.length || 0} formatos</span>
+                              <span style={{fontSize: '0.7rem', color: '#888', textTransform: 'uppercase'}}>{prod.category || 'otros'}</span>
+                           </div>
                         </div>
                      </div>
                    );
@@ -470,9 +485,20 @@ const AdminDashboard = () => {
                      <button onClick={() => removeProduct(key)} style={styles.deleteBtn}>Eliminar</button>
                    </div>
                    
-                   <div style={styles.inputGroup}>
-                     <label>URL de Imagen</label>
-                     <input type="text" value={prod.image || ''} onChange={(e) => updateProduct(key, 'image', e.target.value)} style={styles.input} placeholder="/premium_full.jpg o https://..." />
+                   <div style={{display:'flex', gap: '1rem', flexWrap: 'wrap'}}>
+                     <div style={{...styles.inputGroup, flex: 2}}>
+                       <label>URL de Imagen</label>
+                       <input type="text" value={prod.image || ''} onChange={(e) => updateProduct(key, 'image', e.target.value)} style={styles.input} placeholder="/premium_full.jpg o https://..." />
+                     </div>
+                     <div style={{...styles.inputGroup, flex: 1}}>
+                       <label>Categoría</label>
+                       <select value={prod.category || 'otros'} onChange={(e) => updateProduct(key, 'category', e.target.value)} style={styles.input}>
+                         <option value="yerbas">Yerbas Clásicas</option>
+                         <option value="blends">Blends de Autor</option>
+                         <option value="accesorios">Accesorios</option>
+                         <option value="otros">Otros</option>
+                       </select>
+                     </div>
                    </div>
                    <div style={styles.inputGroup}>
                      <label>Descripción corta</label>
