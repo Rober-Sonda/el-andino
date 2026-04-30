@@ -492,13 +492,13 @@ const AdminDashboard = () => {
                    </div>
                    
                    <div style={{display:'flex', gap: '1rem', flexWrap: 'wrap'}}>
-                     <div style={{...styles.inputGroup, flex: 2}}>
+                     <div style={{...styles.inputGroup, flex: '1 1 200px', minWidth: 0}}>
                        <label>URL de Imagen</label>
-                       <input type="text" value={prod.image || ''} onChange={(e) => updateProduct(key, 'image', e.target.value)} style={styles.input} placeholder="/premium_full.jpg o https://..." />
+                       <input type="text" value={prod.image || ''} onChange={(e) => updateProduct(key, 'image', e.target.value)} style={{...styles.input, minWidth: 0}} placeholder="/premium_full.jpg o https://..." />
                      </div>
-                     <div style={{...styles.inputGroup, flex: 1}}>
+                     <div style={{...styles.inputGroup, flex: '1 1 150px', minWidth: 0}}>
                        <label>Categoría</label>
-                       <select value={prod.category || 'otros'} onChange={(e) => updateProduct(key, 'category', e.target.value)} style={styles.input}>
+                       <select value={prod.category || 'otros'} onChange={(e) => updateProduct(key, 'category', e.target.value)} style={{...styles.input, minWidth: 0}}>
                          <option value="yerbas">Yerbas Clásicas</option>
                          <option value="blends">Blends de Autor</option>
                          <option value="accesorios">Accesorios</option>
@@ -507,25 +507,25 @@ const AdminDashboard = () => {
                      </div>
                    </div>
 
-                   <div style={{display:'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem', background: '#f9f9f9', padding: '1rem', borderRadius: '8px', border: '1px solid #eee'}}>
-                     <div style={{...styles.inputGroup, flex: 1, marginBottom: 0}}>
+                   <div style={{display:'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem', background: '#f9f9f9', padding: '1rem', borderRadius: '8px', border: '1px solid #eee', overflow: 'hidden'}}>
+                     <div style={{...styles.inputGroup, flex: '1 1 150px', marginBottom: 0, minWidth: 0}}>
                        <label style={{fontWeight: 'bold'}}>Estado del Producto</label>
-                       <select value={prod.isActive ? 'true' : 'false'} onChange={(e) => updateProduct(key, 'isActive', e.target.value === 'true')} style={{...styles.input, fontWeight: 'bold', color: prod.isActive ? '#10b981' : '#555'}}>
-                         <option value="true">🟢 Activo (Visible en tienda)</option>
+                       <select value={prod.isActive ? 'true' : 'false'} onChange={(e) => updateProduct(key, 'isActive', e.target.value === 'true')} style={{...styles.input, fontWeight: 'bold', color: prod.isActive ? '#10b981' : '#555', minWidth: 0}}>
+                         <option value="true">🟢 Activo (Visible)</option>
                          <option value="false">⚪ Pausado (Oculto)</option>
                        </select>
                      </div>
-                     <div style={{...styles.inputGroup, flex: 1, marginBottom: 0}}>
+                     <div style={{...styles.inputGroup, flex: '1 1 150px', marginBottom: 0, minWidth: 0}}>
                        <label style={{fontWeight: 'bold', color: '#ef4444'}}>% de Oferta (Descuento)</label>
                        <div style={styles.inputPrefix}>
-                         <input type="number" min="0" max="100" value={prod.discountPercentage || 0} onChange={(e) => updateProduct(key, 'discountPercentage', Number(e.target.value))} style={styles.inputNoBorder} />
+                         <input type="number" min="0" max="100" value={prod.discountPercentage || 0} onChange={(e) => updateProduct(key, 'discountPercentage', Number(e.target.value))} style={{...styles.inputNoBorder, minWidth: 0}} />
                          <span style={{fontWeight: 'bold', color: '#ef4444'}}>% OFF</span>
                        </div>
                      </div>
                    </div>
                    <div style={styles.inputGroup}>
                      <label>Descripción corta</label>
-                     <textarea value={prod.description || ''} onChange={(e) => updateProduct(key, 'description', e.target.value)} style={{...styles.input, minHeight: '60px'}} />
+                     <textarea value={prod.description || ''} onChange={(e) => updateProduct(key, 'description', e.target.value)} style={{...styles.input, minHeight: '60px', minWidth: 0, width: '100%', boxSizing: 'border-box'}} />
                    </div>
 
                    <div style={styles.inputGroup}>
@@ -560,19 +560,19 @@ const AdminDashboard = () => {
 
                        return (
                          <div key={format.id} style={styles.formatRow}>
-                            <div style={{display:'flex', gap: '10px', flexWrap: 'wrap'}}>
-                              <div style={{flex: '1 1 120px'}}>
+                            <div style={{display:'flex', gap: '10px', flexWrap: 'wrap', minWidth: 0}}>
+                              <div style={{flex: '1 1 120px', minWidth: 0}}>
                                 <label style={styles.smallLabel}>Nombre del Formato</label>
-                                <input type="text" value={format.name} onChange={(e) => updateFormat(key, format.id, 'name', e.target.value)} style={{...styles.inputPrefixSmall, width: '100%', boxSizing: 'border-box'}} />
+                                <input type="text" value={format.name} onChange={(e) => updateFormat(key, format.id, 'name', e.target.value)} style={{...styles.inputPrefixSmall, width: '100%', boxSizing: 'border-box', minWidth: 0}} />
                               </div>
-                              <div style={{flex: '1 1 150px'}}>
+                              <div style={{flex: '1 1 150px', minWidth: 0}}>
                                 <label style={styles.smallLabel}>Precio Final</label>
-                                <div style={{display: 'flex', gap: '5px', alignItems: 'stretch'}}>
-                                  <div style={{...styles.inputPrefixSmall, flex: 1, boxSizing: 'border-box'}}>
+                                <div style={{display: 'flex', gap: '5px', alignItems: 'stretch', minWidth: 0}}>
+                                  <div style={{...styles.inputPrefixSmall, flex: 1, boxSizing: 'border-box', minWidth: 0}}>
                                     <span>$</span>
-                                    <input type="number" value={format.price} onChange={(e) => updateFormat(key, format.id, 'price', Number(e.target.value))} style={{...styles.inputNoBorderSmall, width: '100%', boxSizing: 'border-box'}} />
+                                    <input type="number" value={format.price} onChange={(e) => updateFormat(key, format.id, 'price', Number(e.target.value))} style={{...styles.inputNoBorderSmall, width: '100%', boxSizing: 'border-box', minWidth: 0}} />
                                   </div>
-                                  <button onClick={() => removeFormat(key, format.id)} style={{...styles.deleteBtn, padding: '0 15px', margin: 0, height: 'auto'}}>X</button>
+                                  <button onClick={() => removeFormat(key, format.id)} style={{...styles.deleteBtn, padding: '0 15px', margin: 0, height: 'auto', flexShrink: 0}}>X</button>
                                 </div>
                               </div>
                             </div>
