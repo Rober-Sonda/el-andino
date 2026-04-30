@@ -478,17 +478,17 @@ const AdminDashboard = () => {
                const costoEnvase1kg = (config.general.costo_paquete_1kg || 200) + (config.general.costo_etiqueta || 50);
 
                return (
-                 <div style={styles.productCostCard}>
+                 <div style={{...styles.productCostCard, padding: '1rem'}}>
                    <button onClick={() => setEditingProductKey(null)} style={styles.backBtn}>← Volver al Listado</button>
                    
-                   <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: '1.5rem', borderBottom:'1px solid #eee', paddingBottom:'10px'}}>
+                   <div style={{display:'flex', gap: '10px', flexWrap: 'wrap', justifyContent:'space-between', alignItems:'center', marginBottom: '1.5rem', borderBottom:'1px solid #eee', paddingBottom:'10px'}}>
                      <input 
                         type="text" 
                         value={prod.name} 
                         onChange={(e) => updateProduct(key, 'name', e.target.value)}
-                        style={{...styles.inputNoBorder, fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-primary-dark)', padding: '0'}}
+                        style={{...styles.inputNoBorder, flex: '1 1 150px', minWidth: 0, fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-primary-dark)', padding: '0'}}
                      />
-                     <button onClick={() => removeProduct(key)} style={styles.deleteBtn}>Eliminar</button>
+                     <button onClick={() => removeProduct(key)} style={{...styles.deleteBtn, flexShrink: 0}}>Eliminar</button>
                    </div>
                    
                    <div style={{display:'flex', gap: '1rem', flexWrap: 'wrap'}}>
@@ -820,7 +820,7 @@ const styles = {
   },
   generalCostsCard: {
     background: 'rgba(255,255,255,0.8)',
-    padding: '2rem',
+    padding: '1.5rem 1rem',
     borderRadius: '12px',
     border: '1px solid var(--glass-border)',
     boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
@@ -836,7 +836,7 @@ const styles = {
   },
   productCostCard: {
     background: '#fff',
-    padding: '2rem',
+    padding: '1.5rem 1rem',
     borderRadius: '12px',
     border: '1px solid var(--glass-border)',
     boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
