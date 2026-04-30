@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ProductCard from './ProductCard';
 import { useCart } from '../context/CartContext';
 
 const ProductList = () => {
   const { catalog } = useCart();
+  const [activeTab, setActiveTab] = useState('puras');
   
   const yerbas = catalog?.filter(p => p.category === 'yerbas' && p.isActive !== false) || [];
   const blends = catalog?.filter(p => p.category === 'blends' && p.isActive !== false) || [];
@@ -19,20 +20,34 @@ const ProductList = () => {
         </div>
         
         <div style={styles.catalogWrapper}>
-          {yerbas.length > 0 && (
+          {(yerbas.length > 0 || blends.length > 0) && (
             <div style={styles.categorySection}>
-              <h3 style={styles.categoryTitle}>Yerbas Puras</h3>
-              <div className="product-carousel">
-                {yerbas.map(product => <ProductCard key={product.id} product={product} />)}
+              <div style={{display: 'flex', justifyContent: 'center', marginBottom: '1.5rem', marginTop: '-1.5rem'}}>
+                <div style={styles.segmentContainer}>
+                  {yerbas.length > 0 && (
+                    <button 
+                      onClick={() => setActiveTab('puras')} 
+                      style={{...styles.segmentBtn, background: activeTab === 'puras' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'puras' ? '#fff' : 'var(--color-primary)'}}
+                    >
+                      Yerbas Puras
+                    </button>
+                  )}
+                  {blends.length > 0 && (
+                    <button 
+                      onClick={() => setActiveTab('blends')} 
+                      style={{...styles.segmentBtn, background: activeTab === 'blends' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'blends' ? '#fff' : 'var(--color-primary)'}}
+                    >
+                      Blends de Autor
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-
-          {blends.length > 0 && (
-            <div style={styles.categorySection}>
-              <h3 style={styles.categoryTitle}>Blends de Autor</h3>
+              
               <div className="product-carousel">
-                {blends.map(product => <ProductCard key={product.id} product={product} />)}
+                {activeTab === 'puras' 
+                  ? yerbas.map(product => <ProductCard key={product.id} product={product} />)
+                  : blends.map(product => <ProductCard key={product.id} product={product} />)
+                }
               </div>
             </div>
           )}
@@ -110,6 +125,24 @@ const styles = {
     textTransform: 'uppercase',
     letterSpacing: '1px',
     marginBottom: '1rem',
+  },
+  segmentContainer: {
+    display: 'flex',
+    background: 'rgba(74, 124, 46, 0.1)',
+    borderRadius: '30px',
+    padding: '0.4rem',
+    gap: '0.4rem',
+    border: '1px solid rgba(74, 124, 46, 0.2)',
+    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
+  },
+  segmentBtn: {
+    border: 'none',
+    padding: '0.7rem 1.8rem',
+    borderRadius: '25px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    fontSize: '0.95rem'
   }
 };
 
