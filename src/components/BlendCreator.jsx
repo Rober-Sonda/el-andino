@@ -178,14 +178,14 @@ const BlendCreator = () => {
       <div style={styles.container}>
         <div style={styles.heading}>
           <Beaker size={48} color="var(--color-accent)" style={{marginBottom: '1rem'}} />
-          <h2 style={styles.title}>Tu Receta de Autor</h2>
-          <p style={styles.subtitle}>Armá tu propia receta exclusiva. Elegí los porcentajes usando controles precisos o seleccioná una de nuestras combinaciones recomendadas.</p>
+          <h2 style={styles.title}>Armá tu Propia Yerba</h2>
+          <p style={styles.subtitle}>Prepará una mezcla a tu medida con la esencia del campo. Ajustá las proporciones a tu gusto o probá una de nuestras combinaciones recomendadas.</p>
         </div>
         
         <div className="blend-grid">
           <div className="controls-section">
              <div style={{ marginBottom: '2rem' }}>
-                 <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center' }}>Nuestras 8 Variedades Clave</p>
+                 <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center' }}>Nuestras 8 Mezclas Clásicas</p>
                  <div className="featured-grid">
                     {featuredBlends.map((blend, idx) => {
                         const isCurrent = currentBlendName === blend.name;
