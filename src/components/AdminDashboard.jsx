@@ -434,7 +434,7 @@ const AdminDashboard = () => {
             <>
               <div style={{display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap'}}>
                  <button onClick={() => setCatalogFilter('all')} style={{...styles.segmentBtn, background: catalogFilter === 'all' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'all' ? '#fff' : '#555'}}>Todos</button>
-                 <button onClick={() => setCatalogFilter('yerbas')} style={{...styles.segmentBtn, background: catalogFilter === 'yerbas' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'yerbas' ? '#fff' : '#555'}}>Yerbas Clásicas</button>
+                 <button onClick={() => setCatalogFilter('yerbas')} style={{...styles.segmentBtn, background: catalogFilter === 'yerbas' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'yerbas' ? '#fff' : '#555'}}>Yerbas Puras</button>
                  <button onClick={() => setCatalogFilter('blends')} style={{...styles.segmentBtn, background: catalogFilter === 'blends' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'blends' ? '#fff' : '#555'}}>Blends de Autor</button>
                  <button onClick={() => setCatalogFilter('accesorios')} style={{...styles.segmentBtn, background: catalogFilter === 'accesorios' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'accesorios' ? '#fff' : '#555'}}>Accesorios</button>
                  <button onClick={() => setCatalogFilter('otros')} style={{...styles.segmentBtn, background: catalogFilter === 'otros' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'otros' ? '#fff' : '#555'}}>Otros</button>
@@ -499,7 +499,7 @@ const AdminDashboard = () => {
                      <div style={{...styles.inputGroup, flex: '1 1 150px', minWidth: 0}}>
                        <label>Categoría</label>
                        <select value={prod.category || 'otros'} onChange={(e) => updateProduct(key, 'category', e.target.value)} style={{...styles.input, minWidth: 0}}>
-                         <option value="yerbas">Yerbas Clásicas</option>
+                         <option value="yerbas">Yerbas Puras</option>
                          <option value="blends">Blends de Autor</option>
                          <option value="accesorios">Accesorios</option>
                          <option value="otros">Otros</option>

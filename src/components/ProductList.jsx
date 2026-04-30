@@ -21,7 +21,7 @@ const ProductList = () => {
         <div style={styles.catalogWrapper}>
           {yerbas.length > 0 && (
             <div style={styles.categorySection}>
-              <h3 style={styles.categoryTitle}>Yerbas Clásicas</h3>
+              <h3 style={styles.categoryTitle}>Yerbas Puras</h3>
               <div className="product-carousel">
                 {yerbas.map(product => <ProductCard key={product.id} product={product} />)}
               </div>
@@ -131,7 +131,8 @@ if (typeof document !== 'undefined') {
         -webkit-overflow-scrolling: touch;
       }
       .product-carousel > div {
-        min-width: 85vw;
+        min-width: 280px;
+        width: 280px;
         scroll-snap-align: center;
         flex: 0 0 auto;
       }
