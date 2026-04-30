@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { Plus, Minus, Scale, Leaf, Award, Droplets } from 'lucide-react';
+import { Plus, Minus, Leaf, Award, Droplets } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
   const { addToCart, getQuantity, totalKilos, getPriceForProduct, getOriginalPriceForProduct } = useCart();
@@ -60,7 +60,6 @@ const ProductCard = ({ product }) => {
                 style={{...styles.formatBtn, ...(selectedFormat === format.id ? styles.formatBtnActive : {})}} 
                 onClick={() => setSelectedFormat(format.id)}
               >
-                {isGranel && <Scale size={14} style={{marginRight: '4px'}}/>}
                 {format.name}
               </button>
             )
