@@ -51,12 +51,12 @@ const styles = {
     maxWidth: '1200px',
     width: '100%',
     padding: '0 5%',
-    paddingTop: '40px',
+    paddingTop: '90px',
     paddingBottom: '80px',
   },
   heroLogo: {
     height: 'auto',
-    width: 'min(90vw, 450px)',
+    width: 'min(75vw, 380px)',
     marginBottom: '1rem',
     filter: 'brightness(0) invert(1) drop-shadow(0 15px 35px rgba(0,0,0,0.9))',
     objectFit: 'contain'
