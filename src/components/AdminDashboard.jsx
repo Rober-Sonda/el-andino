@@ -560,19 +560,21 @@ const AdminDashboard = () => {
 
                        return (
                          <div key={format.id} style={styles.formatRow}>
-                            <div style={{display:'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end'}}>
-                              <div style={{flex: '1 1 140px', minWidth: '140px'}}>
+                            <div style={{display:'flex', gap: '10px', flexWrap: 'wrap'}}>
+                              <div style={{flex: '1 1 120px'}}>
                                 <label style={styles.smallLabel}>Nombre del Formato</label>
                                 <input type="text" value={format.name} onChange={(e) => updateFormat(key, format.id, 'name', e.target.value)} style={{...styles.inputPrefixSmall, width: '100%', boxSizing: 'border-box'}} />
                               </div>
-                              <div style={{flex: '1 1 120px', minWidth: '120px'}}>
+                              <div style={{flex: '1 1 150px'}}>
                                 <label style={styles.smallLabel}>Precio Final</label>
-                                <div style={{...styles.inputPrefixSmall, width: '100%', boxSizing: 'border-box'}}>
-                                  <span>$</span>
-                                  <input type="number" value={format.price} onChange={(e) => updateFormat(key, format.id, 'price', Number(e.target.value))} style={{...styles.inputNoBorderSmall, width: '100%', boxSizing: 'border-box'}} />
+                                <div style={{display: 'flex', gap: '5px', alignItems: 'stretch'}}>
+                                  <div style={{...styles.inputPrefixSmall, flex: 1, boxSizing: 'border-box'}}>
+                                    <span>$</span>
+                                    <input type="number" value={format.price} onChange={(e) => updateFormat(key, format.id, 'price', Number(e.target.value))} style={{...styles.inputNoBorderSmall, width: '100%', boxSizing: 'border-box'}} />
+                                  </div>
+                                  <button onClick={() => removeFormat(key, format.id)} style={{...styles.deleteBtn, padding: '0 15px', margin: 0, height: 'auto'}}>X</button>
                                 </div>
                               </div>
-                              <button onClick={() => removeFormat(key, format.id)} style={{...styles.deleteBtn, padding: '0 15px', height: '36px', flexShrink: 0}}>X</button>
                             </div>
                            <div style={styles.profitInfo}>
                              <strong style={{color: 'var(--color-primary)'}}>Ganancia Neta: ${ganancia}</strong>
