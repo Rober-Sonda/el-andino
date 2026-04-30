@@ -15,7 +15,7 @@ const ProductList = () => {
     <section id="productos" style={styles.section}>
       <div style={styles.container}>
         <div style={styles.heading}>
-          <h2 style={styles.title}>Nuestras Variedades</h2>
+          <h2 style={styles.title}>Nuestra Cosecha</h2>
           <p style={styles.subtitle}>Directas del secadero natural, respetando el tiempo y la frescura de nuestra tierra noble.</p>
         </div>
         
@@ -37,7 +37,7 @@ const ProductList = () => {
                       onClick={() => setActiveTab('blends')} 
                       style={{...styles.segmentBtn, background: activeTab === 'blends' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'blends' ? '#fff' : 'var(--color-primary)'}}
                     >
-                      Blends de Autor
+                      Yerbas Compuestas
                     </button>
                   )}
                 </div>
