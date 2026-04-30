@@ -185,7 +185,7 @@ const BlendCreator = () => {
         <div className="blend-grid">
           <div className="controls-section">
              <div style={{ marginBottom: '2rem' }}>
-                 <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center' }}>Nuestras 8 Mezclas Clásicas</p>
+                 <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center' }}>Nuestras 4 Variedades Puras y 4 Blends</p>
                  <div className="featured-grid">
                     {featuredBlends.map((blend, idx) => {
                         const isCurrent = currentBlendName === blend.name;
@@ -429,11 +429,11 @@ if (typeof document !== 'undefined') {
     }
     .featured-pill-btn:hover {
       background: var(--color-accent);
-      color: #1a1a1a !important;
+      color: #ffffff !important;
     }
     .featured-pill-btn.active {
       background: var(--color-accent);
-      color: #1a1a1a !important;
+      color: #ffffff !important;
       box-shadow: 0 0 10px rgba(74, 124, 46, 0.5);
     }
     [data-theme='dark'] .featured-pill-btn:not(.active) {
