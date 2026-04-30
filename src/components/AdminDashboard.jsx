@@ -560,20 +560,20 @@ const AdminDashboard = () => {
 
                        return (
                          <div key={format.id} style={styles.formatRow}>
-                           <div style={{display:'flex', gap: '10px'}}>
-                             <div style={{flex: 1}}>
-                               <label style={styles.smallLabel}>Nombre del Formato</label>
-                               <input type="text" value={format.name} onChange={(e) => updateFormat(key, format.id, 'name', e.target.value)} style={styles.inputPrefixSmall} />
-                             </div>
-                             <div style={{flex: 1}}>
-                               <label style={styles.smallLabel}>Precio Final</label>
-                               <div style={styles.inputPrefixSmall}>
-                                 <span>$</span>
-                                 <input type="number" value={format.price} onChange={(e) => updateFormat(key, format.id, 'price', Number(e.target.value))} style={styles.inputNoBorderSmall} />
-                               </div>
-                             </div>
-                             <button onClick={() => removeFormat(key, format.id)} style={{...styles.deleteBtn, padding: '0 10px', marginTop: '1.2rem'}}>X</button>
-                           </div>
+                            <div style={{display:'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end'}}>
+                              <div style={{flex: '1 1 140px', minWidth: '140px'}}>
+                                <label style={styles.smallLabel}>Nombre del Formato</label>
+                                <input type="text" value={format.name} onChange={(e) => updateFormat(key, format.id, 'name', e.target.value)} style={{...styles.inputPrefixSmall, width: '100%', boxSizing: 'border-box'}} />
+                              </div>
+                              <div style={{flex: '1 1 120px', minWidth: '120px'}}>
+                                <label style={styles.smallLabel}>Precio Final</label>
+                                <div style={{...styles.inputPrefixSmall, width: '100%', boxSizing: 'border-box'}}>
+                                  <span>$</span>
+                                  <input type="number" value={format.price} onChange={(e) => updateFormat(key, format.id, 'price', Number(e.target.value))} style={{...styles.inputNoBorderSmall, width: '100%', boxSizing: 'border-box'}} />
+                                </div>
+                              </div>
+                              <button onClick={() => removeFormat(key, format.id)} style={{...styles.deleteBtn, padding: '0 15px', height: '36px', flexShrink: 0}}>X</button>
+                            </div>
                            <div style={styles.profitInfo}>
                              <strong style={{color: 'var(--color-primary)'}}>Ganancia Neta: ${ganancia}</strong>
                              <span style={{fontSize: '0.7rem'}}>{calculationText}</span>
