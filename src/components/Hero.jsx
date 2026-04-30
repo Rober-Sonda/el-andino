@@ -23,12 +23,10 @@ const Hero = () => {
 const styles = {
   section: {
     position: 'relative',
-    height: '95vh',
-    minHeight: '600px',
+    minHeight: '100svh',
     backgroundImage: 'url("/hero_argentino.png")',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    backgroundAttachment: 'fixed',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -52,7 +50,7 @@ const styles = {
     width: '100%',
     padding: '0 5%',
     paddingTop: '90px',
-    paddingBottom: '80px',
+    paddingBottom: '40px',
   },
   heroLogo: {
     height: 'auto',
@@ -81,7 +79,7 @@ const styles = {
   button: {
     backgroundColor: 'var(--color-primary)',
     color: '#ffffff',
-    padding: '1.2rem 3.5rem',
+    padding: '1rem 2rem',
     fontSize: '1.05rem',
     fontWeight: '900',
     letterSpacing: '2px',
@@ -108,6 +106,10 @@ if (typeof document !== 'undefined') {
       background-color: var(--color-primary-dark) !important;
     }
     @media (min-width: 768px) {
+      .hero-section {
+        background-attachment: fixed !important;
+        min-height: 100vh !important;
+      }
       .hero-content {
         padding-top: 130px !important;
         margin-top: 0 !important;
