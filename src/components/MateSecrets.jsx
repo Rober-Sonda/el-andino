@@ -58,14 +58,14 @@ const MateSecrets = () => {
         </div>
         
         {/* Portal History Button */}
-        <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+        <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
           <button 
-            className="hero-btn" 
-            style={{...styles.bottomButton, display: 'inline-flex', alignItems: 'center', gap: '0.8rem'}}
+            style={{...styles.bottomButton, display: 'inline-flex', alignItems: 'center', gap: '0.6rem'}}
             onClick={() => navigate('/historia')}
+            className="history-portal-btn"
           >
-            <Compass size={24} />
-            Explorar la Historia y Mística del Mate
+            <Compass size={20} />
+            Explorar la Historia y Mística
           </button>
         </div>
       </div>
@@ -152,16 +152,14 @@ const styles = {
     opacity: 0.9
   },
   bottomButton: {
-    background: 'var(--color-accent)',
-    color: '#fff',
-    border: 'none',
-    padding: '1.2rem 3rem',
+    background: 'transparent',
+    color: 'var(--color-text)',
+    border: '1px solid var(--color-text)',
+    padding: '0.8rem 1.8rem',
     borderRadius: '50px',
-    fontSize: '1.2rem',
-    fontWeight: '700',
+    fontSize: '1rem',
+    fontWeight: '600',
     cursor: 'pointer',
-    letterSpacing: '1px',
-    boxShadow: '0 10px 30px rgba(189, 83, 25, 0.3)',
     transition: 'all 0.3s ease',
   }
 };
@@ -175,10 +173,11 @@ if (typeof document !== 'undefined') {
       color: var(--color-accent);
       opacity: 0.08 !important;
     }
-    .history-portal:hover {
-      transform: translateY(-5px) !important;
-      box-shadow: 0 15px 30px rgba(189, 83, 25, 0.15) !important;
+    .history-portal-btn:hover {
+      transform: translateY(-3px) !important;
+      color: var(--color-accent) !important;
       border-color: var(--color-accent) !important;
+      background: rgba(118, 181, 77, 0.05) !important;
     }
   `;
   document.head.appendChild(styleSheet);
