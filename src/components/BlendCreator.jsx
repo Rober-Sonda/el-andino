@@ -3,33 +3,33 @@ import { useCart } from '../context/CartContext';
 import { Scale, Beaker, Plus, Star, Award, Flame, Leaf, Coffee } from 'lucide-react';
 
 const featuredBlends = [
-  { 
-    name: "Herencia del Sembrador", 
-    ratios: { premium: 50, ahumada: 0, molida: 0, despalada: 50 }, 
+  {
+    name: "Herencia del Sembrador",
+    ratios: { premium: 50, ahumada: 0, molida: 0, despalada: 50 },
     icon: <Award size={18} />,
     profile: "Equilibrada",
-    description: "Una combinación artesanal diseñada para verdaderos apasionados. Estacionada naturalmente con hoja uruguaya." 
+    description: "Una combinación artesanal diseñada para verdaderos apasionados. Estacionada naturalmente con hoja uruguaya."
   },
-  { 
-    name: "Fuego del Andino", 
-    ratios: { premium: 15, ahumada: 75, despalada: 10, molida: 0 }, 
+  {
+    name: "Fuego Andino",
+    ratios: { premium: 15, ahumada: 75, despalada: 10, molida: 0 },
     icon: <Flame size={18} />,
     profile: "Intensa",
-    description: "Carácter de monte, secada con leña bajo el proceso Barbacuá. Intensa y maderera con un toque de reserva." 
+    description: "Carácter de monte, secada con leña bajo el proceso Barbacuá. Intensa y maderera con un toque de reserva."
   },
-  { 
-    name: "Tradición Charrúa", 
-    ratios: { premium: 40, ahumada: 0, despalada: 20, molida: 40 }, 
+  {
+    name: "Tradición Charrúa",
+    ratios: { premium: 40, ahumada: 0, despalada: 20, molida: 40 },
     icon: <Leaf size={18} />,
     profile: "Clásica",
-    description: "Molienda fina perfecta. Rendimiento impecable para el cebador experimentado oriental." 
+    description: "Molienda fina perfecta. Rendimiento impecable para el cebador experimentado oriental."
   },
-  { 
-    name: "Alma de Monte", 
-    ratios: { premium: 0, ahumada: 20, despalada: 80, molida: 0 }, 
+  {
+    name: "Alma de Monte",
+    ratios: { premium: 0, ahumada: 20, despalada: 80, molida: 0 },
     icon: <Coffee size={18} />,
     profile: "Suave y Compleja",
-    description: "Pura hoja uruguaya, estilo canario para un mate fuerte, espumoso y prolongado que no perdona." 
+    description: "Pura hoja uruguaya, estilo canario para un mate fuerte, espumoso y prolongado que no perdona."
   },
   {
     name: "Pura Premium",
@@ -64,7 +64,7 @@ const featuredBlends = [
 const BlendCreator = () => {
   const { addToCart, totalKilos } = useCart();
   const [selectedFormat, setSelectedFormat] = useState('500g');
-  
+
   const [ratios, setRatios] = useState({
     premium: 25,
     ahumada: 25,
@@ -73,7 +73,7 @@ const BlendCreator = () => {
   });
 
   const getBlendData = (r) => {
-    const exactMatch = featuredBlends.find(fb => 
+    const exactMatch = featuredBlends.find(fb =>
       fb.ratios.premium === r.premium &&
       fb.ratios.ahumada === r.ahumada &&
       fb.ratios.despalada === r.despalada &&
@@ -85,21 +85,21 @@ const BlendCreator = () => {
     let minDistance = Infinity;
 
     for (let i = 0; i < 4; i++) {
-        const fb = featuredBlends[i];
-        const dist = Math.abs(fb.ratios.premium - r.premium) + 
-                     Math.abs(fb.ratios.ahumada - r.ahumada) + 
-                     Math.abs(fb.ratios.despalada - r.despalada) + 
-                     Math.abs(fb.ratios.molida - r.molida);
-        if (dist < minDistance) {
-            minDistance = dist;
-            closestBlend = fb;
-        }
+      const fb = featuredBlends[i];
+      const dist = Math.abs(fb.ratios.premium - r.premium) +
+        Math.abs(fb.ratios.ahumada - r.ahumada) +
+        Math.abs(fb.ratios.despalada - r.despalada) +
+        Math.abs(fb.ratios.molida - r.molida);
+      if (dist < minDistance) {
+        minDistance = dist;
+        closestBlend = fb;
+      }
     }
 
-    return { 
-      name: closestBlend.name, 
-      profile: closestBlend.profile, 
-      description: closestBlend.description 
+    return {
+      name: closestBlend.name,
+      profile: closestBlend.profile,
+      description: closestBlend.description
     };
   };
 
@@ -119,25 +119,25 @@ const BlendCreator = () => {
 
     let newRatios = { ...ratios, [key]: newVal };
     let actualDiff = newVal - ratios[key];
-    
+
     let remainsToDistribute = -actualDiff;
     others.sort((a, b) => remainsToDistribute < 0 ? newRatios[b] - newRatios[a] : newRatios[a] - newRatios[b]);
 
     while (remainsToDistribute !== 0) {
-        let changed = false;
-        for (let k of others) {
-            if (remainsToDistribute < 0 && newRatios[k] >= 5) {
-                newRatios[k] -= 5;
-                remainsToDistribute += 5;
-                changed = true;
-            } else if (remainsToDistribute > 0 && newRatios[k] <= 95) {
-                newRatios[k] += 5;
-                remainsToDistribute -= 5;
-                changed = true;
-            }
-            if (remainsToDistribute === 0) break;
+      let changed = false;
+      for (let k of others) {
+        if (remainsToDistribute < 0 && newRatios[k] >= 5) {
+          newRatios[k] -= 5;
+          remainsToDistribute += 5;
+          changed = true;
+        } else if (remainsToDistribute > 0 && newRatios[k] <= 95) {
+          newRatios[k] += 5;
+          remainsToDistribute -= 5;
+          changed = true;
         }
-        if (!changed) break; 
+        if (remainsToDistribute === 0) break;
+      }
+      if (!changed) break;
     }
 
     setRatios(newRatios);
@@ -146,127 +146,127 @@ const BlendCreator = () => {
   const getPrice = (format) => {
     if (format === '500g') return 4000;
     if (format === 'granel') return totalKilos > 40 ? 6000 : 7500;
-    return 7500; 
+    return 7500;
   };
   const isBulk = selectedFormat === 'granel';
   const price = getPrice(selectedFormat);
 
   const handleAddCart = () => {
     const product = {
-        id: `blend-${ratios.premium}-${ratios.ahumada}-${ratios.despalada}-${ratios.molida}`,
-        name: `Blend: ${currentBlendName}`,
-        profile: currentBlendProfile,
-        description: currentBlendDesc,
-        image: '/kraft_bag.png',
-        isOrganic: true,
-        isSinTacc: true,
-        isAntiacid: true
+      id: `blend-${ratios.premium}-${ratios.ahumada}-${ratios.despalada}-${ratios.molida}`,
+      name: `Blend: ${currentBlendName}`,
+      profile: currentBlendProfile,
+      description: currentBlendDesc,
+      image: '/kraft_bag.png',
+      isOrganic: true,
+      isSinTacc: true,
+      isAntiacid: true
     };
-    
+
     addToCart(product, selectedFormat, price, isBulk ? 5 : 1);
   };
 
   const varietiesLabels = {
-      premium: 'Yerba Premium',
-      ahumada: 'Yerba Ahumada',
-      despalada: 'Despalada',
-      molida: 'Molida'
+    premium: 'Yerba Premium',
+    ahumada: 'Yerba Ahumada',
+    despalada: 'Despalada',
+    molida: 'Molida'
   };
 
   return (
     <section id="blends" style={styles.section}>
       <div style={styles.container}>
         <div style={styles.heading}>
-          <Beaker size={48} color="var(--color-accent)" style={{marginBottom: '1rem'}} />
+          <Beaker size={48} color="var(--color-accent)" style={{ marginBottom: '1rem' }} />
           <h2 style={styles.title}>Armá tu Propia Yerba</h2>
           <p style={styles.subtitle}>Prepará una mezcla a tu medida con la esencia del campo. Ajustá las proporciones a tu gusto o probá una de nuestras combinaciones recomendadas.</p>
         </div>
-        
+
         <div className="blend-grid">
           <div className="controls-section">
-             <div style={{ marginBottom: '2rem' }}>
-                 <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center' }}>Nuestras 4 Variedades Puras y 4 Blends</p>
-                 <div className="featured-grid">
-                    {featuredBlends.map((blend, idx) => {
-                        const isCurrent = currentBlendName === blend.name;
-                        return (
-                            <button 
-                                key={idx} 
-                                className={`featured-pill-btn ${isCurrent ? 'active' : ''}`} 
-                                onClick={() => setRatios(blend.ratios)} 
-                                title={blend.name}
-                            >
-                               {blend.icon}
-                            </button>
-                        );
-                    })}
-                 </div>
-             </div>
+            <div style={{ marginBottom: '2rem' }}>
+              <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center' }}>Nuestras 4 Variedades Puras y 4 Blends</p>
+              <div className="featured-grid">
+                {featuredBlends.map((blend, idx) => {
+                  const isCurrent = currentBlendName === blend.name;
+                  return (
+                    <button
+                      key={idx}
+                      className={`featured-pill-btn ${isCurrent ? 'active' : ''}`}
+                      onClick={() => setRatios(blend.ratios)}
+                      title={blend.name}
+                    >
+                      {blend.icon}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-             <div style={{ background: 'var(--color-bg-light)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--glass-border)', marginBottom: '2rem', textAlign: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
-                 <p style={{ margin: 0, fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px' }}>Tu Mezcla Exclusiva</p>
-                 <h4 className="immersive-title">
-                     {currentBlendName.includes(' ') ? (
-                         <>
-                             {currentBlendName.substring(0, currentBlendName.lastIndexOf(' '))}
-                             <br />
-                             {currentBlendName.substring(currentBlendName.lastIndexOf(' ') + 1)}
-                         </>
-                     ) : currentBlendName}
-                 </h4>
-                 <p style={{ margin: '0 0 0.8rem 0', fontSize: '1.1rem', color: 'var(--color-text)', fontWeight: '600', fontStyle: 'italic' }}>Perfil: <span style={{ color: 'var(--color-accent)' }}>{currentBlendProfile}</span></p>
-                 <div style={{ minHeight: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                     <p style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-text)', fontStyle: 'italic', lineHeight: '1.5' }}>{currentBlendDesc}</p>
-                 </div>
-             </div>
+            <div style={{ background: 'var(--color-bg-light)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--glass-border)', marginBottom: '2rem', textAlign: 'center', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
+              <p style={{ margin: 0, fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 'bold', letterSpacing: '2px' }}>Tu Mezcla Exclusiva</p>
+              <h4 className="immersive-title">
+                {currentBlendName.includes(' ') ? (
+                  <>
+                    {currentBlendName.substring(0, currentBlendName.lastIndexOf(' '))}
+                    <br />
+                    {currentBlendName.substring(currentBlendName.lastIndexOf(' ') + 1)}
+                  </>
+                ) : currentBlendName}
+              </h4>
+              <p style={{ margin: '0 0 0.8rem 0', fontSize: '1.1rem', color: 'var(--color-text)', fontWeight: '600', fontStyle: 'italic' }}>Perfil: <span style={{ color: 'var(--color-accent)' }}>{currentBlendProfile}</span></p>
+              <div style={{ minHeight: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <p style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-text)', fontStyle: 'italic', lineHeight: '1.5' }}>{currentBlendDesc}</p>
+              </div>
+            </div>
 
-             <h3 style={{marginBottom: '1.5rem', fontSize:'1.1rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px'}}>Ajuste Fino (Escala 5%)</h3>
-             
-             <div className="sliders-wrapper">
-                 {Object.keys(ratios).map(key => (
-                     <div key={key} style={styles.sliderContainer}>
-                         <div style={styles.sliderHeader}>
-                             <span style={styles.sliderLabel}>{varietiesLabels[key]}</span>
-                             <span style={styles.sliderValue}>{ratios[key]}%</span>
-                         </div>
-                         <input 
-                            type="range" 
-                            min="0" 
-                            max="100" 
-                            step="5"
-                            value={ratios[key]} 
-                            onChange={(e) => handleRatioChange(key, e.target.value)}
-                            style={styles.rangeInput}
-                         />
-                     </div>
-                 ))}
-             </div>
+            <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Ajuste Fino (Escala 5%)</h3>
 
-             <div style={styles.checkoutBox}>
-                <div style={styles.formatSelector}>
-                    {['500g', '1kg', 'granel'].map(f => (
-                        <button 
-                            key={f}
-                            className="format-btn"
-                            style={{...styles.formatBtn, ...(selectedFormat === f ? styles.formatBtnActive : {})}} 
-                            onClick={() => setSelectedFormat(f)}
-                        >
-                            {f === 'granel' ? <><Scale size={14} style={{marginRight: '4px'}}/> A Granel</> : f}
-                        </button>
-                    ))}
+            <div className="sliders-wrapper">
+              {Object.keys(ratios).map(key => (
+                <div key={key} style={styles.sliderContainer}>
+                  <div style={styles.sliderHeader}>
+                    <span style={styles.sliderLabel}>{varietiesLabels[key]}</span>
+                    <span style={styles.sliderValue}>{ratios[key]}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={ratios[key]}
+                    onChange={(e) => handleRatioChange(key, e.target.value)}
+                    style={styles.rangeInput}
+                  />
                 </div>
-                
-                <div style={styles.priceRow}>
-                    <p style={styles.price}>${price}</p>
-                    <span style={styles.perKg}>
-                        {selectedFormat === '500g' ? '/ 500g' : isBulk ? '/ kg (Mín. 5Kg)' : '/ kg'}
-                    </span>
-                </div>
-                
-                <button style={styles.addButton} onClick={handleAddCart}>
-                    {isBulk ? 'Comprar 5Kg (Granel)' : 'Agregar Blend al Pedido'}
-                </button>
-             </div>
+              ))}
+            </div>
+
+            <div style={styles.checkoutBox}>
+              <div style={styles.formatSelector}>
+                {['500g', '1kg', 'granel'].map(f => (
+                  <button
+                    key={f}
+                    className="format-btn"
+                    style={{ ...styles.formatBtn, ...(selectedFormat === f ? styles.formatBtnActive : {}) }}
+                    onClick={() => setSelectedFormat(f)}
+                  >
+                    {f === 'granel' ? <><Scale size={14} style={{ marginRight: '4px' }} /> A Granel</> : f}
+                  </button>
+                ))}
+              </div>
+
+              <div style={styles.priceRow}>
+                <p style={styles.price}>${price}</p>
+                <span style={styles.perKg}>
+                  {selectedFormat === '500g' ? '/ 500g' : isBulk ? '/ kg (Mín. 5Kg)' : '/ kg'}
+                </span>
+              </div>
+
+              <button style={styles.addButton} onClick={handleAddCart}>
+                {isBulk ? 'Comprar 5Kg (Granel)' : 'Agregar Blend al Pedido'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

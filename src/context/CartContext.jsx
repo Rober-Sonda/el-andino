@@ -11,12 +11,12 @@ export const CartProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [currentOrderId, setCurrentOrderId] = useState(null);
-  
+
   const clearCart = () => {
     setCart([]);
     setCurrentOrderId(null);
   };
-  
+
   const [userData, setUserData] = useState(() => {
     const saved = localStorage.getItem('el_andino_user');
     return saved ? JSON.parse(saved) : { name: '', phone: '', address: '' };
@@ -119,7 +119,7 @@ export const CartProvider = ({ children }) => {
     },
     'blend-fuego': {
       id: 'blend-fuego',
-      name: 'Blend: Fuego del Andino',
+      name: 'Blend: Fuego Andino',
       category: 'blends',
       description: 'Intensa. Carácter de monte, secada con leña bajo el proceso Barbacuá. Intensa y maderera con un toque de reserva.',
       image: '/kraft_bag.png',
@@ -201,16 +201,16 @@ export const CartProvider = ({ children }) => {
           Object.keys(dbData.products).forEach(key => {
             const dbProd = dbData.products[key];
             const defProd = DEFAULT_CATALOG[key] || {};
-            
+
             // Si el producto en DB tiene 'prices' (estructura vieja), lo convertimos a formats array
             let finalFormats = dbProd.formats;
             if (!finalFormats && dbProd.prices) {
-               finalFormats = [
-                 { id: '500g', name: '½ Kilo', price: dbProd.prices['500g'] || 4000 },
-                 { id: '1kg', name: '1 Kilo', price: dbProd.prices['1kg'] || 7500 },
-                 { id: 'granel', name: 'A Granel', price: dbProd.prices['granel'] || 7500 },
-                 { id: 'granel_mayorista', name: 'Mayorista >40kg', price: dbProd.prices['granel_mayorista'] || 6000 }
-               ];
+              finalFormats = [
+                { id: '500g', name: '½ Kilo', price: dbProd.prices['500g'] || 4000 },
+                { id: '1kg', name: '1 Kilo', price: dbProd.prices['1kg'] || 7500 },
+                { id: 'granel', name: 'A Granel', price: dbProd.prices['granel'] || 7500 },
+                { id: 'granel_mayorista', name: 'Mayorista >40kg', price: dbProd.prices['granel_mayorista'] || 6000 }
+              ];
             }
 
             mergedProducts[key] = {
@@ -225,7 +225,7 @@ export const CartProvider = ({ children }) => {
               isActive: dbProd.isActive ?? defProd.isActive ?? true,
               discountPercentage: dbProd.discountPercentage ?? defProd.discountPercentage ?? 0,
               costo_produccion: dbProd.costo_produccion ?? dbProd.costo_kg ?? defProd.costo_produccion ?? 3500,
-              formats: finalFormats || defProd.formats || [{id: 'unidad', name: '1 Unidad', price: 5000}]
+              formats: finalFormats || defProd.formats || [{ id: 'unidad', name: '1 Unidad', price: 5000 }]
             };
           });
 
@@ -243,17 +243,17 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (product, format, formattedPrice, quantity) => {
     const cartItemId = `${product.id}-${format}`;
-    
+
     // Safety check for bulk minimum
     if (format === 'granel' && quantity > 0 && quantity < 5) {
-       quantity = 5;
+      quantity = 5;
     }
 
     if (quantity <= 0) {
       removeFromCart(cartItemId);
       return;
     }
-    
+
     setCart(prev => {
       const existing = prev.find(item => item.cartItemId === cartItemId);
       if (existing) {
@@ -285,31 +285,31 @@ export const CartProvider = ({ children }) => {
   const getPriceForProduct = (productId, formatId, totalKilosCart) => {
     let productKey = productId;
     let basePrice = 7500;
-    
+
     // We don't override custom dynamic blends starting with 'blend-' unless it exists in config
     if (!pricingConfig.products[productKey]) {
       // Dynamic fallback for generated blends not stored in config
       if (productKey?.startsWith('blend-')) {
-         return formatId === 'granel' && totalKilosCart > 40 ? 6000 : (formatId === '500g' ? 4000 : 7500);
+        return formatId === 'granel' && totalKilosCart > 40 ? 6000 : (formatId === '500g' ? 4000 : 7500);
       }
       return basePrice;
     }
-    
+
     const prodConfig = pricingConfig.products[productKey];
     if (!prodConfig?.formats) return basePrice;
 
     const formatObj = prodConfig.formats.find(f => f.id === formatId);
     if (!formatObj) {
-        basePrice = prodConfig.formats[0]?.price || 7500;
+      basePrice = prodConfig.formats[0]?.price || 7500;
     } else {
-        basePrice = formatObj.price;
-        if (formatId === 'granel') {
-           const isWholesale = totalKilosCart > 40;
-           if (isWholesale) {
-              const wholesaleFormat = prodConfig.formats.find(f => f.id === 'granel_mayorista');
-              if (wholesaleFormat) basePrice = wholesaleFormat.price;
-           }
+      basePrice = formatObj.price;
+      if (formatId === 'granel') {
+        const isWholesale = totalKilosCart > 40;
+        if (isWholesale) {
+          const wholesaleFormat = prodConfig.formats.find(f => f.id === 'granel_mayorista');
+          if (wholesaleFormat) basePrice = wholesaleFormat.price;
         }
+      }
     }
 
     // Apply discount if any
@@ -323,27 +323,27 @@ export const CartProvider = ({ children }) => {
   const getOriginalPriceForProduct = (productId, formatId, totalKilosCart) => {
     let productKey = productId;
     let basePrice = 7500;
-    
+
     if (!pricingConfig.products[productKey]) {
       if (productKey?.startsWith('blend-')) {
-         return formatId === 'granel' && totalKilosCart > 40 ? 6000 : (formatId === '500g' ? 4000 : 7500);
+        return formatId === 'granel' && totalKilosCart > 40 ? 6000 : (formatId === '500g' ? 4000 : 7500);
       }
       return basePrice;
     }
-    
+
     const prodConfig = pricingConfig.products[productKey];
     if (!prodConfig?.formats) return basePrice;
 
     const formatObj = prodConfig.formats.find(f => f.id === formatId);
     if (!formatObj) return prodConfig.formats[0]?.price || 7500;
-    
+
     basePrice = formatObj.price;
     if (formatId === 'granel') {
-       const isWholesale = totalKilosCart > 40;
-       if (isWholesale) {
-          const wholesaleFormat = prodConfig.formats.find(f => f.id === 'granel_mayorista');
-          if (wholesaleFormat) basePrice = wholesaleFormat.price;
-       }
+      const isWholesale = totalKilosCart > 40;
+      if (isWholesale) {
+        const wholesaleFormat = prodConfig.formats.find(f => f.id === 'granel_mayorista');
+        if (wholesaleFormat) basePrice = wholesaleFormat.price;
+      }
     }
     return basePrice;
   };
@@ -359,21 +359,21 @@ export const CartProvider = ({ children }) => {
 
   const generateWhatsAppLink = (userName) => {
     const WHATSAPP_NUMBER = "2317472432";
-    
+
     let message = `*¡Hola El Andino!* 🧉🌿\n\nSoy *${userName || 'un cliente'}* y quiero hacer un pedido desde su tienda:\n\n`;
-    
+
     calculatedCart.forEach(item => {
       let variantText = item.format === '500g' ? '½ Kilo' : item.format === '1kg' ? '1 Kilo' : 'A Granel (Kilos)';
       let profileText = item.profile ? ` [Perfil: ${item.profile}]` : '';
       message += `• ${item.quantity} x ${item.name}${profileText} (${variantText}) - $${item.formattedPrice * item.quantity}\n`;
     });
-    
+
     message += `\n*Suma de Kilos: ${totalKilos}kg*\n`;
     message += `*Total estimado: $${totalPrice}*\n`;
     if (isFreeShipping) {
       message += `🎁 *¡Califica para Envío Gratis (>40kg)!*\n`;
     }
-    
+
     message += `\n¡Gracias!`;
 
     const encodedMessage = encodeURIComponent(message);

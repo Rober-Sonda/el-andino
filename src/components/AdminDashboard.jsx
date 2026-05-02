@@ -21,40 +21,40 @@ const AdminDashboard = () => {
   const [editingProductKey, setEditingProductKey] = useState(null);
   const [catalogFilter, setCatalogFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  
+
   const DEFAULT_CONFIG = {
     products: {
       'premium': {
         id: 'premium', name: 'Yerba Premium', category: 'yerbas', description: 'Estacionada naturalmente por 24 meses. Suave, duradera y de molienda equilibrada. Ideal para largas rondas.', image: '/premium_full.jpg',
-        isActive: true, discountPercentage: 0, costo_produccion: 3500, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        isActive: true, discountPercentage: 0, costo_produccion: 3500, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       },
       'ahumada': {
         id: 'ahumada', name: 'Yerba Ahumada', category: 'yerbas', description: 'Secada con maderas seleccionadas (Barbacuá). Un sabor intenso, profundo y con carácter de monte.', image: '/ahumada_full.jpg',
-        isActive: true, discountPercentage: 0, costo_produccion: 4000, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        isActive: true, discountPercentage: 0, costo_produccion: 4000, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       },
       'uruguaya-despalada': {
         id: 'uruguaya-despalada', name: 'Uruguaya Despalada', category: 'yerbas', description: 'Corte fino sin palo, pura hoja. Estilo canario para un mate fuerte, espumoso y de sabor prologando.', image: '/despalada_full.jpg',
-        isActive: true, discountPercentage: 0, costo_produccion: 3800, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        isActive: true, discountPercentage: 0, costo_produccion: 3800, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       },
       'uruguaya-molida': {
         id: 'uruguaya-molida', name: 'Uruguaya Molida', category: 'yerbas', description: 'Tradicional molienda fina con equilibrio perfecto. La clásica y elegante elección oriental.', image: '/molida_full.jpg',
-        isActive: true, discountPercentage: 0, costo_produccion: 3200, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        isActive: true, discountPercentage: 0, costo_produccion: 3200, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       },
       'blend-herencia': {
         id: 'blend-herencia', name: 'Blend: Herencia del Sembrador', category: 'blends', description: 'Equilibrada. Una combinación artesanal diseñada para verdaderos apasionados. Estacionada naturalmente con hoja uruguaya.', image: '/kraft_bag.png',
-        isActive: true, discountPercentage: 0, costo_produccion: 3500, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        isActive: true, discountPercentage: 0, costo_produccion: 3500, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       },
       'blend-fuego': {
-        id: 'blend-fuego', name: 'Blend: Fuego del Andino', category: 'blends', description: 'Intensa. Carácter de monte, secada con leña bajo el proceso Barbacuá. Intensa y maderera con un toque de reserva.', image: '/kraft_bag.png',
-        isActive: true, discountPercentage: 0, costo_produccion: 3800, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        id: 'blend-fuego', name: 'Blend: Fuego Andino', category: 'blends', description: 'Intensa. Carácter de monte, secada con leña bajo el proceso Barbacuá. Intensa y maderera con un toque de reserva.', image: '/kraft_bag.png',
+        isActive: true, discountPercentage: 0, costo_produccion: 3800, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       },
       'blend-charrua': {
         id: 'blend-charrua', name: 'Blend: Tradición Charrúa', category: 'blends', description: 'Clásica. Molienda fina perfecta. Rendimiento impecable para el cebador experimentado oriental.', image: '/kraft_bag.png',
-        isActive: true, discountPercentage: 0, costo_produccion: 3400, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        isActive: true, discountPercentage: 0, costo_produccion: 3400, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       },
       'blend-alma': {
         id: 'blend-alma', name: 'Blend: Alma de Monte', category: 'blends', description: 'Suave y Compleja. Pura hoja uruguaya, estilo canario para un mate fuerte, espumoso y prolongado que no perdona.', image: '/kraft_bag.png',
-        isActive: true, discountPercentage: 0, costo_produccion: 3900, formats: [ { id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 } ]
+        isActive: true, discountPercentage: 0, costo_produccion: 3900, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       }
     },
     general: {
@@ -81,9 +81,9 @@ const AdminDashboard = () => {
           if (data.products) {
             let mergedData = { ...data };
             if (!mergedData.general.costo_paquete_500g) {
-               mergedData.general.costo_paquete_500g = data.general?.costo_envasado || 150;
-               mergedData.general.costo_paquete_1kg = data.general?.costo_envasado || 200;
-               mergedData.general.costo_etiqueta = 50;
+              mergedData.general.costo_paquete_500g = data.general?.costo_envasado || 150;
+              mergedData.general.costo_paquete_1kg = data.general?.costo_envasado || 200;
+              mergedData.general.costo_etiqueta = 50;
             }
 
             let mergedProducts = { ...DEFAULT_CONFIG.products };
@@ -108,7 +108,7 @@ const AdminDashboard = () => {
               if (p.discountPercentage === undefined) p.discountPercentage = 0;
               if (p.costo_produccion === undefined) p.costo_produccion = p.costo_kg || 3500;
             });
-            
+
             mergedData.products = mergedProducts;
             setConfig(mergedData);
           }
@@ -228,7 +228,7 @@ const AdminDashboard = () => {
   };
 
   const removeProduct = (key) => {
-    if(!window.confirm("¿Estás seguro de eliminar este producto del catálogo?")) return;
+    if (!window.confirm("¿Estás seguro de eliminar este producto del catálogo?")) return;
     setConfig(prev => {
       const newProds = { ...prev.products };
       delete newProds[key];
@@ -238,13 +238,13 @@ const AdminDashboard = () => {
   };
 
   if (currentUser?.email !== ADMIN_EMAIL) {
-    return <div style={{padding: '5rem', textAlign:'center'}}>Cargando o Acceso Denegado...</div>;
+    return <div style={{ padding: '5rem', textAlign: 'center' }}>Cargando o Acceso Denegado...</div>;
   }
 
   // Calculate Metrics
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
-  
+
   let monthlySales = 0;
   let totalKilosSold = 0;
   let totalOrdersThisMonth = 0;
@@ -256,29 +256,29 @@ const AdminDashboard = () => {
       if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
         monthlySales += o.totalPrice || 0;
         totalOrdersThisMonth += 1;
-        
-        o.items?.forEach(item => {
-           let kilos = 0;
-           let unitCost = 0;
-           if (item.format === '500g') {
-             kilos = 0.5 * item.quantity;
-             unitCost = (config.general.costo_paquete_500g || 150) + (config.general.costo_etiqueta || 50);
-           } else if (item.format === '1kg') {
-             kilos = 1 * item.quantity;
-             unitCost = (config.general.costo_paquete_1kg || 200) + (config.general.costo_etiqueta || 50);
-           } else {
-             kilos = 1 * item.quantity;
-             unitCost = 0;
-           }
-           
-           totalKilosSold += kilos;
 
-           let productKey = item.id;
-           if (productKey?.startsWith('blend-')) productKey = 'blend';
-           if (!config.products[productKey]) productKey = 'premium';
-           
-           totalCost += kilos * (config.products[productKey]?.costo_produccion || 3500);
-           totalCost += unitCost * item.quantity;
+        o.items?.forEach(item => {
+          let kilos = 0;
+          let unitCost = 0;
+          if (item.format === '500g') {
+            kilos = 0.5 * item.quantity;
+            unitCost = (config.general.costo_paquete_500g || 150) + (config.general.costo_etiqueta || 50);
+          } else if (item.format === '1kg') {
+            kilos = 1 * item.quantity;
+            unitCost = (config.general.costo_paquete_1kg || 200) + (config.general.costo_etiqueta || 50);
+          } else {
+            kilos = 1 * item.quantity;
+            unitCost = 0;
+          }
+
+          totalKilosSold += kilos;
+
+          let productKey = item.id;
+          if (productKey?.startsWith('blend-')) productKey = 'blend';
+          if (!config.products[productKey]) productKey = 'premium';
+
+          totalCost += kilos * (config.products[productKey]?.costo_produccion || 3500);
+          totalCost += unitCost * item.quantity;
         });
       }
     }
@@ -292,13 +292,13 @@ const AdminDashboard = () => {
       <div style={styles.header}>
         <h1 style={styles.title}><LayoutDashboard size={28} /> Centro de Control El Andino</h1>
         <div style={styles.tabs} className="admin-tabs">
-          <button className="admin-tab-btn" style={{...styles.tabBtn, ...(activeTab === 'board' ? styles.tabActive : {})}} onClick={() => setActiveTab('board')}>
+          <button className="admin-tab-btn" style={{ ...styles.tabBtn, ...(activeTab === 'board' ? styles.tabActive : {}) }} onClick={() => setActiveTab('board')}>
             Gestión de Pedidos
           </button>
-          <button className="admin-tab-btn" style={{...styles.tabBtn, ...(activeTab === 'finance' ? styles.tabActive : {})}} onClick={() => { setActiveTab('finance'); setEditingProductKey(null); }}>
+          <button className="admin-tab-btn" style={{ ...styles.tabBtn, ...(activeTab === 'finance' ? styles.tabActive : {}) }} onClick={() => { setActiveTab('finance'); setEditingProductKey(null); }}>
             Finanzas
           </button>
-          <button className="admin-tab-btn" style={{...styles.tabBtn, ...(activeTab === 'catalog' ? styles.tabActive : {})}} onClick={() => setActiveTab('catalog')}>
+          <button className="admin-tab-btn" style={{ ...styles.tabBtn, ...(activeTab === 'catalog' ? styles.tabActive : {}) }} onClick={() => setActiveTab('catalog')}>
             Catálogo
           </button>
         </div>
@@ -308,30 +308,30 @@ const AdminDashboard = () => {
         <div className="admin-board-wrapper">
           <div className="mobile-only" style={styles.segmentControl}>
             {STATUSES.map(s => {
-               const count = orders.filter(o => (o.status || 'pending') === s.id).length;
-               const showIndicator = count > 0 && s.id !== 'closed';
-               return (
-                 <button 
-                   key={`seg-${s.id}`} 
-                   onClick={() => setMobileActiveStatus(s.id)}
-                   style={{
-                     ...styles.segmentBtn, 
-                     ...(mobileActiveStatus === s.id ? { background: s.color, color: 'white' } : {})
-                   }}
-                 >
-                   {s.label}
-                   {showIndicator && (
-                     <span style={{
-                       display: 'inline-block',
-                       width: '8px',
-                       height: '8px',
-                       backgroundColor: mobileActiveStatus === s.id ? '#fff' : s.color,
-                       borderRadius: '50%',
-                       marginLeft: '6px'
-                     }} />
-                   )}
-                 </button>
-               );
+              const count = orders.filter(o => (o.status || 'pending') === s.id).length;
+              const showIndicator = count > 0 && s.id !== 'closed';
+              return (
+                <button
+                  key={`seg-${s.id}`}
+                  onClick={() => setMobileActiveStatus(s.id)}
+                  style={{
+                    ...styles.segmentBtn,
+                    ...(mobileActiveStatus === s.id ? { background: s.color, color: 'white' } : {})
+                  }}
+                >
+                  {s.label}
+                  {showIndicator && (
+                    <span style={{
+                      display: 'inline-block',
+                      width: '8px',
+                      height: '8px',
+                      backgroundColor: mobileActiveStatus === s.id ? '#fff' : s.color,
+                      borderRadius: '50%',
+                      marginLeft: '6px'
+                    }} />
+                  )}
+                </button>
+              );
             })}
           </div>
           <div style={styles.board} className="admin-board">
@@ -340,63 +340,63 @@ const AdminDashboard = () => {
               const Icon = col.icon;
               return (
                 <div key={col.id} className={`admin-column ${mobileActiveStatus === col.id ? 'active-mobile' : ''}`} style={styles.column}>
-                  <div style={{...styles.columnHeader, borderBottom: `3px solid ${col.color}`}}>
-                  <Icon size={20} color={col.color} />
-                  <h3>{col.label}</h3>
-                  <span style={styles.countBadge}>{colOrders.length}</span>
+                  <div style={{ ...styles.columnHeader, borderBottom: `3px solid ${col.color}` }}>
+                    <Icon size={20} color={col.color} />
+                    <h3>{col.label}</h3>
+                    <span style={styles.countBadge}>{colOrders.length}</span>
+                  </div>
+                  <div style={styles.columnContent}>
+                    {colOrders.map(order => (
+                      <div key={order.id} style={styles.orderCard}>
+                        <div style={styles.cardHeader}>
+                          <strong>{order.customerName}</strong>
+                          <span style={styles.date}>{order.createdAt ? order.createdAt.toDate().toLocaleDateString() : ''}</span>
+                        </div>
+                        <div style={styles.cardBody}>
+                          <p>{order.items?.length || 0} items ({order.totalKilos}kg)</p>
+                          <p style={styles.price}>${order.totalPrice}</p>
+                        </div>
+                        <div style={styles.cardFooter}>
+                          <select
+                            value={order.status || 'pending'}
+                            onChange={(e) => updateStatus(order.id, e.target.value)}
+                            style={styles.statusSelect}
+                          >
+                            {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                          </select>
+                          <a
+                            href={`https://wa.me/2317472432`}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={styles.waBtn}
+                          >
+                            Chat
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div style={styles.columnContent}>
-                  {colOrders.map(order => (
-                    <div key={order.id} style={styles.orderCard}>
-                      <div style={styles.cardHeader}>
-                        <strong>{order.customerName}</strong>
-                        <span style={styles.date}>{order.createdAt ? order.createdAt.toDate().toLocaleDateString() : ''}</span>
-                      </div>
-                      <div style={styles.cardBody}>
-                        <p>{order.items?.length || 0} items ({order.totalKilos}kg)</p>
-                        <p style={styles.price}>${order.totalPrice}</p>
-                      </div>
-                      <div style={styles.cardFooter}>
-                        <select 
-                          value={order.status || 'pending'} 
-                          onChange={(e) => updateStatus(order.id, e.target.value)}
-                          style={styles.statusSelect}
-                        >
-                          {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-                        </select>
-                        <a 
-                          href={`https://wa.me/2317472432`} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          style={styles.waBtn}
-                        >
-                          Chat
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
           </div>
         </div>
       ) : activeTab === 'finance' ? (
         <div style={styles.financePanel}>
           <div style={styles.metricsGrid}>
-            <div style={{...styles.metricCard, borderLeft: '4px solid #3b82f6'}}>
+            <div style={{ ...styles.metricCard, borderLeft: '4px solid #3b82f6' }}>
               <div style={styles.metricTitle}>Ventas del Mes (Bruto)</div>
               <div style={styles.metricValue}>${monthlySales.toLocaleString()}</div>
             </div>
-            <div style={{...styles.metricCard, borderLeft: '4px solid #f59e0b'}}>
+            <div style={{ ...styles.metricCard, borderLeft: '4px solid #f59e0b' }}>
               <div style={styles.metricTitle}>Costos Totales</div>
               <div style={styles.metricValue}>${totalCost.toLocaleString()}</div>
             </div>
-            <div style={{...styles.metricCard, borderLeft: '4px solid #10b981'}}>
+            <div style={{ ...styles.metricCard, borderLeft: '4px solid #10b981' }}>
               <div style={styles.metricTitle}>Ganancia Neta</div>
-              <div style={{...styles.metricValue, color: '#10b981'}}>${netProfit.toLocaleString()}</div>
+              <div style={{ ...styles.metricValue, color: '#10b981' }}>${netProfit.toLocaleString()}</div>
             </div>
-            <div style={{...styles.metricCard, borderLeft: '4px solid #8b5cf6'}}>
+            <div style={{ ...styles.metricCard, borderLeft: '4px solid #8b5cf6' }}>
               <div style={styles.metricTitle}>Kilos Vendidos</div>
               <div style={styles.metricValue}>{totalKilosSold} kg</div>
             </div>
@@ -404,7 +404,7 @@ const AdminDashboard = () => {
 
           <div style={styles.settingsGrid}>
             <div style={styles.generalCostsCard}>
-              <h3 style={{display:'flex', alignItems:'center', gap:'10px', marginBottom: '1.5rem'}}><Settings size={20}/> Costos Globales</h3>
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}><Settings size={20} /> Costos Globales</h3>
               <div style={styles.inputGroup}>
                 <label>Costo Paquete ½ Kilo</label>
                 <input type="number" value={config.general.costo_paquete_500g} onChange={(e) => updateGeneral('costo_paquete_500g', e.target.value)} style={styles.input} />
@@ -432,164 +432,164 @@ const AdminDashboard = () => {
         <div style={styles.financePanel}>
           {!editingProductKey ? (
             <>
-              <div style={{display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap'}}>
-                 <button onClick={() => setCatalogFilter('all')} style={{...styles.segmentBtn, background: catalogFilter === 'all' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'all' ? '#fff' : '#555'}}>Todos</button>
-                 <button onClick={() => setCatalogFilter('yerbas')} style={{...styles.segmentBtn, background: catalogFilter === 'yerbas' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'yerbas' ? '#fff' : '#555'}}>Yerbas Puras</button>
-                 <button onClick={() => setCatalogFilter('blends')} style={{...styles.segmentBtn, background: catalogFilter === 'blends' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'blends' ? '#fff' : '#555'}}>Yerbas Compuestas</button>
-                 <button onClick={() => setCatalogFilter('accesorios')} style={{...styles.segmentBtn, background: catalogFilter === 'accesorios' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'accesorios' ? '#fff' : '#555'}}>Accesorios</button>
-                 <button onClick={() => setCatalogFilter('otros')} style={{...styles.segmentBtn, background: catalogFilter === 'otros' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'otros' ? '#fff' : '#555'}}>Otros</button>
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                <button onClick={() => setCatalogFilter('all')} style={{ ...styles.segmentBtn, background: catalogFilter === 'all' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'all' ? '#fff' : '#555' }}>Todos</button>
+                <button onClick={() => setCatalogFilter('yerbas')} style={{ ...styles.segmentBtn, background: catalogFilter === 'yerbas' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'yerbas' ? '#fff' : '#555' }}>Yerbas Puras</button>
+                <button onClick={() => setCatalogFilter('blends')} style={{ ...styles.segmentBtn, background: catalogFilter === 'blends' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'blends' ? '#fff' : '#555' }}>Yerbas Compuestas</button>
+                <button onClick={() => setCatalogFilter('accesorios')} style={{ ...styles.segmentBtn, background: catalogFilter === 'accesorios' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'accesorios' ? '#fff' : '#555' }}>Accesorios</button>
+                <button onClick={() => setCatalogFilter('otros')} style={{ ...styles.segmentBtn, background: catalogFilter === 'otros' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'otros' ? '#fff' : '#555' }}>Otros</button>
               </div>
               <div style={styles.catalogGrid}>
                 {Object.keys(config.products)
                   .filter(key => catalogFilter === 'all' || (config.products[key].category || 'otros') === catalogFilter)
                   .map(key => {
-                   const prod = config.products[key];
-                   return (
-                     <div key={key} style={{...styles.catalogItemCard, opacity: prod.isActive ? 1 : 0.5}} onClick={() => setEditingProductKey(key)}>
+                    const prod = config.products[key];
+                    return (
+                      <div key={key} style={{ ...styles.catalogItemCard, opacity: prod.isActive ? 1 : 0.5 }} onClick={() => setEditingProductKey(key)}>
                         <div style={styles.catalogItemImgContainer}>
-                           <img src={prod.image || '/blend_bg.jpg'} alt={prod.name} style={styles.catalogItemImg} />
-                           {!prod.isActive && <span style={{...styles.catalogItemBadge, position: 'absolute', top: 10, left: 10, background: '#555'}}>Pausado</span>}
-                           {prod.discountPercentage > 0 && <span style={{...styles.catalogItemBadge, position: 'absolute', top: 10, right: 10, background: '#ef4444'}}>{prod.discountPercentage}% OFF</span>}
+                          <img src={prod.image || '/blend_bg.jpg'} alt={prod.name} style={styles.catalogItemImg} />
+                          {!prod.isActive && <span style={{ ...styles.catalogItemBadge, position: 'absolute', top: 10, left: 10, background: '#555' }}>Pausado</span>}
+                          {prod.discountPercentage > 0 && <span style={{ ...styles.catalogItemBadge, position: 'absolute', top: 10, right: 10, background: '#ef4444' }}>{prod.discountPercentage}% OFF</span>}
                         </div>
                         <div style={styles.catalogItemBody}>
-                           <h4 style={styles.catalogItemTitle}>{prod.name}</h4>
-                           <p style={styles.catalogItemCost}>Costo: ${prod.costo_produccion}</p>
-                           <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                              <span style={styles.catalogItemBadge}>{prod.formats?.length || 0} formatos</span>
-                              <span style={{fontSize: '0.7rem', color: '#888', textTransform: 'uppercase'}}>{prod.category || 'otros'}</span>
-                           </div>
+                          <h4 style={styles.catalogItemTitle}>{prod.name}</h4>
+                          <p style={styles.catalogItemCost}>Costo: ${prod.costo_produccion}</p>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={styles.catalogItemBadge}>{prod.formats?.length || 0} formatos</span>
+                            <span style={{ fontSize: '0.7rem', color: '#888', textTransform: 'uppercase' }}>{prod.category || 'otros'}</span>
+                          </div>
                         </div>
-                     </div>
-                   );
-                })}
+                      </div>
+                    );
+                  })}
               </div>
-              <div style={{display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap'}}>
-                 <button onClick={addProduct} style={{...styles.saveBtnFull, background: '#3b82f6', marginTop: 0, flex: 1}}>+ Añadir Producto</button>
-                 <button onClick={saveConfig} style={{...styles.saveBtnFull, marginTop: 0, flex: 1}}>Guardar Cambios de Catálogo</button>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+                <button onClick={addProduct} style={{ ...styles.saveBtnFull, background: '#3b82f6', marginTop: 0, flex: 1 }}>+ Añadir Producto</button>
+                <button onClick={saveConfig} style={{ ...styles.saveBtnFull, marginTop: 0, flex: 1 }}>Guardar Cambios de Catálogo</button>
               </div>
             </>
           ) : (
             (() => {
-               const key = editingProductKey;
-               const prod = config.products[key];
-               if (!prod) { setEditingProductKey(null); return null; }
-               
-               const costoEnvase500 = (config.general.costo_paquete_500g || 150) + (config.general.costo_etiqueta || 50);
-               const costoEnvase1kg = (config.general.costo_paquete_1kg || 200) + (config.general.costo_etiqueta || 50);
+              const key = editingProductKey;
+              const prod = config.products[key];
+              if (!prod) { setEditingProductKey(null); return null; }
 
-               return (
-                 <div style={{...styles.productCostCard, padding: '1rem'}}>
-                   <button onClick={() => setEditingProductKey(null)} style={styles.backBtn}>← Volver al Listado</button>
-                   
-                   <div style={{display:'flex', gap: '10px', flexWrap: 'wrap', justifyContent:'space-between', alignItems:'center', marginBottom: '1.5rem', borderBottom:'1px solid #eee', paddingBottom:'10px'}}>
-                     <input 
-                        type="text" 
-                        value={prod.name} 
-                        onChange={(e) => updateProduct(key, 'name', e.target.value)}
-                        style={{...styles.inputNoBorder, flex: '1 1 150px', minWidth: 0, fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-primary-dark)', padding: '0'}}
-                     />
-                     <button onClick={() => removeProduct(key)} style={{...styles.deleteBtn, flexShrink: 0}}>Eliminar</button>
-                   </div>
-                   
-                   <div style={{display:'flex', gap: '1rem', flexWrap: 'wrap'}}>
-                     <div style={{...styles.inputGroup, flex: '1 1 200px', minWidth: 0}}>
-                       <label>URL de Imagen</label>
-                       <input type="text" value={prod.image || ''} onChange={(e) => updateProduct(key, 'image', e.target.value)} style={{...styles.input, minWidth: 0}} placeholder="/premium_full.jpg o https://..." />
-                     </div>
-                     <div style={{...styles.inputGroup, flex: '1 1 150px', minWidth: 0}}>
-                       <label>Categoría</label>
-                       <select value={prod.category || 'otros'} onChange={(e) => updateProduct(key, 'category', e.target.value)} style={{...styles.input, minWidth: 0}}>
-                         <option value="yerbas">Yerbas Puras</option>
-                         <option value="blends">Yerbas Compuestas</option>
-                         <option value="accesorios">Accesorios</option>
-                         <option value="otros">Otros</option>
-                       </select>
-                     </div>
-                   </div>
+              const costoEnvase500 = (config.general.costo_paquete_500g || 150) + (config.general.costo_etiqueta || 50);
+              const costoEnvase1kg = (config.general.costo_paquete_1kg || 200) + (config.general.costo_etiqueta || 50);
 
-                   <div style={{display:'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem', background: '#f9f9f9', padding: '1rem', borderRadius: '8px', border: '1px solid #eee', overflow: 'hidden'}}>
-                     <div style={{...styles.inputGroup, flex: '1 1 150px', marginBottom: 0, minWidth: 0}}>
-                       <label style={{fontWeight: 'bold'}}>Estado del Producto</label>
-                       <select value={prod.isActive ? 'true' : 'false'} onChange={(e) => updateProduct(key, 'isActive', e.target.value === 'true')} style={{...styles.input, fontWeight: 'bold', color: prod.isActive ? '#10b981' : '#555', minWidth: 0}}>
-                         <option value="true">🟢 Activo (Visible)</option>
-                         <option value="false">⚪ Pausado (Oculto)</option>
-                       </select>
-                     </div>
-                     <div style={{...styles.inputGroup, flex: '1 1 150px', marginBottom: 0, minWidth: 0}}>
-                       <label style={{fontWeight: 'bold', color: '#ef4444'}}>% de Oferta (Descuento)</label>
-                       <div style={styles.inputPrefix}>
-                         <input type="number" min="0" max="100" value={prod.discountPercentage || 0} onChange={(e) => updateProduct(key, 'discountPercentage', Number(e.target.value))} style={{...styles.inputNoBorder, minWidth: 0}} />
-                         <span style={{fontWeight: 'bold', color: '#ef4444'}}>% OFF</span>
-                       </div>
-                     </div>
-                   </div>
-                   <div style={styles.inputGroup}>
-                     <label>Descripción corta</label>
-                     <textarea value={prod.description || ''} onChange={(e) => updateProduct(key, 'description', e.target.value)} style={{...styles.input, minHeight: '60px', minWidth: 0, width: '100%', boxSizing: 'border-box'}} />
-                   </div>
+              return (
+                <div style={{ ...styles.productCostCard, padding: '1rem' }}>
+                  <button onClick={() => setEditingProductKey(null)} style={styles.backBtn}>← Volver al Listado</button>
 
-                   <div style={styles.inputGroup}>
-                     <label>Costo Producción (por Unidad base o KG)</label>
-                     <div style={styles.inputPrefix}>
-                       <span>$</span>
-                       <input type="number" value={prod.costo_produccion || 0} onChange={(e) => updateProduct(key, 'costo_produccion', Number(e.target.value))} style={styles.inputNoBorder} />
-                     </div>
-                   </div>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
+                    <input
+                      type="text"
+                      value={prod.name}
+                      onChange={(e) => updateProduct(key, 'name', e.target.value)}
+                      style={{ ...styles.inputNoBorder, flex: '1 1 150px', minWidth: 0, fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-primary-dark)', padding: '0' }}
+                    />
+                    <button onClick={() => removeProduct(key)} style={{ ...styles.deleteBtn, flexShrink: 0 }}>Eliminar</button>
+                  </div>
 
-                   <div style={styles.formatBreakdown}>
-                     <h4 style={{marginTop: '1.5rem', marginBottom: '1rem', color: '#555', fontSize: '0.9rem', textTransform: 'uppercase', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                        Formatos y Precios
-                        <button onClick={() => addFormat(key)} style={styles.addFormatBtn}>+ Agregar Formato</button>
-                     </h4>
-                     
-                     {prod.formats?.map((format, index) => {
-                       let deductions = 0;
-                       let calculationText = `Cálculo: $${format.price} - $${prod.costo_produccion} (Costo base)`;
-                       
-                       if (format.id === '500g') {
-                         deductions = (prod.costo_produccion/2) + costoEnvase500;
-                         calculationText = `Cálculo: $${format.price} - $${prod.costo_produccion/2} (Costo/2) - $${costoEnvase500} (Envase)`;
-                       } else if (format.id === '1kg') {
-                         deductions = prod.costo_produccion + costoEnvase1kg;
-                         calculationText = `Cálculo: $${format.price} - $${prod.costo_produccion} (Costo) - $${costoEnvase1kg} (Envase)`;
-                       } else {
-                         deductions = prod.costo_produccion;
-                       }
-                       
-                       const ganancia = format.price - deductions;
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div style={{ ...styles.inputGroup, flex: '1 1 200px', minWidth: 0 }}>
+                      <label>URL de Imagen</label>
+                      <input type="text" value={prod.image || ''} onChange={(e) => updateProduct(key, 'image', e.target.value)} style={{ ...styles.input, minWidth: 0 }} placeholder="/premium_full.jpg o https://..." />
+                    </div>
+                    <div style={{ ...styles.inputGroup, flex: '1 1 150px', minWidth: 0 }}>
+                      <label>Categoría</label>
+                      <select value={prod.category || 'otros'} onChange={(e) => updateProduct(key, 'category', e.target.value)} style={{ ...styles.input, minWidth: 0 }}>
+                        <option value="yerbas">Yerbas Puras</option>
+                        <option value="blends">Yerbas Compuestas</option>
+                        <option value="accesorios">Accesorios</option>
+                        <option value="otros">Otros</option>
+                      </select>
+                    </div>
+                  </div>
 
-                       return (
-                         <div key={format.id} style={styles.formatRow}>
-                            <div style={{display:'flex', gap: '10px', flexWrap: 'wrap', minWidth: 0}}>
-                              <div style={{flex: '1 1 120px', minWidth: 0}}>
-                                <label style={styles.smallLabel}>Nombre del Formato</label>
-                                <input type="text" value={format.name} onChange={(e) => updateFormat(key, format.id, 'name', e.target.value)} style={{...styles.inputPrefixSmall, width: '100%', boxSizing: 'border-box', minWidth: 0}} />
-                              </div>
-                              <div style={{flex: '1 1 150px', minWidth: 0}}>
-                                <label style={styles.smallLabel}>Precio Final</label>
-                                <div style={{display: 'flex', gap: '5px', alignItems: 'stretch', minWidth: 0}}>
-                                  <div style={{...styles.inputPrefixSmall, flex: 1, boxSizing: 'border-box', minWidth: 0}}>
-                                    <span>$</span>
-                                    <input type="number" value={format.price} onChange={(e) => updateFormat(key, format.id, 'price', Number(e.target.value))} style={{...styles.inputNoBorderSmall, width: '100%', boxSizing: 'border-box', minWidth: 0}} />
-                                  </div>
-                                  <button onClick={() => removeFormat(key, format.id)} style={{...styles.deleteBtn, padding: '0 15px', margin: 0, height: 'auto', flexShrink: 0}}>X</button>
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem', background: '#f9f9f9', padding: '1rem', borderRadius: '8px', border: '1px solid #eee', overflow: 'hidden' }}>
+                    <div style={{ ...styles.inputGroup, flex: '1 1 150px', marginBottom: 0, minWidth: 0 }}>
+                      <label style={{ fontWeight: 'bold' }}>Estado del Producto</label>
+                      <select value={prod.isActive ? 'true' : 'false'} onChange={(e) => updateProduct(key, 'isActive', e.target.value === 'true')} style={{ ...styles.input, fontWeight: 'bold', color: prod.isActive ? '#10b981' : '#555', minWidth: 0 }}>
+                        <option value="true">🟢 Activo (Visible)</option>
+                        <option value="false">⚪ Pausado (Oculto)</option>
+                      </select>
+                    </div>
+                    <div style={{ ...styles.inputGroup, flex: '1 1 150px', marginBottom: 0, minWidth: 0 }}>
+                      <label style={{ fontWeight: 'bold', color: '#ef4444' }}>% de Oferta (Descuento)</label>
+                      <div style={styles.inputPrefix}>
+                        <input type="number" min="0" max="100" value={prod.discountPercentage || 0} onChange={(e) => updateProduct(key, 'discountPercentage', Number(e.target.value))} style={{ ...styles.inputNoBorder, minWidth: 0 }} />
+                        <span style={{ fontWeight: 'bold', color: '#ef4444' }}>% OFF</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={styles.inputGroup}>
+                    <label>Descripción corta</label>
+                    <textarea value={prod.description || ''} onChange={(e) => updateProduct(key, 'description', e.target.value)} style={{ ...styles.input, minHeight: '60px', minWidth: 0, width: '100%', boxSizing: 'border-box' }} />
+                  </div>
+
+                  <div style={styles.inputGroup}>
+                    <label>Costo Producción (por Unidad base o KG)</label>
+                    <div style={styles.inputPrefix}>
+                      <span>$</span>
+                      <input type="number" value={prod.costo_produccion || 0} onChange={(e) => updateProduct(key, 'costo_produccion', Number(e.target.value))} style={styles.inputNoBorder} />
+                    </div>
+                  </div>
+
+                  <div style={styles.formatBreakdown}>
+                    <h4 style={{ marginTop: '1.5rem', marginBottom: '1rem', color: '#555', fontSize: '0.9rem', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      Formatos y Precios
+                      <button onClick={() => addFormat(key)} style={styles.addFormatBtn}>+ Agregar Formato</button>
+                    </h4>
+
+                    {prod.formats?.map((format, index) => {
+                      let deductions = 0;
+                      let calculationText = `Cálculo: $${format.price} - $${prod.costo_produccion} (Costo base)`;
+
+                      if (format.id === '500g') {
+                        deductions = (prod.costo_produccion / 2) + costoEnvase500;
+                        calculationText = `Cálculo: $${format.price} - $${prod.costo_produccion / 2} (Costo/2) - $${costoEnvase500} (Envase)`;
+                      } else if (format.id === '1kg') {
+                        deductions = prod.costo_produccion + costoEnvase1kg;
+                        calculationText = `Cálculo: $${format.price} - $${prod.costo_produccion} (Costo) - $${costoEnvase1kg} (Envase)`;
+                      } else {
+                        deductions = prod.costo_produccion;
+                      }
+
+                      const ganancia = format.price - deductions;
+
+                      return (
+                        <div key={format.id} style={styles.formatRow}>
+                          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', minWidth: 0 }}>
+                            <div style={{ flex: '1 1 120px', minWidth: 0 }}>
+                              <label style={styles.smallLabel}>Nombre del Formato</label>
+                              <input type="text" value={format.name} onChange={(e) => updateFormat(key, format.id, 'name', e.target.value)} style={{ ...styles.inputPrefixSmall, width: '100%', boxSizing: 'border-box', minWidth: 0 }} />
+                            </div>
+                            <div style={{ flex: '1 1 150px', minWidth: 0 }}>
+                              <label style={styles.smallLabel}>Precio Final</label>
+                              <div style={{ display: 'flex', gap: '5px', alignItems: 'stretch', minWidth: 0 }}>
+                                <div style={{ ...styles.inputPrefixSmall, flex: 1, boxSizing: 'border-box', minWidth: 0 }}>
+                                  <span>$</span>
+                                  <input type="number" value={format.price} onChange={(e) => updateFormat(key, format.id, 'price', Number(e.target.value))} style={{ ...styles.inputNoBorderSmall, width: '100%', boxSizing: 'border-box', minWidth: 0 }} />
                                 </div>
+                                <button onClick={() => removeFormat(key, format.id)} style={{ ...styles.deleteBtn, padding: '0 15px', margin: 0, height: 'auto', flexShrink: 0 }}>X</button>
                               </div>
                             </div>
-                           <div style={styles.profitInfo}>
-                             <strong style={{color: 'var(--color-primary)'}}>Ganancia Neta: ${ganancia}</strong>
-                             <span style={{fontSize: '0.7rem'}}>{calculationText}</span>
-                           </div>
-                         </div>
-                       )
-                     })}
-                   </div>
-                   
-                   <div style={{marginTop: '2rem'}}>
-                      <button onClick={saveConfig} style={styles.saveBtnFull}>Guardar Catálogo</button>
-                   </div>
-                 </div>
-               );
+                          </div>
+                          <div style={styles.profitInfo}>
+                            <strong style={{ color: 'var(--color-primary)' }}>Ganancia Neta: ${ganancia}</strong>
+                            <span style={{ fontSize: '0.7rem' }}>{calculationText}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <div style={{ marginTop: '2rem' }}>
+                    <button onClick={saveConfig} style={styles.saveBtnFull}>Guardar Catálogo</button>
+                  </div>
+                </div>
+              );
             })()
           )}
         </div>
