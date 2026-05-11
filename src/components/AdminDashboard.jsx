@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2 } from 'lucide-react';
+import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2, Search, X, PlusCircle, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const ADMIN_EMAIL = 'rober.junin@gmail.com';
@@ -21,6 +21,23 @@ const AdminDashboard = () => {
   const [editingProductKey, setEditingProductKey] = useState(null);
   const [catalogFilter, setCatalogFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+
+  // Search and Pagination State
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState('all');
+  const [orderViewMode, setOrderViewMode] = useState('board'); // 'board' or 'list'
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 15;
+
+  // Manual Order Form State
+  const [isManualOrderModalOpen, setIsManualOrderModalOpen] = useState(false);
+  const [manualOrderForm, setManualOrderForm] = useState({
+    customerName: '',
+    customerEmail: '',
+    customerPhone: '',
+    status: 'closed',
+    items: []
+  });
 
   const DEFAULT_CONFIG = {
     products: {
@@ -139,6 +156,131 @@ const AdminDashboard = () => {
     } catch (e) {
       console.error('Error updating status', e);
     }
+  };
+
+  const handleAddManualItem = () => {
+    const activeProducts = Object.keys(config.products).filter(k => config.products[k].isActive);
+    if (activeProducts.length === 0) return;
+    const firstProdKey = activeProducts[0];
+    const firstProd = config.products[firstProdKey];
+    const format = firstProd.formats && firstProd.formats.length > 0 ? firstProd.formats[0] : { id: 'unidad', price: 0 };
+    setManualOrderForm(prev => ({
+      ...prev,
+      items: [...prev.items, {
+        productId: firstProdKey,
+        formatId: format.id,
+        quantity: 1,
+        customPrice: format.price
+      }]
+    }));
+  };
+
+  const handleManualItemChange = (index, field, value) => {
+    setManualOrderForm(prev => {
+      const newItems = [...prev.items];
+      const item = newItems[index];
+      
+      if (field === 'productId') {
+        const prod = config.products[value];
+        item.productId = value;
+        const format = prod.formats && prod.formats.length > 0 ? prod.formats[0] : { id: 'unidad', price: 0 };
+        item.formatId = format.id;
+        item.customPrice = format.price;
+      } else if (field === 'formatId') {
+        const prod = config.products[item.productId];
+        const format = prod.formats.find(f => f.id === value);
+        item.formatId = value;
+        item.customPrice = format ? format.price : 0;
+      } else if (field === 'quantity') {
+        item.quantity = Number(value);
+      } else if (field === 'customPrice') {
+        item.customPrice = Number(value);
+      }
+      return { ...prev, items: newItems };
+    });
+  };
+
+  const removeManualItem = (index) => {
+    setManualOrderForm(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }));
+  };
+
+  const submitManualOrder = async () => {
+    if (!manualOrderForm.customerName) {
+      alert("Ingrese nombre del cliente");
+      return;
+    }
+    if (manualOrderForm.items.length === 0) {
+      alert("Agregue al menos un producto");
+      return;
+    }
+
+    let totalKilos = 0;
+    let totalPrice = 0;
+    const itemsToSave = manualOrderForm.items.map(i => {
+      const prod = config.products[i.productId];
+      let kilos = 0;
+      if (i.formatId === '500g') kilos = 0.5 * i.quantity;
+      else if (i.formatId === '1kg' || i.formatId === 'granel') kilos = 1 * i.quantity;
+      
+      totalKilos += kilos;
+      totalPrice += i.customPrice * i.quantity;
+
+      return {
+        id: i.productId,
+        name: prod.name,
+        format: i.formatId,
+        quantity: i.quantity,
+        formattedPrice: i.customPrice,
+        image: prod.image || ''
+      };
+    });
+
+    try {
+      await addDoc(collection(db, 'orders'), {
+        customerName: manualOrderForm.customerName,
+        customerEmail: manualOrderForm.customerEmail,
+        customerPhone: manualOrderForm.customerPhone,
+        status: manualOrderForm.status,
+        items: itemsToSave,
+        totalKilos,
+        totalPrice,
+        createdAt: serverTimestamp(),
+        isManual: true
+      });
+      setIsManualOrderModalOpen(false);
+      setManualOrderForm({ customerName: '', customerEmail: '', customerPhone: '', status: 'closed', items: [] });
+      alert("Pedido manual creado correctamente");
+    } catch (e) {
+      console.error(e);
+      alert("Error al crear pedido");
+    }
+  };
+
+  const handleOpenManualModal = () => {
+    const activeProducts = Object.keys(config.products).filter(k => config.products[k].isActive);
+    let initialItems = [];
+    if (activeProducts.length > 0) {
+      const firstProdKey = activeProducts[0];
+      const firstProd = config.products[firstProdKey];
+      const format = firstProd.formats && firstProd.formats.length > 0 ? firstProd.formats[0] : { id: 'unidad', price: 0 };
+      initialItems = [{
+        productId: firstProdKey,
+        formatId: format.id,
+        quantity: 1,
+        customPrice: format.price
+      }];
+    }
+    setManualOrderForm({
+      customerName: '',
+      customerEmail: '',
+      customerPhone: '',
+      status: 'closed',
+      items: initialItems
+    });
+    setIsManualOrderModalOpen(true);
   };
 
   const saveConfig = async () => {
@@ -306,80 +448,175 @@ const AdminDashboard = () => {
 
       {activeTab === 'board' ? (
         <div className="admin-board-wrapper">
-          <div className="mobile-only" style={styles.segmentControl}>
-            {STATUSES.map(s => {
-              const count = orders.filter(o => (o.status || 'pending') === s.id).length;
-              const showIndicator = count > 0 && s.id !== 'closed';
-              return (
-                <button
-                  key={`seg-${s.id}`}
-                  onClick={() => setMobileActiveStatus(s.id)}
-                  style={{
-                    ...styles.segmentBtn,
-                    ...(mobileActiveStatus === s.id ? { background: s.color, color: 'white' } : {})
-                  }}
-                >
-                  {s.label}
-                  {showIndicator && (
-                    <span style={{
-                      display: 'inline-block',
-                      width: '8px',
-                      height: '8px',
-                      backgroundColor: mobileActiveStatus === s.id ? '#fff' : s.color,
-                      borderRadius: '50%',
-                      marginLeft: '6px'
-                    }} />
-                  )}
-                </button>
-              );
-            })}
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center', background: 'var(--glass-bg)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+            <div style={{ display: 'flex', flex: 1, gap: '10px', minWidth: '250px' }}>
+              <div style={{ position: 'relative', flex: 1 }}>
+                <Search size={18} style={{ position: 'absolute', left: '10px', top: '10px', color: 'var(--color-text-muted)' }} />
+                <input 
+                  type="text" 
+                  placeholder="Buscar cliente, email o teléfono..." 
+                  value={orderSearchQuery}
+                  onChange={(e) => {setOrderSearchQuery(e.target.value); setCurrentPage(1);}}
+                  style={{ ...styles.input, paddingLeft: '35px', width: '100%', boxSizing: 'border-box' }}
+                />
+              </div>
+              <select value={orderStatusFilter} onChange={(e) => {setOrderStatusFilter(e.target.value); setCurrentPage(1);}} style={styles.input}>
+                <option value="all">Todos los estados</option>
+                {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                onClick={() => setOrderViewMode(orderViewMode === 'board' ? 'list' : 'board')}
+                style={{ ...styles.saveBtn, marginTop: 0, padding: '0.8rem 1rem', background: 'var(--color-primary-dark)', display: 'flex', alignItems: 'center' }}
+              >
+                {orderViewMode === 'board' ? 'Ver como Lista' : 'Ver como Tablero'}
+              </button>
+              <button 
+                onClick={handleOpenManualModal}
+                style={{ ...styles.saveBtn, marginTop: 0, padding: '0.8rem 1rem', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '5px', border: '1px solid var(--color-primary-dark)' }}
+              >
+                <PlusCircle size={18} /> Nuevo Manual
+              </button>
+            </div>
           </div>
-          <div style={styles.board} className="admin-board">
-            {STATUSES.map(col => {
-              const colOrders = orders.filter(o => (o.status || 'pending') === col.id);
-              const Icon = col.icon;
+
+          {/* Render Board or List */}
+          {(() => {
+            const filteredOrders = orders.filter(o => {
+              if (orderStatusFilter !== 'all' && o.status !== orderStatusFilter) return false;
+              if (orderSearchQuery) {
+                const q = orderSearchQuery.toLowerCase();
+                const matchName = o.customerName?.toLowerCase().includes(q);
+                const matchEmail = o.customerEmail?.toLowerCase().includes(q);
+                const matchPhone = o.customerPhone?.toLowerCase().includes(q);
+                if (!matchName && !matchEmail && !matchPhone) return false;
+              }
+              return true;
+            });
+
+            if (orderViewMode === 'board') {
               return (
-                <div key={col.id} className={`admin-column ${mobileActiveStatus === col.id ? 'active-mobile' : ''}`} style={styles.column}>
-                  <div style={{ ...styles.columnHeader, borderBottom: `3px solid ${col.color}` }}>
-                    <Icon size={20} color={col.color} />
-                    <h3>{col.label}</h3>
-                    <span style={styles.countBadge}>{colOrders.length}</span>
+                <>
+                  <div className="mobile-only" style={styles.segmentControl}>
+                    {STATUSES.map(s => {
+                      const count = filteredOrders.filter(o => (o.status || 'pending') === s.id).length;
+                      const showIndicator = count > 0 && s.id !== 'closed';
+                      return (
+                        <button
+                          key={`seg-${s.id}`}
+                          onClick={() => setMobileActiveStatus(s.id)}
+                          style={{
+                            ...styles.segmentBtn,
+                            ...(mobileActiveStatus === s.id ? { background: s.color, color: 'white' } : {})
+                          }}
+                        >
+                          {s.label}
+                          {showIndicator && (
+                            <span style={{ display: 'inline-block', width: '8px', height: '8px', backgroundColor: mobileActiveStatus === s.id ? '#fff' : s.color, borderRadius: '50%', marginLeft: '6px' }} />
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
-                  <div style={styles.columnContent}>
-                    {colOrders.map(order => (
-                      <div key={order.id} style={styles.orderCard}>
-                        <div style={styles.cardHeader}>
-                          <strong>{order.customerName}</strong>
-                          <span style={styles.date}>{order.createdAt ? order.createdAt.toDate().toLocaleDateString() : ''}</span>
+                  <div style={styles.board} className="admin-board">
+                    {STATUSES.map(col => {
+                      const colOrders = filteredOrders.filter(o => (o.status || 'pending') === col.id);
+                      const Icon = col.icon;
+                      return (
+                        <div key={col.id} className={`admin-column ${mobileActiveStatus === col.id ? 'active-mobile' : ''}`} style={styles.column}>
+                          <div style={{ ...styles.columnHeader, borderBottom: `3px solid ${col.color}` }}>
+                            <Icon size={20} color={col.color} />
+                            <h3>{col.label}</h3>
+                            <span style={styles.countBadge}>{colOrders.length}</span>
+                          </div>
+                          <div style={styles.columnContent}>
+                            {colOrders.map(order => (
+                              <div key={order.id} style={styles.orderCard}>
+                                <div style={styles.cardHeader}>
+                                  <strong>{order.customerName}</strong>
+                                  <span style={styles.date}>{order.createdAt ? order.createdAt.toDate().toLocaleDateString() : ''}</span>
+                                </div>
+                                <div style={styles.cardBody}>
+                                  <p>{order.items?.length || 0} items ({order.totalKilos}kg)</p>
+                                  <p style={styles.price}>${order.totalPrice}</p>
+                                </div>
+                                <div style={styles.cardFooter}>
+                                  <select value={order.status || 'pending'} onChange={(e) => updateStatus(order.id, e.target.value)} style={styles.statusSelect}>
+                                    {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                                  </select>
+                                  <a href={`https://wa.me/${order.customerPhone || '2317472432'}`} target="_blank" rel="noreferrer" style={styles.waBtn}>Chat</a>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                        <div style={styles.cardBody}>
-                          <p>{order.items?.length || 0} items ({order.totalKilos}kg)</p>
-                          <p style={styles.price}>${order.totalPrice}</p>
-                        </div>
-                        <div style={styles.cardFooter}>
-                          <select
-                            value={order.status || 'pending'}
-                            onChange={(e) => updateStatus(order.id, e.target.value)}
-                            style={styles.statusSelect}
-                          >
-                            {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-                          </select>
-                          <a
-                            href={`https://wa.me/2317472432`}
-                            target="_blank"
-                            rel="noreferrer"
-                            style={styles.waBtn}
-                          >
-                            Chat
-                          </a>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
+                </>
+              );
+            } else {
+              // LIST VIEW
+              const totalPages = Math.max(1, Math.ceil(filteredOrders.length / ordersPerPage));
+              const paginatedOrders = filteredOrders.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage);
+
+              return (
+                <div style={{ background: 'var(--glass-bg)', borderRadius: '12px', padding: '1rem', overflowX: 'auto', boxShadow: 'var(--shadow-soft)', border: '1px solid var(--glass-border)' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid var(--glass-border)', textAlign: 'left', color: 'var(--color-text-muted)' }}>
+                        <th style={{ padding: '12px 8px' }}>Fecha</th>
+                        <th style={{ padding: '12px 8px' }}>Cliente</th>
+                        <th style={{ padding: '12px 8px' }}>Contacto</th>
+                        <th style={{ padding: '12px 8px' }}>Kilos</th>
+                        <th style={{ padding: '12px 8px' }}>Total</th>
+                        <th style={{ padding: '12px 8px' }}>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedOrders.map(order => (
+                        <tr key={order.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
+                          <td style={{ padding: '12px 8px', color: 'var(--color-text-muted)' }}>{order.createdAt ? order.createdAt.toDate().toLocaleDateString() : ''}</td>
+                          <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{order.customerName} {order.isManual && <span style={{fontSize:'0.7rem', background:'var(--color-primary)', color:'#fff', padding:'2px 6px', borderRadius:'10px', marginLeft: '5px'}}>Manual</span>}</td>
+                          <td style={{ padding: '12px 8px', color: 'var(--color-text-muted)' }}>
+                            <div>{order.customerEmail || '-'}</div>
+                            <div style={{ fontSize: '0.8rem' }}>{order.customerPhone || '-'}</div>
+                          </td>
+                          <td style={{ padding: '12px 8px' }}>{order.totalKilos}kg</td>
+                          <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--color-accent)' }}>${order.totalPrice}</td>
+                          <td style={{ padding: '12px 8px' }}>
+                            <select value={order.status || 'pending'} onChange={(e) => updateStatus(order.id, e.target.value)} style={{ ...styles.statusSelect, background: 'var(--color-bg-light)', color: 'var(--color-text)', border: '1px solid var(--glass-border)' }}>
+                              {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                      {paginatedOrders.length === 0 && (
+                        <tr><td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No hay pedidos que coincidan.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                  
+                  {totalPages > 1 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
+                      <button 
+                        disabled={currentPage === 1} 
+                        onClick={() => setCurrentPage(p => p - 1)}
+                        style={{ padding: '6px 12px', background: currentPage === 1 ? 'transparent' : 'var(--color-primary)', color: currentPage === 1 ? 'var(--color-text-muted)' : '#fff', borderRadius: '6px', border: currentPage === 1 ? '1px solid var(--glass-border)' : 'none', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+                      >Anterior</button>
+                      <span style={{ fontWeight: 'bold', color: 'var(--color-text)' }}>Página {currentPage} de {totalPages}</span>
+                      <button 
+                        disabled={currentPage === totalPages} 
+                        onClick={() => setCurrentPage(p => p + 1)}
+                        style={{ padding: '6px 12px', background: currentPage === totalPages ? 'transparent' : 'var(--color-primary)', color: currentPage === totalPages ? 'var(--color-text-muted)' : '#fff', borderRadius: '6px', border: currentPage === totalPages ? '1px solid var(--glass-border)' : 'none', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+                      >Siguiente</button>
+                    </div>
+                  )}
                 </div>
               );
-            })}
-          </div>
+            }
+          })()}
         </div>
       ) : activeTab === 'finance' ? (
         <div style={styles.financePanel}>
@@ -594,6 +831,94 @@ const AdminDashboard = () => {
           )}
         </div>
       ) : null}
+
+      {/* Manual Order Modal */}
+      {isManualOrderModalOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div style={{ background: 'var(--color-bg-light)', borderRadius: '16px', width: '100%', maxWidth: '700px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem', boxShadow: '0 10px 40px rgba(0,0,0,0.5)', position: 'relative', border: '1px solid var(--glass-border)' }}>
+            <button onClick={() => setIsManualOrderModalOpen(false)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+              <X size={24} color="var(--color-text-muted)" />
+            </button>
+            <h2 style={{ marginBottom: '1.5rem', color: 'var(--color-primary-dark)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <PlusCircle size={24} /> Crear Pedido Manual
+            </h2>
+
+            <div style={{ background: 'var(--glass-bg)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--glass-border)', marginBottom: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem 1.5rem' }}>
+                <div style={styles.inputGroup}>
+                  <label style={{ color: 'var(--color-text)', fontSize: '0.85rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nombre del Cliente</label>
+                  <input type="text" placeholder="Ej. Juan Pérez" value={manualOrderForm.customerName} onChange={(e) => setManualOrderForm(p => ({ ...p, customerName: e.target.value }))} style={{...styles.input, background: 'var(--color-bg-light)'}} />
+                </div>
+                <div style={styles.inputGroup}>
+                  <label style={{ color: 'var(--color-text)', fontSize: '0.85rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email <span style={{fontWeight:'normal', color:'var(--color-text-muted)', textTransform:'none'}}>(Opcional)</span></label>
+                  <input type="email" placeholder="Para vincular historial..." value={manualOrderForm.customerEmail} onChange={(e) => setManualOrderForm(p => ({ ...p, customerEmail: e.target.value }))} style={{...styles.input, background: 'var(--color-bg-light)'}} />
+                </div>
+                <div style={styles.inputGroup}>
+                  <label style={{ color: 'var(--color-text)', fontSize: '0.85rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Teléfono <span style={{fontWeight:'normal', color:'var(--color-text-muted)', textTransform:'none'}}>(Opcional)</span></label>
+                  <input type="tel" placeholder="Ej. 1123456789" value={manualOrderForm.customerPhone} onChange={(e) => setManualOrderForm(p => ({ ...p, customerPhone: e.target.value }))} style={{...styles.input, background: 'var(--color-bg-light)'}} />
+                </div>
+                <div style={styles.inputGroup}>
+                  <label style={{ color: 'var(--color-text)', fontSize: '0.85rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Estado Inicial</label>
+                  <select value={manualOrderForm.status} onChange={(e) => setManualOrderForm(p => ({ ...p, status: e.target.value }))} style={{...styles.input, background: 'var(--color-bg-light)'}}>
+                    {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <h3 style={{ marginBottom: '1rem', borderBottom: '2px solid var(--glass-border)', paddingBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Items del Pedido</h3>
+            
+            {manualOrderForm.items.map((item, index) => {
+              const activeProducts = Object.keys(config.products).filter(k => config.products[k].isActive);
+              const prod = config.products[item.productId];
+              const formats = prod ? prod.formats : [];
+              return (
+                <div key={index} style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'flex-end', background: 'var(--glass-bg)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', border: '1px solid var(--glass-border)' }}>
+                  <div style={{ flex: '2 1 200px' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--color-text)' }}>Producto</label>
+                    <select value={item.productId} onChange={(e) => handleManualItemChange(index, 'productId', e.target.value)} style={{ ...styles.input, width: '100%', padding: '0.5rem' }}>
+                      {activeProducts.map(k => <option key={k} value={k}>{config.products[k].name}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ flex: '1 1 100px' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--color-text)' }}>Formato</label>
+                    <select value={item.formatId} onChange={(e) => handleManualItemChange(index, 'formatId', e.target.value)} style={{ ...styles.input, width: '100%', padding: '0.5rem' }}>
+                      {formats.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ flex: '1 1 80px' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--color-text)' }}>Cantidad</label>
+                    <input type="number" min="1" value={item.quantity} onChange={(e) => handleManualItemChange(index, 'quantity', e.target.value)} style={{ ...styles.input, width: '100%', padding: '0.5rem' }} />
+                  </div>
+                  <div style={{ flex: '1 1 120px' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--color-text)' }}>Precio Unit. ($)</label>
+                    <input type="number" min="0" value={item.customPrice} onChange={(e) => handleManualItemChange(index, 'customPrice', e.target.value)} style={{ ...styles.input, width: '100%', padding: '0.5rem' }} />
+                  </div>
+                  <button onClick={() => removeManualItem(index)} style={{ padding: '0.6rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', cursor: 'pointer' }}>
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              );
+            })}
+
+            <button onClick={handleAddManualItem} style={{ padding: '1rem', background: 'rgba(74, 124, 46, 0.05)', color: 'var(--color-primary)', border: '1px dashed var(--color-primary)', borderRadius: '8px', width: '100%', cursor: 'pointer', fontWeight: 'bold', marginBottom: '2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              + Agregar Producto
+            </button>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--glass-bg)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+              <div>
+                <span style={{ color: 'var(--color-text-muted)' }}>Total a cobrar:</span>
+                <h3 style={{ margin: 0, fontSize: '2rem', color: 'var(--color-primary)' }}>
+                  ${manualOrderForm.items.reduce((acc, item) => acc + (item.customPrice * item.quantity), 0)}
+                </h3>
+              </div>
+              <button onClick={submitManualOrder} style={{ padding: '1rem 2rem', background: 'var(--color-primary)', color: '#fff', border: '1px solid var(--color-primary-dark)', borderRadius: '12px', fontWeight: '800', fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(74, 124, 46, 0.3)', fontFamily: 'var(--font-serif)', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <PlusCircle size={20} /> Crear Pedido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
