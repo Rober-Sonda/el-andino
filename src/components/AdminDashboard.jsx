@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
-import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2, Search, X, PlusCircle, Trash2 } from 'lucide-react';
+import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2, Search, X, PlusCircle, Trash2, Save } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const ADMIN_EMAIL = 'rober.junin@gmail.com';
@@ -701,8 +701,12 @@ const AdminDashboard = () => {
                   })}
               </div>
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-                <button onClick={addProduct} style={{ ...styles.saveBtnFull, background: '#3b82f6', marginTop: 0, flex: 1 }}>+ Añadir Producto</button>
-                <button onClick={saveConfig} style={{ ...styles.saveBtnFull, marginTop: 0, flex: 1 }}>Guardar Cambios de Catálogo</button>
+                <button onClick={addProduct} style={{ padding: '1rem 1.5rem', background: 'var(--glass-bg)', color: 'var(--color-primary)', border: '2px dashed var(--color-primary)', borderRadius: '12px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', flex: 1, textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                  <PlusCircle size={20} /> Añadir Producto
+                </button>
+                <button onClick={saveConfig} style={{ padding: '1rem 1.5rem', background: 'var(--color-primary)', color: '#fff', border: '1px solid var(--color-primary-dark)', borderRadius: '12px', fontWeight: '800', fontSize: '1rem', cursor: 'pointer', flex: 1, textTransform: 'uppercase', letterSpacing: '1px', boxShadow: '0 4px 15px rgba(74, 124, 46, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                  <Save size={20} /> Guardar Cambios de Catálogo
+                </button>
               </div>
             </>
           ) : (
