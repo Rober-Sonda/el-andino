@@ -804,7 +804,7 @@ const AdminDashboard = () => {
                           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', minWidth: 0 }}>
                             <div style={{ flex: '1 1 120px', minWidth: 0 }}>
                               <label style={styles.smallLabel}>Nombre del Formato</label>
-                              <input type="text" value={format.name} onChange={(e) => updateFormat(key, format.id, 'name', e.target.value)} style={{ ...styles.inputPrefixSmall, width: '100%', boxSizing: 'border-box', minWidth: 0 }} />
+                              <input type="text" value={format.name} onChange={(e) => updateFormat(key, format.id, 'name', e.target.value)} style={styles.inputSmall} />
                             </div>
                             <div style={{ flex: '1 1 150px', minWidth: 0 }}>
                               <label style={styles.smallLabel}>Precio Final</label>
@@ -1211,6 +1211,17 @@ const styles = {
     display: 'block',
     marginBottom: '4px'
   },
+  inputSmall: {
+    padding: '0.5rem',
+    borderRadius: '6px',
+    border: '1px solid var(--glass-border)',
+    fontSize: '0.9rem',
+    background: 'var(--color-bg-light)',
+    color: 'var(--color-text)',
+    outline: 'none',
+    width: '100%',
+    boxSizing: 'border-box'
+  },
   inputPrefixSmall: {
     display: 'flex',
     alignItems: 'center',
@@ -1260,14 +1271,16 @@ const styles = {
     fontWeight: 'bold'
   },
   addFormatBtn: {
-    padding: '4px 10px',
-    background: '#10b981',
+    padding: '6px 12px',
+    background: 'var(--color-accent)',
     color: '#fff',
     border: 'none',
-    borderRadius: '16px',
+    borderRadius: '8px',
     cursor: 'pointer',
-    fontSize: '0.75rem',
-    fontWeight: 'bold'
+    fontSize: '0.8rem',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px'
   },
   catalogGrid: {
     display: 'grid',
