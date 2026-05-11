@@ -701,7 +701,7 @@ const AdminDashboard = () => {
                   })}
               </div>
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-                <button onClick={addProduct} style={{ padding: '1rem 1.5rem', background: 'var(--glass-bg)', color: 'var(--color-primary)', border: '2px dashed var(--color-primary)', borderRadius: '12px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', flex: 1, textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                <button onClick={addProduct} style={{ padding: '1rem 1.5rem', background: 'var(--glass-bg)', color: 'var(--color-text)', border: '2px dashed var(--color-text-muted)', borderRadius: '12px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', flex: 1, textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                   <PlusCircle size={20} /> Añadir Producto
                 </button>
                 <button onClick={saveConfig} style={{ padding: '1rem 1.5rem', background: 'var(--color-primary)', color: '#fff', border: '1px solid var(--color-primary-dark)', borderRadius: '12px', fontWeight: '800', fontSize: '1rem', cursor: 'pointer', flex: 1, textTransform: 'uppercase', letterSpacing: '1px', boxShadow: '0 4px 15px rgba(74, 124, 46, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
@@ -907,7 +907,7 @@ const AdminDashboard = () => {
               );
             })}
 
-            <button onClick={handleAddManualItem} style={{ padding: '1rem', background: 'rgba(74, 124, 46, 0.05)', color: 'var(--color-primary)', border: '1px dashed var(--color-primary)', borderRadius: '8px', width: '100%', cursor: 'pointer', fontWeight: 'bold', marginBottom: '2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            <button onClick={handleAddManualItem} style={{ padding: '1rem', background: 'var(--glass-bg)', color: 'var(--color-text)', border: '2px dashed var(--color-text-muted)', borderRadius: '8px', width: '100%', cursor: 'pointer', fontWeight: 'bold', marginBottom: '2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
               + Agregar Producto
             </button>
 
@@ -1298,7 +1298,7 @@ const styles = {
   },
   catalogItemTitle: {
     fontSize: '1rem',
-    color: 'var(--color-primary-dark)',
+    color: 'var(--color-text)',
     marginBottom: '0.2rem'
   },
   catalogItemCost: {
@@ -1317,7 +1317,7 @@ const styles = {
   backBtn: {
     background: 'none',
     border: 'none',
-    color: 'var(--color-primary)',
+    color: 'var(--color-text)',
     fontWeight: 'bold',
     fontSize: '1rem',
     cursor: 'pointer',
