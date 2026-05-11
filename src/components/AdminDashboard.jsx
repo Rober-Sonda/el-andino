@@ -670,11 +670,11 @@ const AdminDashboard = () => {
           {!editingProductKey ? (
             <>
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                <button onClick={() => setCatalogFilter('all')} style={{ ...styles.segmentBtn, background: catalogFilter === 'all' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'all' ? '#fff' : '#555' }}>Todos</button>
-                <button onClick={() => setCatalogFilter('yerbas')} style={{ ...styles.segmentBtn, background: catalogFilter === 'yerbas' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'yerbas' ? '#fff' : '#555' }}>Yerbas Puras</button>
-                <button onClick={() => setCatalogFilter('blends')} style={{ ...styles.segmentBtn, background: catalogFilter === 'blends' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'blends' ? '#fff' : '#555' }}>Yerbas Compuestas</button>
-                <button onClick={() => setCatalogFilter('accesorios')} style={{ ...styles.segmentBtn, background: catalogFilter === 'accesorios' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'accesorios' ? '#fff' : '#555' }}>Accesorios</button>
-                <button onClick={() => setCatalogFilter('otros')} style={{ ...styles.segmentBtn, background: catalogFilter === 'otros' ? 'var(--color-primary)' : 'rgba(0,0,0,0.05)', color: catalogFilter === 'otros' ? '#fff' : '#555' }}>Otros</button>
+                <button onClick={() => setCatalogFilter('all')} style={{ ...styles.segmentBtn, background: catalogFilter === 'all' ? 'var(--color-primary)' : 'transparent', border: catalogFilter === 'all' ? 'none' : '1px solid var(--glass-border)', color: catalogFilter === 'all' ? '#fff' : 'var(--color-text-muted)' }}>Todos</button>
+                <button onClick={() => setCatalogFilter('yerbas')} style={{ ...styles.segmentBtn, background: catalogFilter === 'yerbas' ? 'var(--color-primary)' : 'transparent', border: catalogFilter === 'yerbas' ? 'none' : '1px solid var(--glass-border)', color: catalogFilter === 'yerbas' ? '#fff' : 'var(--color-text-muted)' }}>Yerbas Puras</button>
+                <button onClick={() => setCatalogFilter('blends')} style={{ ...styles.segmentBtn, background: catalogFilter === 'blends' ? 'var(--color-primary)' : 'transparent', border: catalogFilter === 'blends' ? 'none' : '1px solid var(--glass-border)', color: catalogFilter === 'blends' ? '#fff' : 'var(--color-text-muted)' }}>Yerbas Compuestas</button>
+                <button onClick={() => setCatalogFilter('accesorios')} style={{ ...styles.segmentBtn, background: catalogFilter === 'accesorios' ? 'var(--color-primary)' : 'transparent', border: catalogFilter === 'accesorios' ? 'none' : '1px solid var(--glass-border)', color: catalogFilter === 'accesorios' ? '#fff' : 'var(--color-text-muted)' }}>Accesorios</button>
+                <button onClick={() => setCatalogFilter('otros')} style={{ ...styles.segmentBtn, background: catalogFilter === 'otros' ? 'var(--color-primary)' : 'transparent', border: catalogFilter === 'otros' ? 'none' : '1px solid var(--glass-border)', color: catalogFilter === 'otros' ? '#fff' : 'var(--color-text-muted)' }}>Otros</button>
               </div>
               <div style={styles.catalogGrid}>
                 {Object.keys(config.products)
@@ -693,7 +693,7 @@ const AdminDashboard = () => {
                           <p style={styles.catalogItemCost}>Costo: ${prod.costo_produccion}</p>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={styles.catalogItemBadge}>{prod.formats?.length || 0} formatos</span>
-                            <span style={{ fontSize: '0.7rem', color: '#888', textTransform: 'uppercase' }}>{prod.category || 'otros'}</span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>{prod.category || 'otros'}</span>
                           </div>
                         </div>
                       </div>
@@ -718,7 +718,7 @@ const AdminDashboard = () => {
                 <div style={{ ...styles.productCostCard, padding: '1rem' }}>
                   <button onClick={() => setEditingProductKey(null)} style={styles.backBtn}>← Volver al Listado</button>
 
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '10px' }}>
                     <input
                       type="text"
                       value={prod.name}
@@ -1090,13 +1090,14 @@ const styles = {
     gap: '1.5rem'
   },
   metricCard: {
-    background: '#fff',
+    background: 'var(--glass-bg)',
     padding: '1.5rem',
     borderRadius: '12px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+    boxShadow: 'var(--shadow-soft)',
+    border: '1px solid var(--glass-border)',
   },
   metricTitle: {
-    color: '#666',
+    color: 'var(--color-text-muted)',
     fontSize: '0.9rem',
     fontWeight: 'bold',
     textTransform: 'uppercase',
@@ -1105,7 +1106,7 @@ const styles = {
   metricValue: {
     fontSize: '2rem',
     fontWeight: '800',
-    color: '#222'
+    color: 'var(--color-text)'
   },
   settingsBox: {
     background: 'rgba(255,255,255,0.7)',
@@ -1144,35 +1145,35 @@ const styles = {
     gap: '2rem'
   },
   generalCostsCard: {
-    background: 'rgba(255,255,255,0.8)',
+    background: 'var(--glass-bg)',
     padding: '1.5rem 1rem',
     borderRadius: '12px',
     border: '1px solid var(--glass-border)',
-    boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+    boxShadow: 'var(--shadow-soft)',
   },
   infoBox: {
-    background: 'rgba(0,0,0,0.03)',
+    background: 'rgba(128,128,128,0.1)',
     padding: '1rem',
     borderRadius: '8px',
     fontSize: '0.85rem',
-    color: '#666',
+    color: 'var(--color-text-muted)',
     marginTop: '1rem',
     borderLeft: '4px solid var(--color-primary)'
   },
   productCostCard: {
-    background: '#fff',
+    background: 'var(--glass-bg)',
     padding: '1.5rem 1rem',
     borderRadius: '12px',
     border: '1px solid var(--glass-border)',
-    boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+    boxShadow: 'var(--shadow-soft)',
   },
   inputPrefix: {
     display: 'flex',
     alignItems: 'center',
-    border: '1px solid #ccc',
+    border: '1px solid var(--glass-border)',
     borderRadius: '8px',
     padding: '0 1rem',
-    background: '#f9f9f9'
+    background: 'var(--color-bg-light)'
   },
   inputNoBorder: {
     flex: 1,
@@ -1185,9 +1186,9 @@ const styles = {
   formatBreakdown: {
     marginTop: '1rem',
     padding: '1rem',
-    background: '#fafafa',
+    background: 'var(--glass-bg)',
     borderRadius: '8px',
-    border: '1px solid #eaeaea'
+    border: '1px solid var(--glass-border)'
   },
   formatRow: {
     display: 'flex',
@@ -1195,22 +1196,22 @@ const styles = {
     gap: '0.5rem',
     paddingBottom: '1rem',
     marginBottom: '1rem',
-    borderBottom: '1px solid #eee'
+    borderBottom: '1px solid var(--glass-border)'
   },
   smallLabel: {
     fontSize: '0.85rem',
     fontWeight: 'bold',
-    color: '#444',
+    color: 'var(--color-text)',
     display: 'block',
     marginBottom: '4px'
   },
   inputPrefixSmall: {
     display: 'flex',
     alignItems: 'center',
-    border: '1px solid #ddd',
+    border: '1px solid var(--glass-border)',
     borderRadius: '6px',
     padding: '0 0.5rem',
-    background: '#fff'
+    background: 'var(--color-bg-light)'
   },
   inputNoBorderSmall: {
     flex: 1,
@@ -1268,10 +1269,10 @@ const styles = {
     gap: '1.5rem',
   },
   catalogItemCard: {
-    background: '#fff',
+    background: 'var(--glass-bg)',
     borderRadius: '12px',
     overflow: 'hidden',
-    boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+    boxShadow: 'var(--shadow-soft)',
     border: '1px solid var(--glass-border)',
     cursor: 'pointer',
     transition: 'transform 0.2s',
@@ -1296,7 +1297,7 @@ const styles = {
   },
   catalogItemCost: {
     fontSize: '0.85rem',
-    color: '#666',
+    color: 'var(--color-text-muted)',
     marginBottom: '0.5rem'
   },
   catalogItemBadge: {
