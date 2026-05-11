@@ -41,19 +41,19 @@ const AdminDashboard = () => {
         isActive: true, discountPercentage: 0, costo_produccion: 3200, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       },
       'blend-herencia': {
-        id: 'blend-herencia', name: 'Blend: Herencia del Sembrador', category: 'blends', description: 'Equilibrada. Una combinación artesanal diseñada para verdaderos apasionados. Estacionada naturalmente con hoja uruguaya.', image: '/kraft_bag.png',
+        id: 'blend-herencia', name: 'Blend: Herencia del Sembrador', category: 'blends', description: 'Base Premium • Pura Hoja • Molienda media. Equilibrio entre el estacionamiento premium y la intensidad de la hoja pura despalada. Esta fusión crea un mate de textura suave, un sabor más ligero y con un rendimiento excepcional.', image: '/kraft_bag.png',
         isActive: true, discountPercentage: 0, costo_produccion: 3500, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       },
       'blend-fuego': {
-        id: 'blend-fuego', name: 'Blend: Fuego Andino', category: 'blends', description: 'Intensa. Carácter de monte, secada con leña bajo el proceso Barbacuá. Intensa y maderera con un toque de reserva.', image: '/kraft_bag.png',
+        id: 'blend-fuego', name: 'Blend: Fuego Andino', category: 'blends', description: 'Base Barbacuá • Toques Premium • Con palo. Intensa base ahumada barbacuá equilibrada con sutiles hojas puras y premium. Brinda un sabor profundo, cuerpo robusto y matices leñosos, logrando un mate de gran carácter y persistencia.', image: '/kraft_bag.png',
         isActive: true, discountPercentage: 0, costo_produccion: 3800, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       },
       'blend-charrua': {
-        id: 'blend-charrua', name: 'Blend: Tradición Charrúa', category: 'blends', description: 'Clásica. Molienda fina perfecta. Rendimiento impecable para el cebador experimentado oriental.', image: '/kraft_bag.png',
+        id: 'blend-charrua', name: 'Blend: Tradición Charrúa', category: 'blends', description: 'Corte Oriental • Molienda fina • Gran espuma. Fusión de molienda fina, hoja pura y un toque premium. Este clásico oriental brinda un mate intenso, logrando un sabor fuerte y bien definido.', image: '/kraft_bag.png',
         isActive: true, discountPercentage: 0, costo_produccion: 3400, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       },
       'blend-alma': {
-        id: 'blend-alma', name: 'Blend: Alma de Monte', category: 'blends', description: 'Suave y Compleja. Pura hoja uruguaya, estilo canario para un mate fuerte, espumoso y prolongado que no perdona.', image: '/kraft_bag.png',
+        id: 'blend-alma', name: 'Blend: Alma de Monte', category: 'blends', description: 'Base Despalada • Toque Ahumado • Sin palo. Base de pura hoja despalada coronada con sutiles notas ahumadas. El resultado es un mate con un sabor imponente, con matices a leña que logran capturar la verdadera esencia del monte.', image: '/kraft_bag.png',
         isActive: true, discountPercentage: 0, costo_produccion: 3900, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
       }
     },

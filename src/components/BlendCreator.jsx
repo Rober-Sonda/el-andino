@@ -7,57 +7,57 @@ const featuredBlends = [
     name: "Herencia del Sembrador",
     ratios: { premium: 50, ahumada: 0, molida: 0, despalada: 50 },
     icon: <Award size={18} />,
-    profile: "Equilibrada",
-    description: "Una combinación artesanal diseñada para verdaderos apasionados. Estacionada naturalmente con hoja uruguaya."
+    profile: "Base Premium • Pura Hoja • Molienda media",
+    description: "Equilibrio entre el estacionamiento premium y la intensidad de la hoja pura despalada. Esta fusión crea un mate de textura suave, un sabor más ligero y con un rendimiento excepcional."
   },
   {
     name: "Fuego Andino",
     ratios: { premium: 15, ahumada: 75, despalada: 10, molida: 0 },
     icon: <Flame size={18} />,
-    profile: "Intensa",
-    description: "Carácter de monte, secada con leña bajo el proceso Barbacuá. Intensa y maderera con un toque de reserva."
+    profile: "Base Barbacuá • Toques Premium • Con palo",
+    description: "Intensa base ahumada barbacuá equilibrada con sutiles hojas puras y premium. Brinda un sabor profundo, cuerpo robusto y matices leñosos, logrando un mate de gran carácter y persistencia."
   },
   {
     name: "Tradición Charrúa",
     ratios: { premium: 40, ahumada: 0, despalada: 20, molida: 40 },
     icon: <Leaf size={18} />,
-    profile: "Clásica",
-    description: "Molienda fina perfecta. Rendimiento impecable para el cebador experimentado oriental."
+    profile: "Corte Oriental • Molienda fina • Gran espuma",
+    description: "Fusión de molienda fina, hoja pura y un toque premium. Este clásico oriental brinda un mate intenso, logrando un sabor fuerte y bien definido."
   },
   {
     name: "Alma de Monte",
     ratios: { premium: 0, ahumada: 20, despalada: 80, molida: 0 },
     icon: <Coffee size={18} />,
-    profile: "Suave y Compleja",
-    description: "Pura hoja uruguaya, estilo canario para un mate fuerte, espumoso y prolongado que no perdona."
+    profile: "Base Despalada • Toque Ahumado • Sin palo",
+    description: "Base de pura hoja despalada coronada con sutiles notas ahumadas. El resultado es un mate con un sabor imponente, con matices a leña que logran capturar la verdadera esencia del monte."
   },
   {
-    name: "Pura Premium",
+    name: "Yerba Premium",
     ratios: { premium: 100, ahumada: 0, despalada: 0, molida: 0 },
     icon: <Star size={18} />,
-    profile: "Tradicional",
-    description: "Nuestra yerba base de la más alta calidad, sin mezclas. Sabor tradicional y duradero."
+    profile: "Suave y Duradera",
+    description: "Estacionada naturalmente por 24 meses. Suave, duradera y de molienda equilibrada. Ideal para largas rondas."
   },
   {
-    name: "Pura Ahumada",
+    name: "Yerba Ahumada",
     ratios: { premium: 0, ahumada: 100, despalada: 0, molida: 0 },
     icon: <Flame size={18} />,
-    profile: "Muy Intensa",
-    description: "100% secanza barbacuá. Un viaje directo al monte con notas profundas a madera y humo."
+    profile: "Carácter de Monte",
+    description: "Secada con maderas seleccionadas (Barbacuá). Un sabor intenso, profundo y con carácter de monte."
   },
   {
-    name: "Pura Despalada",
+    name: "Uruguaya Despalada",
     ratios: { premium: 0, ahumada: 0, despalada: 100, molida: 0 },
     icon: <Leaf size={18} />,
-    profile: "Fuerte",
-    description: "Sin palo, pura hoja. Máxima intensidad y rendimiento para mates que no se lavan."
+    profile: "Fuerte y Espumoso",
+    description: "Corte fino sin palo, pura hoja. Estilo canario para un mate fuerte, espumoso y de sabor prologando."
   },
   {
-    name: "Pura Molida",
+    name: "Uruguaya Molida",
     ratios: { premium: 0, ahumada: 0, despalada: 0, molida: 100 },
     icon: <Coffee size={18} />,
-    profile: "Estilo Uruguayo",
-    description: "Molienda extra fina. Sabor fuerte y constante desde el primer mate, ideal para mate de camionero."
+    profile: "Equilibrio Perfecto",
+    description: "Tradicional molienda fina con equilibrio perfecto. La clásica y elegante elección oriental."
   }
 ];
 
@@ -169,8 +169,8 @@ const BlendCreator = () => {
   const varietiesLabels = {
     premium: 'Yerba Premium',
     ahumada: 'Yerba Ahumada',
-    despalada: 'Despalada',
-    molida: 'Molida'
+    despalada: 'Uruguaya Despalada',
+    molida: 'Uruguaya Molida'
   };
 
   return (
