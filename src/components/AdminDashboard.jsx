@@ -734,11 +734,11 @@ const AdminDashboard = () => {
 
                   <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                     <div style={{ ...styles.inputGroup, flex: '1 1 200px', minWidth: 0 }}>
-                      <label>URL de Imagen</label>
+                      <label style={{ color: 'var(--color-text)', fontWeight: 'bold', fontSize: '0.9rem' }}>URL de Imagen</label>
                       <input type="text" value={prod.image || ''} onChange={(e) => updateProduct(key, 'image', e.target.value)} style={{ ...styles.input, minWidth: 0 }} placeholder="/premium_full.jpg o https://..." />
                     </div>
                     <div style={{ ...styles.inputGroup, flex: '1 1 150px', minWidth: 0 }}>
-                      <label>Categoría</label>
+                      <label style={{ color: 'var(--color-text)', fontWeight: 'bold', fontSize: '0.9rem' }}>Categoría</label>
                       <select value={prod.category || 'otros'} onChange={(e) => updateProduct(key, 'category', e.target.value)} style={{ ...styles.input, minWidth: 0 }}>
                         <option value="yerbas">Yerbas Puras</option>
                         <option value="blends">Yerbas Compuestas</option>
@@ -748,10 +748,10 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem', background: '#f9f9f9', padding: '1rem', borderRadius: '8px', border: '1px solid #eee', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem', background: 'var(--color-bg-light)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--glass-border)', overflow: 'hidden' }}>
                     <div style={{ ...styles.inputGroup, flex: '1 1 150px', marginBottom: 0, minWidth: 0 }}>
-                      <label style={{ fontWeight: 'bold' }}>Estado del Producto</label>
-                      <select value={prod.isActive ? 'true' : 'false'} onChange={(e) => updateProduct(key, 'isActive', e.target.value === 'true')} style={{ ...styles.input, fontWeight: 'bold', color: prod.isActive ? '#10b981' : '#555', minWidth: 0 }}>
+                      <label style={{ fontWeight: 'bold', color: 'var(--color-text)', fontSize: '0.9rem' }}>Estado del Producto</label>
+                      <select value={prod.isActive ? 'true' : 'false'} onChange={(e) => updateProduct(key, 'isActive', e.target.value === 'true')} style={{ ...styles.input, fontWeight: 'bold', color: prod.isActive ? '#10b981' : 'var(--color-text-muted)', minWidth: 0 }}>
                         <option value="true">🟢 Activo (Visible)</option>
                         <option value="false">⚪ Pausado (Oculto)</option>
                       </select>
@@ -765,12 +765,12 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                   <div style={styles.inputGroup}>
-                    <label>Descripción corta</label>
+                    <label style={{ color: 'var(--color-text)', fontWeight: 'bold', fontSize: '0.9rem' }}>Descripción corta</label>
                     <textarea value={prod.description || ''} onChange={(e) => updateProduct(key, 'description', e.target.value)} style={{ ...styles.input, minHeight: '60px', minWidth: 0, width: '100%', boxSizing: 'border-box' }} />
                   </div>
 
                   <div style={styles.inputGroup}>
-                    <label>Costo Producción (por Unidad base o KG)</label>
+                    <label style={{ color: 'var(--color-text)', fontWeight: 'bold', fontSize: '0.9rem' }}>Costo Producción (por Unidad base o KG)</label>
                     <div style={styles.inputPrefix}>
                       <span>$</span>
                       <input type="number" value={prod.costo_produccion || 0} onChange={(e) => updateProduct(key, 'costo_produccion', Number(e.target.value))} style={styles.inputNoBorder} />
@@ -778,7 +778,7 @@ const AdminDashboard = () => {
                   </div>
 
                   <div style={styles.formatBreakdown}>
-                    <h4 style={{ marginTop: '1.5rem', marginBottom: '1rem', color: '#555', fontSize: '0.9rem', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h4 style={{ marginTop: '1.5rem', marginBottom: '1rem', color: 'var(--color-text-muted)', fontSize: '0.9rem', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       Formatos y Precios
                       <button onClick={() => addFormat(key)} style={styles.addFormatBtn}>+ Agregar Formato</button>
                     </h4>
@@ -827,7 +827,9 @@ const AdminDashboard = () => {
                   </div>
 
                   <div style={{ marginTop: '2rem' }}>
-                    <button onClick={saveConfig} style={styles.saveBtnFull}>Guardar Catálogo</button>
+                    <button onClick={saveConfig} style={{ padding: '1rem 1.5rem', background: 'var(--color-primary)', color: '#fff', border: '1px solid var(--color-primary-dark)', borderRadius: '12px', fontWeight: '800', fontSize: '1.1rem', cursor: 'pointer', width: '100%', textTransform: 'uppercase', letterSpacing: '1px', boxShadow: '0 4px 15px rgba(74, 124, 46, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                      <Save size={20} /> Guardar Catálogo
+                    </button>
                   </div>
                 </div>
               );
