@@ -818,8 +818,8 @@ const AdminDashboard = () => {
                             </div>
                           </div>
                           <div style={styles.profitInfo}>
-                            <strong style={{ color: 'var(--color-primary)' }}>Ganancia Neta: ${ganancia}</strong>
-                            <span style={{ fontSize: '0.7rem' }}>{calculationText}</span>
+                            <strong style={{ color: 'var(--color-text)' }}>Ganancia Neta: ${ganancia}</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>{calculationText}</span>
                           </div>
                         </div>
                       )
@@ -1242,7 +1242,8 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    background: 'rgba(74, 124, 46, 0.05)',
+    background: 'var(--color-bg-light)',
+    border: '1px dashed var(--glass-border)',
     padding: '0.8rem',
     borderRadius: '8px',
     marginTop: '0.5rem'
