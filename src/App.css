@@ -241,7 +241,7 @@
   
   /* Admin Dashboard Mobile View */
   .admin-container {
-    padding: 1rem !important;
+    padding: 0.5rem !important;
   }
   .admin-tabs {
     width: 100%;
@@ -264,9 +264,13 @@
   .admin-column.active-mobile {
     display: flex !important;
     flex-direction: column;
-    padding: 0.5rem 0 !important;
+    padding: 0.2rem 0 !important;
     background: transparent !important;
     border: none !important;
+  }
+  .column-content {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 }
 

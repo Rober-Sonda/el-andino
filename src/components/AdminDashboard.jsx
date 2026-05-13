@@ -192,6 +192,24 @@ const AdminDashboard = () => {
     }
   };
 
+  const deleteOrder = async (orderId) => {
+    if (!window.confirm("¿Estás seguro de eliminar completamente este pedido? Si el pedido ya había descontado insumos, se devolverán automáticamente al stock.")) return;
+    try {
+      const orderRef = doc(db, 'orders', orderId);
+      const orderSnap = await getDoc(orderRef);
+      if (orderSnap.exists()) {
+        const orderData = orderSnap.data();
+        if (orderData.status === 'prepared' && orderData.stockDeducted) {
+          await revertStockForOrder(orderData, orderId);
+        }
+      }
+      await deleteDoc(orderRef);
+    } catch (e) {
+      console.error('Error deleting order', e);
+      alert('Error al eliminar el pedido.');
+    }
+  };
+
   const deductStockForOrder = async (orderData, orderId) => {
     try {
       const adminRef = doc(db, 'config', 'admin');
@@ -734,7 +752,7 @@ const AdminDashboard = () => {
                             <h3>{col.label}</h3>
                             <span style={styles.countBadge}>{colOrders.length}</span>
                           </div>
-                          <div style={styles.columnContent}>
+                          <div className="column-content" style={styles.columnContent}>
                             {colOrders.map(order => (
                               <div key={order.id} style={styles.orderCard}>
                                 <div style={styles.cardHeader}>
@@ -749,7 +767,10 @@ const AdminDashboard = () => {
                                   <select value={order.status || 'pending'} onChange={(e) => updateStatus(order.id, e.target.value)} style={styles.statusSelect}>
                                     {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
                                   </select>
-                                  <a href={`https://wa.me/${order.customerPhone || '2317472432'}`} target="_blank" rel="noreferrer" style={styles.waBtn}>Chat</a>
+                                  <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
+                                    <a href={`https://wa.me/${order.customerPhone || '2317472432'}`} target="_blank" rel="noreferrer" style={styles.waBtn}>Chat</a>
+                                    <button onClick={() => deleteOrder(order.id)} title="Eliminar pedido" style={{background:'transparent', border:'none', color:'#ef4444', cursor:'pointer', padding: 0}}><Trash2 size={20}/></button>
+                                  </div>
                                 </div>
                               </div>
                             ))}
@@ -790,9 +811,12 @@ const AdminDashboard = () => {
                           <td style={{ padding: '12px 8px' }}>{order.totalKilos}kg</td>
                           <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--color-accent)' }}>${order.totalPrice}</td>
                           <td style={{ padding: '12px 8px' }}>
-                            <select value={order.status || 'pending'} onChange={(e) => updateStatus(order.id, e.target.value)} style={{ ...styles.statusSelect, background: 'var(--color-bg-light)', color: 'var(--color-text)', border: '1px solid var(--glass-border)' }}>
-                              {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-                            </select>
+                            <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
+                              <select value={order.status || 'pending'} onChange={(e) => updateStatus(order.id, e.target.value)} style={{ ...styles.statusSelect, background: 'var(--color-bg-light)', color: 'var(--color-text)', border: '1px solid var(--glass-border)', margin: 0 }}>
+                                {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                              </select>
+                              <button onClick={() => deleteOrder(order.id)} title="Eliminar pedido" style={{background:'transparent', border:'none', color:'#ef4444', cursor:'pointer', padding: 0}}><Trash2 size={20}/></button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -1393,10 +1417,10 @@ const styles = {
     whiteSpace: 'nowrap',
   },
   column: {
-    background: 'rgba(255,255,255,0.5)',
+    background: 'rgba(128,128,128,0.05)',
     borderRadius: '12px',
     padding: '1rem',
-    border: '1px solid rgba(0,0,0,0.05)',
+    border: '1px solid var(--glass-border)',
     minHeight: '500px'
   },
   columnHeader: {
