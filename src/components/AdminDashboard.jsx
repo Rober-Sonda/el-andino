@@ -1439,12 +1439,14 @@ const styles = {
     fontWeight: 'bold'
   },
   orderCard: {
-    background: '#fff',
+    background: 'var(--glass-bg)',
     padding: '1rem',
     borderRadius: '8px',
     marginBottom: '1rem',
-    boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
-    border: '1px solid rgba(0,0,0,0.05)',
+    boxShadow: 'var(--shadow-soft)',
+    border: '1px solid var(--glass-border)',
+    width: '100%',
+    boxSizing: 'border-box'
   },
   cardHeader: {
     display: 'flex',
@@ -1458,7 +1460,7 @@ const styles = {
   },
   cardBody: {
     fontSize: '0.9rem',
-    color: '#444',
+    color: 'var(--color-text-muted)',
     marginBottom: '1rem'
   },
   price: {
