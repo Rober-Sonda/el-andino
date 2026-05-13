@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ShoppingBag, User, LogOut, Menu, X } from 'lucide-react';
+import { ShoppingBag, User, LogOut, Menu, X, Package } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -88,6 +88,9 @@ const Navbar = () => {
                 {currentUser.photoURL && (
                   <img src={currentUser.photoURL} alt="Profile" style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)' }} title={currentUser.displayName || "Usuario"} />
                 )}
+                <button className="cart-button" onClick={() => navigate('/mis-pedidos')} title="Mis Pedidos">
+                  <Package size={24} />
+                </button>
                 <button className="cart-button" onClick={logout} title="Cerrar sesión">
                   <LogOut size={24} />
                 </button>
@@ -137,6 +140,7 @@ const Navbar = () => {
                <div className="mobile-user-section">
                   {currentUser.photoURL && <img src={currentUser.photoURL} alt="Profile" className="mobile-profile-pic"/>}
                   <span className="mobile-user-name">{currentUser.displayName}</span>
+                  <button onClick={() => { navigate('/mis-pedidos'); setMenuOpen(false); }} className="mobile-logout" style={{marginBottom: '0.5rem', background: 'var(--color-primary)'}}><Package size={16}/> Mis Pedidos</button>
                   <button onClick={() => { logout(); setMenuOpen(false); }} className="mobile-logout"><LogOut size={16}/> Cerrar Sesión</button>
                </div>
             ) : (

@@ -12,6 +12,7 @@ import CheckoutModal from './components/CheckoutModal';
 import MateSecrets from './components/MateSecrets';
 import ThemeToggle from './components/ThemeToggle';
 import HistoriaDelMate from './components/HistoriaDelMate';
+import UserOrders from './components/UserOrders';
 import './App.css';
 
 const Home = () => {
@@ -77,6 +78,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/historia" element={<HistoriaDelMate />} />
+        <Route path="/mis-pedidos" element={<UserOrders />} />
         {isAdmin && (
           <Route path="/admin" element={
             <Suspense fallback={<div style={{marginTop: '100px', textAlign: 'center'}}>Cargando panel seguro...</div>}>

@@ -168,6 +168,25 @@ const AdminDashboard = () => {
     };
   }, [currentUser]);
 
+  // Sincronizar automáticamente la pestaña activa en mobile con los resultados de búsqueda
+  useEffect(() => {
+    if (orderSearchQuery) {
+      const q = orderSearchQuery.toLowerCase();
+      const filtered = orders.filter(o => {
+        if (orderStatusFilter !== 'all' && o.status !== orderStatusFilter) return false;
+        const matchName = o.customerName?.toLowerCase().includes(q);
+        const matchEmail = o.customerEmail?.toLowerCase().includes(q);
+        const matchPhone = o.customerPhone?.toLowerCase().includes(q);
+        return matchName || matchEmail || matchPhone;
+      });
+      
+      const currentTabHasResults = filtered.some(o => (o.status || 'pending') === mobileActiveStatus);
+      if (!currentTabHasResults && filtered.length > 0) {
+        setMobileActiveStatus(filtered[0].status || 'pending');
+      }
+    }
+  }, [orders, orderSearchQuery, orderStatusFilter, mobileActiveStatus]);
+
   const updateStatus = async (orderId, newStatus) => {
     try {
       const orderRef = doc(db, 'orders', orderId);
@@ -221,19 +240,51 @@ const AdminDashboard = () => {
         const productsConf = adminDoc.data().products || {};
         let modified = false;
 
+        const findMaterialIdByKeyword = (materials, keyword) => {
+          const kw = keyword.toLowerCase();
+          for (const key in materials) {
+            if (materials[key].name?.toLowerCase().includes(kw)) return key;
+          }
+          return null;
+        };
+
         orderData.items?.forEach(item => {
-          const product = productsConf[item.id] || productsConf[item.productId];
-          if (product) {
-            const format = product.formats?.find(f => f.id === item.format || f.id === item.formatId);
-            if (format && format.recipe && Array.isArray(format.recipe)) {
-              format.recipe.forEach(ri => {
-                const matId = ri.materialId;
-                const totalDeduct = (ri.quantity || 0) * item.quantity;
-                if (currentMaterials[matId]) {
-                  currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) - totalDeduct;
+          const blendMatch = item.id?.match(/^blend-(\d+)-(\d+)-(\d+)-(\d+)$/);
+          if (blendMatch) {
+            const ratios = {
+              premium: parseInt(blendMatch[1], 10),
+              ahumada: parseInt(blendMatch[2], 10),
+              despalada: parseInt(blendMatch[3], 10),
+              molida: parseInt(blendMatch[4], 10)
+            };
+            let gramsPerUnit = 1000;
+            if (item.format === '500g') gramsPerUnit = 500;
+            const totalGrams = gramsPerUnit * (item.quantity || 1);
+
+            Object.entries(ratios).forEach(([variety, percentage]) => {
+              if (percentage > 0) {
+                const varietyGrams = (totalGrams * percentage) / 100;
+                const matId = findMaterialIdByKeyword(currentMaterials, variety);
+                if (matId) {
+                  currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) - varietyGrams;
                   modified = true;
                 }
-              });
+              }
+            });
+          } else {
+            const product = productsConf[item.id] || productsConf[item.productId];
+            if (product) {
+              const format = product.formats?.find(f => f.id === item.format || f.id === item.formatId);
+              if (format && format.recipe && Array.isArray(format.recipe)) {
+                format.recipe.forEach(ri => {
+                  const matId = ri.materialId;
+                  const totalDeduct = (ri.quantity || 0) * item.quantity;
+                  if (currentMaterials[matId]) {
+                    currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) - totalDeduct;
+                    modified = true;
+                  }
+                });
+              }
             }
           }
         });
@@ -262,19 +313,51 @@ const AdminDashboard = () => {
         const productsConf = adminDoc.data().products || {};
         let modified = false;
 
+        const findMaterialIdByKeyword = (materials, keyword) => {
+          const kw = keyword.toLowerCase();
+          for (const key in materials) {
+            if (materials[key].name?.toLowerCase().includes(kw)) return key;
+          }
+          return null;
+        };
+
         orderData.items?.forEach(item => {
-          const product = productsConf[item.id] || productsConf[item.productId];
-          if (product) {
-            const format = product.formats?.find(f => f.id === item.format || f.id === item.formatId);
-            if (format && format.recipe && Array.isArray(format.recipe)) {
-              format.recipe.forEach(ri => {
-                const matId = ri.materialId;
-                const totalAdd = (ri.quantity || 0) * item.quantity;
-                if (currentMaterials[matId]) {
-                  currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) + totalAdd;
+          const blendMatch = item.id?.match(/^blend-(\d+)-(\d+)-(\d+)-(\d+)$/);
+          if (blendMatch) {
+            const ratios = {
+              premium: parseInt(blendMatch[1], 10),
+              ahumada: parseInt(blendMatch[2], 10),
+              despalada: parseInt(blendMatch[3], 10),
+              molida: parseInt(blendMatch[4], 10)
+            };
+            let gramsPerUnit = 1000;
+            if (item.format === '500g') gramsPerUnit = 500;
+            const totalGrams = gramsPerUnit * (item.quantity || 1);
+
+            Object.entries(ratios).forEach(([variety, percentage]) => {
+              if (percentage > 0) {
+                const varietyGrams = (totalGrams * percentage) / 100;
+                const matId = findMaterialIdByKeyword(currentMaterials, variety);
+                if (matId) {
+                  currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) + varietyGrams;
                   modified = true;
                 }
-              });
+              }
+            });
+          } else {
+            const product = productsConf[item.id] || productsConf[item.productId];
+            if (product) {
+              const format = product.formats?.find(f => f.id === item.format || f.id === item.formatId);
+              if (format && format.recipe && Array.isArray(format.recipe)) {
+                format.recipe.forEach(ri => {
+                  const matId = ri.materialId;
+                  const totalAdd = (ri.quantity || 0) * item.quantity;
+                  if (currentMaterials[matId]) {
+                    currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) + totalAdd;
+                    modified = true;
+                  }
+                });
+              }
             }
           }
         });
@@ -682,21 +765,25 @@ const AdminDashboard = () => {
                   style={{ ...styles.input, paddingLeft: '35px', width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
-              <select value={orderStatusFilter} onChange={(e) => {setOrderStatusFilter(e.target.value); setCurrentPage(1);}} style={styles.input}>
+              <select value={orderStatusFilter} onChange={(e) => {
+                  setOrderStatusFilter(e.target.value); 
+                  setCurrentPage(1);
+                  if (e.target.value !== 'all') setMobileActiveStatus(e.target.value);
+                }} style={styles.input}>
                 <option value="all">Todos los estados</option>
                 {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
               </select>
             </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', flex: '1 1 auto' }}>
               <button 
                 onClick={() => setOrderViewMode(orderViewMode === 'board' ? 'list' : 'board')}
-                style={{ ...styles.saveBtn, marginTop: 0, padding: '0.8rem 1rem', background: 'var(--color-primary-dark)', display: 'flex', alignItems: 'center' }}
+                style={{ ...styles.saveBtn, marginTop: 0, padding: '0.8rem 1rem', background: 'var(--color-primary-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, minWidth: '150px' }}
               >
                 {orderViewMode === 'board' ? 'Ver como Lista' : 'Ver como Tablero'}
               </button>
               <button 
                 onClick={handleOpenManualModal}
-                style={{ ...styles.saveBtn, marginTop: 0, padding: '0.8rem 1rem', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '5px', border: '1px solid var(--color-primary-dark)' }}
+                style={{ ...styles.saveBtn, marginTop: 0, padding: '0.8rem 1rem', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', border: '1px solid var(--color-primary-dark)', flex: 1, minWidth: '150px' }}
               >
                 <PlusCircle size={18} /> Nuevo Manual
               </button>

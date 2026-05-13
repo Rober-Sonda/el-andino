@@ -7,7 +7,14 @@ const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    try {
+      const saved = localStorage.getItem('el_andino_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [currentOrderId, setCurrentOrderId] = useState(null);
@@ -190,6 +197,10 @@ export const CartProvider = ({ children }) => {
   }, [userData]);
 
   useEffect(() => {
+    localStorage.setItem('el_andino_cart', JSON.stringify(cart));
+  }, [cart]);
+
+  useEffect(() => {
     const fetchPricing = async () => {
       try {
         const docRef = doc(db, 'config', 'admin');
@@ -364,18 +375,18 @@ export const CartProvider = ({ children }) => {
   const generateWhatsAppLink = (userName) => {
     const WHATSAPP_NUMBER = "2317472432";
 
-    let message = `*¡Hola El Andino!* 🧉🌿\n\nSoy *${userName || 'un cliente'}* y quiero hacer un pedido desde su tienda:\n\n`;
+    let message = `*¡Hola El Andino!*\n\nSoy *${userName || 'un cliente'}* y quiero hacer un pedido desde su tienda:\n\n`;
 
     calculatedCart.forEach(item => {
-      let variantText = item.format === '500g' ? '½ Kilo' : item.format === '1kg' ? '1 Kilo' : 'A Granel (Kilos)';
+      let variantText = item.format === '500g' ? 'Medio Kilo' : item.format === '1kg' ? '1 Kilo' : 'A Granel (Kilos)';
       let profileText = item.profile ? ` [Perfil: ${item.profile}]` : '';
-      message += `• ${item.quantity} x ${item.name}${profileText} (${variantText}) - $${item.formattedPrice * item.quantity}\n`;
+      message += `- ${item.quantity} x ${item.name}${profileText} (${variantText}) - $${item.formattedPrice * item.quantity}\n`;
     });
 
     message += `\n*Suma de Kilos: ${totalKilos}kg*\n`;
     message += `*Total estimado: $${totalPrice}*\n`;
     if (isFreeShipping) {
-      message += `🎁 *¡Califica para Envío Gratis (>40kg)!*\n`;
+      message += `*¡Califica para Envío Gratis (>40kg)!*\n`;
     }
 
     message += `\n¡Gracias!`;
