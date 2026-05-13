@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc, addDoc, serverTimestamp, runTransaction } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc, addDoc, serverTimestamp, runTransaction, deleteDoc } from 'firebase/firestore';
 import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2, Search, X, PlusCircle, Trash2, Save, Box, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -16,6 +16,7 @@ const STATUSES = [
 const AdminDashboard = () => {
   const { currentUser } = useAuth();
   const [orders, setOrders] = useState([]);
+  const [expenses, setExpenses] = useState([]);
   const [activeTab, setActiveTab] = useState('board');
   const [mobileActiveStatus, setMobileActiveStatus] = useState('pending');
   const [editingProductKey, setEditingProductKey] = useState(null);
@@ -38,6 +39,9 @@ const AdminDashboard = () => {
     status: 'closed',
     items: []
   });
+
+  // Expense Form State
+  const [expenseForm, setExpenseForm] = useState({ description: '', amount: 0, category: 'insumos' });
 
   const DEFAULT_CONFIG = {
     products: {
@@ -148,7 +152,20 @@ const AdminDashboard = () => {
       setOrders(ordersData);
     });
 
-    return () => unsubscribe();
+    // Listen to expenses
+    const expensesQ = query(collection(db, 'expenses'), orderBy('date', 'desc'));
+    const unsubscribeExpenses = onSnapshot(expensesQ, (snapshot) => {
+      const expsData = [];
+      snapshot.forEach(doc => {
+        expsData.push({ id: doc.id, ...doc.data() });
+      });
+      setExpenses(expsData);
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeExpenses();
+    };
   }, [currentUser]);
 
   const updateStatus = async (orderId, newStatus) => {
@@ -354,7 +371,33 @@ const AdminDashboard = () => {
       alert("Pedido manual creado correctamente");
     } catch (e) {
       console.error(e);
-      alert("Error al crear pedido");
+      alert('Error al crear pedido');
+    }
+  };
+
+  const addExpense = async () => {
+    if (!expenseForm.description || expenseForm.amount <= 0) return alert('Por favor, ingresá una descripción y un monto válido.');
+    try {
+      await addDoc(collection(db, 'expenses'), {
+        description: expenseForm.description,
+        amount: Number(expenseForm.amount),
+        category: expenseForm.category,
+        date: serverTimestamp()
+      });
+      setExpenseForm({ description: '', amount: 0, category: 'insumos' });
+    } catch (e) {
+      console.error(e);
+      alert('Error guardando el egreso.');
+    }
+  };
+
+  const removeExpense = async (id) => {
+    if (!window.confirm('¿Eliminar este egreso? Esta acción modificará tu ganancia neta.')) return;
+    try {
+      await deleteDoc(doc(db, 'expenses', id));
+    } catch(e) {
+      console.error(e);
+      alert('Error al eliminar el egreso.');
     }
   };
 
@@ -571,7 +614,18 @@ const AdminDashboard = () => {
     }
   });
 
+  let totalExpensesThisMonth = 0;
+  expenses.forEach(e => {
+    if (e.date) {
+      const d = e.date.toDate();
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+        totalExpensesThisMonth += Number(e.amount) || 0;
+      }
+    }
+  });
+
   totalCost += (totalOrdersThisMonth * config.general.costo_distribucion);
+  totalCost += totalExpensesThisMonth;
   const netProfit = monthlySales - totalCost;
 
   return (
@@ -811,9 +865,63 @@ const AdminDashboard = () => {
               <div style={styles.infoBox}>
                 <p>El costo de envasado (Paquete + Etiqueta) se descuenta al calcular la ganancia de <strong>½ Kilo</strong> y <strong>1 Kilo</strong> correspondientes. La venta a Granel asume despacho directo sin estos costos unitarios.</p>
               </div>
+              <button onClick={saveConfig} style={{...styles.saveBtnFull, marginTop: '1rem'}}>Guardar Costos Globales</button>
+            </div>
+
+            <div style={styles.generalCostsCard}>
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem', color: '#ef4444' }}>
+                <Trash2 size={20} /> Registro de Egresos Extra
+              </h3>
+              
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '1.5rem', background: 'var(--color-bg-light)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+                <div style={{ flex: '1 1 200px' }}>
+                  <label style={styles.smallLabel}>Motivo del Gasto</label>
+                  <input type="text" placeholder="Ej. Impresión de etiquetas" value={expenseForm.description} onChange={(e) => setExpenseForm({...expenseForm, description: e.target.value})} style={styles.inputSmall} />
+                </div>
+                <div style={{ flex: '1 1 100px' }}>
+                  <label style={styles.smallLabel}>Monto ($)</label>
+                  <input type="number" min="0" value={expenseForm.amount} onChange={(e) => setExpenseForm({...expenseForm, amount: e.target.value})} style={styles.inputSmall} />
+                </div>
+                <div style={{ flex: '1 1 120px' }}>
+                  <label style={styles.smallLabel}>Categoría</label>
+                  <select value={expenseForm.category} onChange={(e) => setExpenseForm({...expenseForm, category: e.target.value})} style={styles.inputSmall}>
+                    <option value="insumos">Insumos</option>
+                    <option value="marketing">Publicidad</option>
+                    <option value="envios">Envíos Extra</option>
+                    <option value="otros">Otros</option>
+                  </select>
+                </div>
+                <button onClick={addExpense} style={{ padding: '0.5rem 1rem', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', alignSelf: 'flex-end', height: '35px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <PlusCircle size={16} /> Registrar
+                </button>
+              </div>
+
+              <div>
+                <h4 style={{ color: 'var(--color-text-muted)', marginBottom: '10px', fontSize: '0.9rem', textTransform: 'uppercase' }}>Egresos del Mes Actual</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {expenses.filter(e => {
+                    if (!e.date) return false;
+                    const d = e.date.toDate();
+                    return d.getMonth() === new Date().getMonth() && d.getFullYear() === new Date().getFullYear();
+                  }).map(exp => (
+                    <div key={exp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontWeight: 'bold', color: 'var(--color-text)' }}>{exp.description}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{exp.date?.toDate().toLocaleDateString()} • {exp.category.toUpperCase()}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <span style={{ fontWeight: 'bold', color: '#ef4444' }}>-${Number(exp.amount).toLocaleString()}</span>
+                        <button onClick={() => removeExpense(exp.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}><X size={18} /></button>
+                      </div>
+                    </div>
+                  ))}
+                  {expenses.filter(e => e.date && e.date.toDate().getMonth() === new Date().getMonth()).length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--color-text-muted)', fontSize: '0.9rem', fontStyle: 'italic' }}>No hay egresos cargados este mes.</div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-          <button onClick={saveConfig} style={styles.saveBtnFull}>Guardar Costos Globales</button>
         </div>
       ) : activeTab === 'catalog' ? (
         <div style={styles.financePanel}>
