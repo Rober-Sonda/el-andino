@@ -235,7 +235,11 @@ export const CartProvider = ({ children }) => {
           });
         }
       } catch (e) {
-        console.error("No se pudo cargar la configuración de precios dinámica. Usando por defecto.", e);
+        if (e.code === 'unavailable') {
+          console.warn("Tienda en modo sin conexión. Cargando catálogo por defecto.");
+        } else {
+          console.warn("No se pudo cargar la configuración de precios dinámica. Usando por defecto.", e.message);
+        }
       }
     };
     fetchPricing();

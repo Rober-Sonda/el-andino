@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
-import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2, Search, X, PlusCircle, Trash2, Save } from 'lucide-react';
+import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc, addDoc, serverTimestamp, runTransaction } from 'firebase/firestore';
+import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2, Search, X, PlusCircle, Trash2, Save, Box, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const ADMIN_EMAIL = 'rober.junin@gmail.com';
@@ -79,7 +79,8 @@ const AdminDashboard = () => {
       costo_paquete_1kg: 200,
       costo_etiqueta: 50,
       costo_distribucion: 1000
-    }
+    },
+    materials: {}
   };
 
   // Cost config
@@ -127,6 +128,7 @@ const AdminDashboard = () => {
             });
 
             mergedData.products = mergedProducts;
+            if (!mergedData.materials) mergedData.materials = {};
             setConfig(mergedData);
           }
         }
@@ -152,9 +154,106 @@ const AdminDashboard = () => {
   const updateStatus = async (orderId, newStatus) => {
     try {
       const orderRef = doc(db, 'orders', orderId);
+      
+      // Stock deduction logic if changing to 'prepared'
+      const orderSnap = await getDoc(orderRef);
+      if (orderSnap.exists()) {
+        const orderData = orderSnap.data();
+        if (newStatus === 'prepared' && orderData.status !== 'prepared' && !orderData.stockDeducted) {
+          // Deduct stock
+          await deductStockForOrder(orderData, orderId);
+        } else if (newStatus !== 'prepared' && orderData.status === 'prepared' && orderData.stockDeducted) {
+          // Revert stock if moving out of prepared
+          await revertStockForOrder(orderData, orderId);
+        }
+      }
+
       await updateDoc(orderRef, { status: newStatus });
     } catch (e) {
       console.error('Error updating status', e);
+      alert('Error al cambiar el estado del pedido.');
+    }
+  };
+
+  const deductStockForOrder = async (orderData, orderId) => {
+    try {
+      const adminRef = doc(db, 'config', 'admin');
+      await runTransaction(db, async (transaction) => {
+        const adminDoc = await transaction.get(adminRef);
+        if (!adminDoc.exists()) throw new Error("Config not found");
+        
+        let currentMaterials = adminDoc.data().materials || {};
+        const productsConf = adminDoc.data().products || {};
+        let modified = false;
+
+        orderData.items?.forEach(item => {
+          const product = productsConf[item.id] || productsConf[item.productId];
+          if (product) {
+            const format = product.formats?.find(f => f.id === item.format || f.id === item.formatId);
+            if (format && format.recipe && Array.isArray(format.recipe)) {
+              format.recipe.forEach(ri => {
+                const matId = ri.materialId;
+                const totalDeduct = (ri.quantity || 0) * item.quantity;
+                if (currentMaterials[matId]) {
+                  currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) - totalDeduct;
+                  modified = true;
+                }
+              });
+            }
+          }
+        });
+
+        if (modified) {
+          transaction.update(adminRef, { materials: currentMaterials });
+        }
+        const orderRef = doc(db, 'orders', orderId);
+        transaction.update(orderRef, { stockDeducted: true });
+      });
+      console.log('Stock descontado exitosamente');
+    } catch (e) {
+      console.error('Error deduct stock', e);
+      throw e;
+    }
+  };
+
+  const revertStockForOrder = async (orderData, orderId) => {
+    try {
+      const adminRef = doc(db, 'config', 'admin');
+      await runTransaction(db, async (transaction) => {
+        const adminDoc = await transaction.get(adminRef);
+        if (!adminDoc.exists()) throw new Error("Config not found");
+        
+        let currentMaterials = adminDoc.data().materials || {};
+        const productsConf = adminDoc.data().products || {};
+        let modified = false;
+
+        orderData.items?.forEach(item => {
+          const product = productsConf[item.id] || productsConf[item.productId];
+          if (product) {
+            const format = product.formats?.find(f => f.id === item.format || f.id === item.formatId);
+            if (format && format.recipe && Array.isArray(format.recipe)) {
+              format.recipe.forEach(ri => {
+                const matId = ri.materialId;
+                const totalAdd = (ri.quantity || 0) * item.quantity;
+                if (currentMaterials[matId]) {
+                  currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) + totalAdd;
+                  modified = true;
+                }
+              });
+            }
+          }
+        });
+
+        if (modified) {
+          transaction.update(adminRef, { materials: currentMaterials });
+        }
+        const orderRef = doc(db, 'orders', orderId);
+        transaction.update(orderRef, { stockDeducted: false });
+      });
+      console.log('Stock revertido exitosamente');
+    } catch (e) {
+      console.error('Error revert stock', e);
+      throw e;
     }
   };
 
@@ -347,6 +446,52 @@ const AdminDashboard = () => {
     });
   };
 
+  const addRecipeItem = (prodKey, formatId) => {
+    setConfig(prev => {
+      const prod = prev.products[prodKey];
+      const matKeys = Object.keys(prev.materials || {});
+      const defaultMat = matKeys.length > 0 ? matKeys[0] : '';
+      const newFormats = prod.formats.map(f => {
+        if (f.id === formatId) {
+          const recipe = f.recipe || [];
+          return { ...f, recipe: [...recipe, { materialId: defaultMat, quantity: 1 }] };
+        }
+        return f;
+      });
+      return { ...prev, products: { ...prev.products, [prodKey]: { ...prod, formats: newFormats } } };
+    });
+  };
+
+  const updateRecipeItem = (prodKey, formatId, index, field, value) => {
+    setConfig(prev => {
+      const prod = prev.products[prodKey];
+      const newFormats = prod.formats.map(f => {
+        if (f.id === formatId) {
+          const recipe = [...(f.recipe || [])];
+          recipe[index] = { ...recipe[index], [field]: value };
+          return { ...f, recipe };
+        }
+        return f;
+      });
+      return { ...prev, products: { ...prev.products, [prodKey]: { ...prod, formats: newFormats } } };
+    });
+  };
+
+  const removeRecipeItem = (prodKey, formatId, index) => {
+    setConfig(prev => {
+      const prod = prev.products[prodKey];
+      const newFormats = prod.formats.map(f => {
+        if (f.id === formatId) {
+          const recipe = [...(f.recipe || [])];
+          recipe.splice(index, 1);
+          return { ...f, recipe };
+        }
+        return f;
+      });
+      return { ...prev, products: { ...prev.products, [prodKey]: { ...prod, formats: newFormats } } };
+    });
+  };
+
   const addProduct = () => {
     const newId = 'prod_' + Date.now();
     setConfig(prev => ({
@@ -440,8 +585,13 @@ const AdminDashboard = () => {
           <button className="admin-tab-btn" style={{ ...styles.tabBtn, ...(activeTab === 'finance' ? styles.tabActive : {}) }} onClick={() => { setActiveTab('finance'); setEditingProductKey(null); }}>
             Finanzas
           </button>
-          <button className="admin-tab-btn" style={{ ...styles.tabBtn, ...(activeTab === 'catalog' ? styles.tabActive : {}) }} onClick={() => setActiveTab('catalog')}>
+          <button className="admin-tab-btn" style={{ ...styles.tabBtn, ...(activeTab === 'catalog' ? styles.tabActive : {}) }} onClick={() => { setActiveTab('catalog'); setEditingProductKey(null); }}>
             Catálogo
+          </button>
+          <button className="admin-tab-btn" style={{ ...styles.tabBtn, ...(activeTab === 'inventory' ? styles.tabActive : {}) }} onClick={() => { setActiveTab('inventory'); setEditingProductKey(null); }}>
+            <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
+              <Box size={16} /> Inventario
+            </div>
           </button>
         </div>
       </div>
@@ -821,6 +971,50 @@ const AdminDashboard = () => {
                             <strong style={{ color: 'var(--color-text)' }}>Ganancia Neta: ${ganancia}</strong>
                             <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>{calculationText}</span>
                           </div>
+
+                          <div style={{ marginTop: '1.5rem', background: 'var(--color-bg-light)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--glass-border)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '1px dashed var(--glass-border)', paddingBottom: '10px' }}>
+                              <div>
+                                <label style={{ ...styles.smallLabel, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1rem' }}><Box size={16} /> Composición (BOM)</label>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>¿Qué insumos se gastan al armar este formato?</span>
+                              </div>
+                              <button onClick={() => addRecipeItem(key, format.id)} style={{ padding: '6px 12px', background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <PlusCircle size={14} /> Añadir Insumo
+                              </button>
+                            </div>
+                            
+                            {(format.recipe || []).map((ri, riIndex) => {
+                              const selectedMat = config.materials?.[ri.materialId];
+                              return (
+                                <div key={riIndex} style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'flex-end', background: 'rgba(128,128,128,0.05)', padding: '10px', borderRadius: '6px' }}>
+                                  <div style={{ flex: 2 }}>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--color-text-muted)', marginBottom: '4px', display: 'block' }}>Insumo del Inventario</label>
+                                    <select value={ri.materialId} onChange={(e) => updateRecipeItem(key, format.id, riIndex, 'materialId', e.target.value)} style={{ ...styles.inputSmall, background: 'var(--color-bg-light)', color: 'var(--color-text)' }}>
+                                      <option value="">Seleccionar Insumo...</option>
+                                      {Object.keys(config.materials || {}).map(matId => (
+                                        <option key={matId} value={matId}>{config.materials[matId].name}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--color-text-muted)', marginBottom: '4px', display: 'block' }}>Cant. a Descontar</label>
+                                    <div style={{ display: 'flex', alignItems: 'center', background: 'var(--color-bg-light)', border: '1px solid var(--glass-border)', borderRadius: '6px', overflow: 'hidden' }}>
+                                      <input type="number" min="0" step="any" value={ri.quantity} onChange={(e) => updateRecipeItem(key, format.id, riIndex, 'quantity', Number(e.target.value))} style={{ ...styles.inputNoBorderSmall, color: 'var(--color-text)' }} placeholder="0" />
+                                      {selectedMat && <span style={{ padding: '0 8px', fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 'bold', borderLeft: '1px solid var(--glass-border)', background: 'rgba(74, 124, 46, 0.1)' }}>{selectedMat.unit}</span>}
+                                    </div>
+                                  </div>
+                                  <button onClick={() => removeRecipeItem(key, format.id, riIndex)} style={{ ...styles.deleteBtn, padding: '8px', height: '100%', marginBottom: '2px' }} title="Quitar Insumo"><Trash2 size={16} /></button>
+                                </div>
+                              );
+                            })}
+                            
+                            {(!format.recipe || format.recipe.length === 0) && (
+                              <div style={{ padding: '1rem', textAlign: 'center', background: 'rgba(255, 165, 0, 0.1)', borderRadius: '6px', border: '1px dashed orange', marginTop: '10px' }}>
+                                <span style={{ fontSize: '0.85rem', color: 'var(--color-text)', fontWeight: '500' }}>Sin receta configurada.</span>
+                                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '5px 0 0 0' }}>Al vender este producto, no se descontará ningún insumo del stock general.</p>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )
                     })}
@@ -835,6 +1029,84 @@ const AdminDashboard = () => {
               );
             })()
           )}
+        </div>
+      ) : activeTab === 'inventory' ? (
+        <div style={styles.financePanel}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ color: 'var(--color-primary-dark)', margin: 0 }}>Control de Insumos</h2>
+            <button onClick={() => {
+              const id = 'mat_' + Date.now();
+              setConfig(prev => ({
+                ...prev,
+                materials: {
+                  ...prev.materials,
+                  [id]: { id, name: 'Nuevo Insumo', unit: 'un', currentStock: 0, minStock: 10 }
+                }
+              }));
+            }} style={{ ...styles.addFormatBtn, padding: '0.8rem 1.2rem' }}>
+              + Nuevo Insumo
+            </button>
+          </div>
+          
+          <div style={styles.catalogGrid}>
+            {Object.keys(config.materials || {}).map(matId => {
+              const mat = config.materials[matId];
+              const isLowStock = mat.currentStock <= mat.minStock;
+              return (
+                <div key={matId} style={{ ...styles.catalogItemCard, padding: '1rem', border: isLowStock ? '2px solid #ef4444' : '1px solid var(--glass-border)', position: 'relative' }}>
+                  {isLowStock && <AlertTriangle size={20} color="#ef4444" style={{ position: 'absolute', top: 10, right: 10 }} title="Stock Crítico" />}
+                  <input type="text" value={mat.name} onChange={(e) => setConfig(p => ({ ...p, materials: { ...p.materials, [matId]: { ...mat, name: e.target.value } } }))} style={{ ...styles.inputNoBorder, fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--color-text)', padding: 0, marginBottom: '10px', width: '80%' }} placeholder="Nombre Insumo" />
+                  
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={styles.smallLabel}>Unidad</label>
+                      <select value={mat.unit} onChange={(e) => setConfig(p => ({ ...p, materials: { ...p.materials, [matId]: { ...mat, unit: e.target.value } } }))} style={styles.inputSmall}>
+                        <option value="un">Unidad</option>
+                        <option value="g">Gramos</option>
+                        <option value="kg">Kilos</option>
+                        <option value="cm">Centímetros</option>
+                        <option value="m">Metros</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={styles.smallLabel}>Stock Actual</label>
+                      <input type="number" value={mat.currentStock} onChange={(e) => setConfig(p => ({ ...p, materials: { ...p.materials, [matId]: { ...mat, currentStock: Number(e.target.value) } } }))} style={{ ...styles.inputSmall, borderColor: isLowStock ? '#ef4444' : 'var(--glass-border)' }} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={styles.smallLabel}>Stock Mínimo</label>
+                      <input type="number" value={mat.minStock} onChange={(e) => setConfig(p => ({ ...p, materials: { ...p.materials, [matId]: { ...mat, minStock: Number(e.target.value) } } }))} style={styles.inputSmall} />
+                    </div>
+                  </div>
+
+                  <button onClick={() => {
+                    if (window.confirm("¿Eliminar este insumo?")) {
+                      setConfig(p => {
+                        const newMat = { ...p.materials };
+                        delete newMat[matId];
+                        return { ...p, materials: newMat };
+                      });
+                    }
+                  }} style={{ ...styles.deleteBtn, width: '100%', marginTop: '10px' }}>
+                    <Trash2 size={16} style={{ verticalAlign: 'middle', marginRight: '5px' }} /> Eliminar
+                  </button>
+                </div>
+              );
+            })}
+            {Object.keys(config.materials || {}).length === 0 && (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)' }}>
+                No hay insumos creados. Crea uno para empezar a trackear stock.
+              </div>
+            )}
+          </div>
+          
+          <div style={{ marginTop: '2rem' }}>
+            <button onClick={saveConfig} style={styles.saveBtnFull}>
+              <Save size={20} style={{ marginRight: '10px', verticalAlign: 'middle' }} /> Guardar Inventario
+            </button>
+          </div>
         </div>
       ) : null}
 
@@ -1072,9 +1344,11 @@ const styles = {
   statusSelect: {
     padding: '4px 8px',
     borderRadius: '4px',
-    border: '1px solid #ccc',
+    border: '1px solid var(--glass-border)',
     fontSize: '0.8rem',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    background: 'var(--color-bg-light)',
+    color: 'var(--color-text)'
   },
   waBtn: {
     padding: '4px 8px',
@@ -1130,8 +1404,12 @@ const styles = {
   input: {
     padding: '0.8rem',
     borderRadius: '8px',
-    border: '1px solid #ccc',
-    fontSize: '1rem'
+    border: '1px solid var(--glass-border)',
+    fontSize: '1rem',
+    background: 'var(--color-bg-light)',
+    color: 'var(--color-text)',
+    outline: 'none',
+    boxSizing: 'border-box'
   },
   saveBtn: {
     marginTop: '1rem',
@@ -1187,7 +1465,8 @@ const styles = {
     border: 'none',
     background: 'transparent',
     fontSize: '1rem',
-    outline: 'none'
+    outline: 'none',
+    color: 'var(--color-text)'
   },
   formatBreakdown: {
     marginTop: '1rem',
@@ -1236,7 +1515,8 @@ const styles = {
     border: 'none',
     background: 'transparent',
     fontSize: '0.9rem',
-    outline: 'none'
+    outline: 'none',
+    color: 'var(--color-text)'
   },
   profitInfo: {
     display: 'flex',
