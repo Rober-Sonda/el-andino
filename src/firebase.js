@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDIU4taXr6pDM9fnBKw1vqTQ1abIvi83Do",
@@ -22,6 +22,9 @@ googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
 
-const db = getFirestore(app);
+// Habilitar persistencia offline moderna (soporta múltiples pestañas sin tirar error)
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+});
 
 export { auth, googleProvider, db };
