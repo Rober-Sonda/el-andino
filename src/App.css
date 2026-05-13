@@ -267,6 +267,8 @@
     padding: 0.2rem 0 !important;
     background: transparent !important;
     border: none !important;
+    width: 100% !important;
+    align-self: stretch !important;
   }
   .column-content {
     padding-left: 0 !important;
