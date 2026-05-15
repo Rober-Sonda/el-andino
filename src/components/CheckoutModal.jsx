@@ -61,12 +61,12 @@ const CheckoutModal = () => {
         orderId = newOrderRef.id;
         orderData.createdAt = serverTimestamp();
         setCurrentOrderId(orderId);
-        // Enviamos a Firebase en segundo plano sin bloquear (sin await)
-        setDoc(newOrderRef, orderData).catch(err => console.error("Fallo silencioso guardando orden:", err));
+        // Esperamos a que se guarde en Firebase antes de redirigir
+        await setDoc(newOrderRef, orderData);
       } else {
         const orderRef = doc(db, 'orders', orderId);
-        // Enviamos a Firebase en segundo plano sin bloquear (sin await)
-        setDoc(orderRef, orderData, { merge: true }).catch(err => console.error("Fallo silencioso actualizando orden:", err));
+        // Esperamos a que se actualice en Firebase antes de redirigir
+        await setDoc(orderRef, orderData, { merge: true });
       }
     } catch (error) {
       console.error("Error saving order:", error);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc, addDoc, serverTimestamp, runTransaction, deleteDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc, addDoc, serverTimestamp, runTransaction, deleteDoc, limit } from 'firebase/firestore';
 import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2, Search, X, PlusCircle, Trash2, Save, Box, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -12,6 +12,51 @@ const STATUSES = [
   { id: 'shipped', label: 'Enviado', color: '#8b5cf6', icon: Truck },
   { id: 'closed', label: 'Cerrado', color: '#10b981', icon: CheckCircle2 }
 ];
+
+const StatusDropdown = ({ currentStatus, onChange }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const dropdownRef = React.useRef(null);
+  const activeStatus = STATUSES.find(s => s.id === (currentStatus || 'pending')) || STATUSES[0];
+  const ActiveIcon = activeStatus.icon;
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={dropdownRef} style={{ position: 'relative' }}>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--glass-border)', fontSize: '0.85rem', cursor: 'pointer', background: 'var(--color-bg-light)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold' }}
+      >
+        <ActiveIcon size={16} color={activeStatus.color} />
+        {activeStatus.label}
+      </button>
+      {isOpen && (
+        <div style={{ position: 'absolute', bottom: '100%', left: 0, zIndex: 100, background: 'var(--color-bg-light)', border: '1px solid var(--glass-border)', borderRadius: '8px', boxShadow: '0 -4px 15px rgba(0,0,0,0.1)', marginBottom: '4px', overflow: 'hidden', minWidth: '140px', display: 'flex', flexDirection: 'column' }}>
+          {STATUSES.map(s => {
+            const Icon = s.icon;
+            return (
+              <button 
+                key={s.id} 
+                onClick={() => { onChange(s.id); setIsOpen(false); }}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', width: '100%', borderBottom: '1px solid var(--glass-border)', cursor: 'pointer', background: currentStatus === s.id ? 'rgba(0,0,0,0.05)' : 'transparent', textAlign: 'left', color: 'var(--color-text)', fontSize: '0.85rem' }}
+              >
+                <Icon size={16} color={s.color} /> {s.label}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const AdminDashboard = () => {
   const { currentUser } = useAuth();
@@ -29,6 +74,7 @@ const AdminDashboard = () => {
   const [orderViewMode, setOrderViewMode] = useState('board'); // 'board' or 'list'
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 15;
+  const [orderLimit, setOrderLimit] = useState(150); // Server-side limit
 
   // Manual Order Form State
   const [isManualOrderModalOpen, setIsManualOrderModalOpen] = useState(false);
@@ -142,8 +188,8 @@ const AdminDashboard = () => {
     };
     loadConfig();
 
-    // Listen to orders
-    const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+    // Listen to orders with limit
+    const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'), limit(orderLimit));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const ordersData = [];
       snapshot.forEach(doc => {
@@ -166,7 +212,7 @@ const AdminDashboard = () => {
       unsubscribe();
       unsubscribeExpenses();
     };
-  }, [currentUser]);
+  }, [currentUser, orderLimit]);
 
   // Sincronizar automáticamente la pestaña activa en mobile con los resultados de búsqueda
   useEffect(() => {
@@ -207,7 +253,7 @@ const AdminDashboard = () => {
       await updateDoc(orderRef, { status: newStatus });
     } catch (e) {
       console.error('Error updating status', e);
-      alert('Error al cambiar el estado del pedido.');
+      alert('Error al cambiar el estado del pedido: ' + e.message + '\n\nSi el error es de red o dice "offline", por favor recarga la página completamente (Ctrl + F5).');
     }
   };
 
@@ -234,7 +280,10 @@ const AdminDashboard = () => {
       const adminRef = doc(db, 'config', 'admin');
       await runTransaction(db, async (transaction) => {
         const adminDoc = await transaction.get(adminRef);
-        if (!adminDoc.exists()) throw new Error("Config not found");
+        if (!adminDoc.exists()) {
+          console.warn("Config not found, skipping stock deduction.");
+          return;
+        }
         
         let currentMaterials = adminDoc.data().materials || {};
         const productsConf = adminDoc.data().products || {};
@@ -851,9 +900,7 @@ const AdminDashboard = () => {
                                   <p style={styles.price}>${order.totalPrice}</p>
                                 </div>
                                 <div style={styles.cardFooter}>
-                                  <select value={order.status || 'pending'} onChange={(e) => updateStatus(order.id, e.target.value)} style={styles.statusSelect}>
-                                    {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-                                  </select>
+                                  <StatusDropdown currentStatus={order.status} onChange={(newStatus) => updateStatus(order.id, newStatus)} />
                                   <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
                                     <a href={`https://wa.me/${order.customerPhone || '2317472432'}`} target="_blank" rel="noreferrer" style={styles.waBtn}>Chat</a>
                                     <button onClick={() => deleteOrder(order.id)} title="Eliminar pedido" style={{background:'transparent', border:'none', color:'#ef4444', cursor:'pointer', padding: 0}}><Trash2 size={20}/></button>
@@ -866,6 +913,17 @@ const AdminDashboard = () => {
                       );
                     })}
                   </div>
+                  
+                  {orders.length >= orderLimit && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+                      <button 
+                        onClick={() => setOrderLimit(prev => prev + 100)} 
+                        style={{ ...styles.saveBtn, background: 'var(--color-primary-dark)', padding: '0.8rem 1.5rem' }}
+                      >
+                        Cargar más pedidos antiguos
+                      </button>
+                    </div>
+                  )}
                 </>
               );
             } else {
@@ -899,9 +957,7 @@ const AdminDashboard = () => {
                           <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--color-accent)' }}>${order.totalPrice}</td>
                           <td style={{ padding: '12px 8px' }}>
                             <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
-                              <select value={order.status || 'pending'} onChange={(e) => updateStatus(order.id, e.target.value)} style={{ ...styles.statusSelect, background: 'var(--color-bg-light)', color: 'var(--color-text)', border: '1px solid var(--glass-border)', margin: 0 }}>
-                                {STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-                              </select>
+                              <StatusDropdown currentStatus={order.status} onChange={(newStatus) => updateStatus(order.id, newStatus)} />
                               <button onClick={() => deleteOrder(order.id)} title="Eliminar pedido" style={{background:'transparent', border:'none', color:'#ef4444', cursor:'pointer', padding: 0}}><Trash2 size={20}/></button>
                             </div>
                           </td>
@@ -926,6 +982,17 @@ const AdminDashboard = () => {
                         onClick={() => setCurrentPage(p => p + 1)}
                         style={{ padding: '6px 12px', background: currentPage === totalPages ? 'transparent' : 'var(--color-primary)', color: currentPage === totalPages ? 'var(--color-text-muted)' : '#fff', borderRadius: '6px', border: currentPage === totalPages ? '1px solid var(--glass-border)' : 'none', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
                       >Siguiente</button>
+                    </div>
+                  )}
+                  
+                  {orders.length >= orderLimit && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
+                      <button 
+                        onClick={() => setOrderLimit(prev => prev + 100)} 
+                        style={{ ...styles.saveBtn, background: 'var(--color-primary-dark)', padding: '0.8rem 1.5rem' }}
+                      >
+                        Cargar más pedidos de la base de datos
+                      </button>
                     </div>
                   )}
                 </div>
@@ -1569,7 +1636,10 @@ const styles = {
     fontSize: '0.8rem',
     cursor: 'pointer',
     background: 'var(--color-bg-light)',
-    color: 'var(--color-text)'
+    color: 'var(--color-text)',
+    pointerEvents: 'auto',
+    appearance: 'auto',
+    WebkitAppearance: 'menulist'
   },
   waBtn: {
     padding: '4px 8px',
