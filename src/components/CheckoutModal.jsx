@@ -91,7 +91,7 @@ const CheckoutModal = () => {
           <div style={styles.header}>
             <h2 style={{...styles.title, textAlign: 'center', width: '100%', fontSize: '1.8rem'}}>¡Pedido Enviado!</h2>
           </div>
-          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0 2rem'}}>
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 2rem 2rem'}}>
             <div style={{background: 'rgba(18, 140, 126, 0.1)', padding: '20px', borderRadius: '50%', marginBottom: '1.5rem'}}>
               <Leaf size={48} color="#128C7E" />
             </div>
