@@ -892,12 +892,33 @@ const AdminDashboard = () => {
                             {colOrders.map(order => (
                               <div key={order.id} style={styles.orderCard}>
                                 <div style={styles.cardHeader}>
-                                  <strong>{order.customerName}</strong>
+                                  <strong>{order.customerName} {order.isEdited && <span style={{fontSize:'0.7rem', background:'#f59e0b', color:'#fff', padding:'2px 6px', borderRadius:'10px', marginLeft: '5px'}}>⚠️ Editado</span>}</strong>
                                   <span style={styles.date}>{order.createdAt ? order.createdAt.toDate().toLocaleDateString() : ''}</span>
                                 </div>
                                 <div style={styles.cardBody}>
-                                  <p>{order.items?.length || 0} items ({order.totalKilos}kg)</p>
-                                  <p style={styles.price}>${order.totalPrice}</p>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                    <span style={{fontWeight: 'bold', color: 'var(--color-text-muted)'}}>{order.items?.length || 0} items ({order.totalKilos}kg)</span>
+                                    <span style={styles.price}>${order.totalPrice}</span>
+                                  </div>
+                                  <ul style={{ paddingLeft: '0', margin: '0', listStyle: 'none', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+                                    {order.items?.map((item, i) => {
+                                      let blendDetails = null;
+                                      const match = item.id?.match(/^blend-(\d+)-(\d+)-(\d+)-(\d+)$/);
+                                      if (match) {
+                                        blendDetails = (
+                                          <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)', marginTop: '2px', background: 'rgba(74, 124, 46, 0.1)', padding: '4px', borderRadius: '4px' }}>
+                                            Pre: {match[1]}% | Ahu: {match[2]}% | Desp: {match[3]}% | Mol: {match[4]}%
+                                          </div>
+                                        );
+                                      }
+                                      return (
+                                        <li key={i} style={{ marginBottom: '6px', borderBottom: '1px dashed var(--glass-border)', paddingBottom: '4px' }}>
+                                          <strong>{item.quantity}x</strong> {item.name.replace('Blend: ', '')} ({item.format})
+                                          {blendDetails}
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
                                 </div>
                                 <div style={styles.cardFooter}>
                                   <StatusDropdown currentStatus={order.status} onChange={(newStatus) => updateStatus(order.id, newStatus)} />
@@ -939,6 +960,7 @@ const AdminDashboard = () => {
                         <th style={{ padding: '12px 8px' }}>Fecha</th>
                         <th style={{ padding: '12px 8px' }}>Cliente</th>
                         <th style={{ padding: '12px 8px' }}>Contacto</th>
+                        <th style={{ padding: '12px 8px' }}>Detalle</th>
                         <th style={{ padding: '12px 8px' }}>Kilos</th>
                         <th style={{ padding: '12px 8px' }}>Total</th>
                         <th style={{ padding: '12px 8px' }}>Estado</th>
@@ -948,10 +970,27 @@ const AdminDashboard = () => {
                       {paginatedOrders.map(order => (
                         <tr key={order.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
                           <td style={{ padding: '12px 8px', color: 'var(--color-text-muted)' }}>{order.createdAt ? order.createdAt.toDate().toLocaleDateString() : ''}</td>
-                          <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{order.customerName} {order.isManual && <span style={{fontSize:'0.7rem', background:'var(--color-primary)', color:'#fff', padding:'2px 6px', borderRadius:'10px', marginLeft: '5px'}}>Manual</span>}</td>
+                          <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>{order.customerName} {order.isManual && <span style={{fontSize:'0.7rem', background:'var(--color-primary)', color:'#fff', padding:'2px 6px', borderRadius:'10px', marginLeft: '5px'}}>Manual</span>} {order.isEdited && <span style={{fontSize:'0.7rem', background:'#f59e0b', color:'#fff', padding:'2px 6px', borderRadius:'10px', marginLeft: '5px'}}>⚠️ Editado</span>}</td>
                           <td style={{ padding: '12px 8px', color: 'var(--color-text-muted)' }}>
                             <div>{order.customerEmail || '-'}</div>
                             <div style={{ fontSize: '0.8rem' }}>{order.customerPhone || '-'}</div>
+                          </td>
+                          <td style={{ padding: '12px 8px' }}>
+                            <ul style={{ paddingLeft: '15px', margin: '0', fontSize: '0.85rem', color: 'var(--color-text)' }}>
+                              {order.items?.map((item, i) => {
+                                let blendDetails = null;
+                                const match = item.id?.match(/^blend-(\d+)-(\d+)-(\d+)-(\d+)$/);
+                                if (match) {
+                                  blendDetails = <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)' }}>Pre: {match[1]}% | Ahu: {match[2]}% | Desp: {match[3]}% | Mol: {match[4]}%</div>;
+                                }
+                                return (
+                                  <li key={i} style={{marginBottom: '4px'}}>
+                                    <strong>{item.quantity}x</strong> {item.name.replace('Blend: ', '')} ({item.format})
+                                    {blendDetails}
+                                  </li>
+                                );
+                              })}
+                            </ul>
                           </td>
                           <td style={{ padding: '12px 8px' }}>{order.totalKilos}kg</td>
                           <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--color-accent)' }}>${order.totalPrice}</td>
@@ -964,7 +1003,7 @@ const AdminDashboard = () => {
                         </tr>
                       ))}
                       {paginatedOrders.length === 0 && (
-                        <tr><td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No hay pedidos que coincidan.</td></tr>
+                        <tr><td colSpan="7" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No hay pedidos que coincidan.</td></tr>
                       )}
                     </tbody>
                   </table>

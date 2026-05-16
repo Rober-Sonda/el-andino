@@ -15,10 +15,12 @@ const CheckoutModal = () => {
     totalKilos,
     isFreeShipping,
     currentOrderId,
-    setCurrentOrderId
+    setCurrentOrderId,
+    clearCart
   } = useCart();
   const { currentUser, loginWithGoogle } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   if (!isCheckoutOpen) return null;
 
@@ -61,23 +63,72 @@ const CheckoutModal = () => {
         orderId = newOrderRef.id;
         orderData.createdAt = serverTimestamp();
         setCurrentOrderId(orderId);
-        // Esperamos a que se guarde en Firebase antes de redirigir
         await setDoc(newOrderRef, orderData);
       } else {
+        orderData.isEdited = true;
         const orderRef = doc(db, 'orders', orderId);
-        // Esperamos a que se actualice en Firebase antes de redirigir
         await setDoc(orderRef, orderData, { merge: true });
       }
+      
+      setIsSuccess(true);
     } catch (error) {
       console.error("Error saving order:", error);
+      alert('Hubo un error al guardar tu pedido. Por favor, intenta nuevamente.');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
-    
-    // Redirect to whatsapp
-    const link = generateWhatsAppLink(currentUser.displayName);
-    window.location.href = link;
   };
+
+  if (isSuccess) {
+    return (
+      <div style={styles.overlay}>
+        <div style={styles.backdrop} onClick={() => {
+          setIsSuccess(false);
+          setIsCheckoutOpen(false);
+          clearCart();
+        }}></div>
+        <div style={styles.modal} className="glass">
+          <div style={styles.header}>
+            <h2 style={{...styles.title, textAlign: 'center', width: '100%', fontSize: '1.8rem'}}>¡Pedido Enviado!</h2>
+          </div>
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0 2rem'}}>
+            <div style={{background: 'rgba(37, 211, 102, 0.1)', padding: '20px', borderRadius: '50%', marginBottom: '1.5rem'}}>
+              <Leaf size={48} color="#25D366" />
+            </div>
+            <p style={{textAlign: 'center', fontSize: '1.1rem', color: 'var(--color-text)', marginBottom: '2rem', lineHeight: '1.6'}}>
+              Tu remito fue enviado a <strong>El Andino</strong>.<br/>
+              Haz clic en el botón de abajo para enviarnos un WhatsApp y coordinar el pago y la entrega.
+            </p>
+            <a 
+              href={generateWhatsAppLink(currentUser.displayName)} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{
+                ...styles.rusticSubmitBtn, 
+                textDecoration: 'none', 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                backgroundColor: '#25D366', 
+                color: '#fff',
+                border: 'none',
+                width: '100%',
+                padding: '1.2rem'
+              }}
+              onClick={() => {
+                setIsSuccess(false);
+                setIsCheckoutOpen(false);
+                clearCart();
+              }}
+            >
+              <Send size={20} style={{marginRight: '10px'}}/>
+              Ir a WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.overlay}>
