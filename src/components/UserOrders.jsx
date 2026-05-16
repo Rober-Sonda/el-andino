@@ -2,11 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
-import { Package, Clock, CheckCircle, Truck, Info, MessageCircle } from 'lucide-react';
+import { Package, Clock, CheckCircle, Truck, Info, MessageCircle, Edit } from 'lucide-react';
 import Navbar from './Navbar';
+import { useCart } from '../context/CartContext';
+import { useNavigate } from 'react-router-dom';
 
 const UserOrders = () => {
   const { currentUser } = useAuth();
+  const { setCart, setCurrentOrderId, setIsCartOpen } = useCart();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -19,14 +23,21 @@ const UserOrders = () => {
       try {
         const q = query(
           collection(db, 'orders'),
-          where('customerId', '==', currentUser.uid),
-          orderBy('createdAt', 'desc')
+          where('customerId', '==', currentUser.uid)
         );
         const querySnapshot = await getDocs(q);
         const fetchedOrders = [];
         querySnapshot.forEach((doc) => {
           fetchedOrders.push({ id: doc.id, ...doc.data() });
         });
+        
+        // Sort in memory to avoid needing a composite index
+        fetchedOrders.sort((a, b) => {
+           const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
+           const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
+           return timeB - timeA;
+        });
+
         setOrders(fetchedOrders);
       } catch (error) {
         console.error("Error fetching user orders:", error);
@@ -51,6 +62,13 @@ const UserOrders = () => {
     const msg = `Hola El Andino, quería consultar por el estado de mi pedido del ${date} por un total de $${order.totalPrice}. ¡Gracias!`;
     const link = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
     window.open(link, '_blank');
+  };
+
+  const handleEditOrder = (order) => {
+    setCart(order.items || []);
+    setCurrentOrderId(order.id);
+    setIsCartOpen(true);
+    navigate('/#alquimista'); // Navigate back to store
   };
 
   if (loading) {
@@ -94,7 +112,7 @@ const UserOrders = () => {
               const statusInfo = STATUS_MAP[order.status || 'pending'];
               return (
                 <div key={order.id} style={{background: 'var(--glass-bg)', borderRadius: '16px', border: `1px solid var(--glass-border)`, overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.05)'}}>
-                  <div style={{padding: '1.2rem 1.5rem', background: 'rgba(0,0,0,0.02)', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px'}}>
+                  <div style={{padding: '1.2rem 1.5rem', background: 'var(--glass-bg)', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px'}}>
                     <div>
                       <span style={{fontSize: '0.85rem', color: 'var(--color-text-muted)', display: 'block'}}>FECHA</span>
                       <strong style={{color: 'var(--color-text)'}}>{order.createdAt?.toDate().toLocaleDateString('es-AR') || 'N/A'}</strong>
@@ -111,17 +129,40 @@ const UserOrders = () => {
                   <div style={{padding: '1.5rem'}}>
                     <div style={{display: 'flex', flexDirection: 'column', gap: '0.8rem', marginBottom: '1.5rem'}}>
                       {order.items?.map((item, idx) => (
-                        <div key={idx} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(0,0,0,0.1)', paddingBottom: '0.8rem'}}>
-                          <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                            <span style={{background: 'var(--color-primary-light)', color: 'var(--color-primary-dark)', padding: '2px 8px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 'bold'}}>{item.quantity}x</span>
-                            <span style={{color: 'var(--color-text)'}}>{item.name} <span style={{fontSize: '0.85rem', color: 'var(--color-text-muted)'}}>({item.format === '500g' ? 'Medio Kilo' : item.format === '1kg' ? '1 Kilo' : 'A Granel'})</span></span>
+                        <div key={idx} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px dashed var(--glass-border)', paddingBottom: '0.8rem'}}>
+                          <div style={{display: 'flex', alignItems: 'flex-start', gap: '10px'}}>
+                            <span style={{background: 'var(--color-accent)', color: '#fff', padding: '2px 8px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 'bold', marginTop: '2px'}}>{item.quantity}x</span>
+                            <div style={{display: 'flex', flexDirection: 'column'}}>
+                              <span style={{color: 'var(--color-text)', fontWeight: '500'}}>{item.name} <span style={{fontSize: '0.85rem', color: 'var(--color-text-muted)'}}>({item.format === '500g' ? 'Medio Kilo' : item.format === '1kg' ? '1 Kilo' : 'A Granel'})</span></span>
+                              {(() => {
+                                const match = item.id?.match(/^blend-(\d+)-(\d+)-(\d+)-(\d+)$/);
+                                if (match) {
+                                  return (
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--color-accent)', marginTop: '4px', background: 'rgba(74, 124, 46, 0.1)', padding: '4px', borderRadius: '4px', display: 'inline-block', fontWeight: 'bold' }}>
+                                      Pre: {match[1]}% | Ahu: {match[2]}% | Desp: {match[3]}% | Mol: {match[4]}%
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              })()}
+                            </div>
                           </div>
                           <strong style={{color: 'var(--color-text)'}}>${item.formattedPrice * item.quantity}</strong>
                         </div>
                       ))}
                     </div>
 
-                    <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+                    <div style={{display: 'flex', justifyContent: 'flex-end', gap: '10px'}}>
+                      {(order.status === 'pending' || !order.status) && (
+                        <button 
+                          onClick={() => handleEditOrder(order)}
+                          style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--color-primary)', color: '#fff', border: 'none', padding: '0.8rem 1.2rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s'}}
+                          onMouseOver={(e) => e.currentTarget.style.filter = 'brightness(1.1)'}
+                          onMouseOut={(e) => e.currentTarget.style.filter = 'brightness(1)'}
+                        >
+                          <Edit size={18} /> Editar Pedido
+                        </button>
+                      )}
                       <button 
                         onClick={() => handleAskOrder(order)}
                         style={{display: 'flex', alignItems: 'center', gap: '8px', background: '#25D366', color: '#fff', border: 'none', padding: '0.8rem 1.2rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s'}}

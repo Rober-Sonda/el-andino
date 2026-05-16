@@ -415,6 +415,7 @@ export const CartProvider = ({ children }) => {
       currentOrderId,
       setCurrentOrderId,
       clearCart,
+      setCart,
       pricingConfig,
       getPriceForProduct,
       getOriginalPriceForProduct,

@@ -92,8 +92,8 @@ const CheckoutModal = () => {
             <h2 style={{...styles.title, textAlign: 'center', width: '100%', fontSize: '1.8rem'}}>¡Pedido Enviado!</h2>
           </div>
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0 2rem'}}>
-            <div style={{background: 'rgba(37, 211, 102, 0.1)', padding: '20px', borderRadius: '50%', marginBottom: '1.5rem'}}>
-              <Leaf size={48} color="#25D366" />
+            <div style={{background: 'rgba(18, 140, 126, 0.1)', padding: '20px', borderRadius: '50%', marginBottom: '1.5rem'}}>
+              <Leaf size={48} color="#128C7E" />
             </div>
             <p style={{textAlign: 'center', fontSize: '1.1rem', color: 'var(--color-text)', marginBottom: '2rem', lineHeight: '1.6'}}>
               Tu remito fue enviado a <strong>El Andino</strong>.<br/>
@@ -109,11 +109,12 @@ const CheckoutModal = () => {
                 display: 'flex', 
                 justifyContent: 'center', 
                 alignItems: 'center',
-                backgroundColor: '#25D366', 
+                backgroundColor: '#128C7E', 
                 color: '#fff',
                 border: 'none',
                 width: '100%',
-                padding: '1.2rem'
+                padding: '1.2rem',
+                boxShadow: '0 4px 15px rgba(18, 140, 126, 0.3)'
               }}
               onClick={() => {
                 setIsSuccess(false);

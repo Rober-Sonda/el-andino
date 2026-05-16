@@ -59,7 +59,7 @@ const Navbar = () => {
     }
   };
 
-  const isScrolled = scrolled || location.pathname === '/admin';
+  const isScrolled = scrolled || location.pathname === '/admin' || location.pathname === '/mis-pedidos';
 
   return (
     <>

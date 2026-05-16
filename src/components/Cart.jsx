@@ -1,10 +1,11 @@
 import React from 'react';
 import { useCart } from '../context/CartContext';
-import { X, Trash2, Truck } from 'lucide-react';
+import { X, Trash2, Truck, Plus, Minus } from 'lucide-react';
 
 const Cart = () => {
   const { 
     cart, 
+    addToCart,
     isCartOpen, 
     setIsCartOpen, 
     removeFromCart, 
@@ -13,6 +14,20 @@ const Cart = () => {
     isFreeShipping,
     setIsCheckoutOpen 
   } = useCart();
+
+  const handleIncrement = (item) => {
+    addToCart(item, item.format, item.formattedPrice, item.quantity + 1);
+  };
+
+  const handleDecrement = (item) => {
+    if (item.format === 'granel' && item.quantity <= 5) {
+      removeFromCart(item.cartItemId);
+    } else if (item.quantity <= 1) {
+      removeFromCart(item.cartItemId);
+    } else {
+      addToCart(item, item.format, item.formattedPrice, item.quantity - 1);
+    }
+  };
 
   if (!isCartOpen) return null;
 
@@ -58,14 +73,32 @@ const Cart = () => {
                   <div style={styles.itemInfo}>
                     <h4 style={styles.itemName}>{item.name}</h4>
                     {item.profile && (
-                      <p style={{ margin: '0 0 0.4rem 0', fontSize: '0.85rem', color: 'var(--color-primary)', fontWeight: '600', fontStyle: 'italic' }}>
+                      <p style={{ margin: '0 0 0.4rem 0', fontSize: '0.85rem', color: 'var(--color-accent)', fontWeight: '600', fontStyle: 'italic' }}>
                         Perfil: {item.profile}
                       </p>
                     )}
+                    {(() => {
+                      const match = item.id?.match(/^blend-(\d+)-(\d+)-(\d+)-(\d+)$/);
+                      if (match) {
+                        return (
+                          <div style={{ fontSize: '0.75rem', color: 'var(--color-accent)', marginBottom: '0.4rem', background: 'rgba(74, 124, 46, 0.1)', padding: '4px', borderRadius: '4px', fontWeight: 'bold' }}>
+                            Pre: {match[1]}% | Ahu: {match[2]}% | Desp: {match[3]}% | Mol: {match[4]}%
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                     <span style={styles.formatBadge}>
                       {item.format === '500g' ? '½ Kilo' : item.format === '1kg' ? '1 Kilo' : 'A Granel'}
                     </span>
-                    <p style={styles.itemDetail}>{item.quantity} x ${item.formattedPrice}</p>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '15px', marginTop: '0.4rem', marginBottom: '0.2rem'}}>
+                      <div style={{display: 'flex', alignItems: 'center', background: 'var(--color-bg-dark)', borderRadius: '8px', border: '1px solid var(--glass-border)', overflow: 'hidden'}}>
+                        <button onClick={() => handleDecrement(item)} style={{padding: '6px 10px', color: 'var(--color-text-light)', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', border: 'none', display: 'flex', alignItems: 'center'}}><Minus size={14}/></button>
+                        <span style={{padding: '0 10px', fontSize: '1rem', fontWeight: 'bold', color: 'var(--color-text-light)'}}>{item.quantity}</span>
+                        <button onClick={() => handleIncrement(item)} style={{padding: '6px 10px', color: 'var(--color-text-light)', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', border: 'none', display: 'flex', alignItems: 'center'}}><Plus size={14}/></button>
+                      </div>
+                      <p style={{...styles.itemDetail, margin: 0}}>${item.formattedPrice} {item.format === 'granel' ? 'x Kg' : 'c/u'}</p>
+                    </div>
                     <p style={styles.itemTotal}>${item.formattedPrice * item.quantity}</p>
                   </div>
                   <button style={styles.deleteBtn} onClick={() => removeFromCart(item.cartItemId)}>
