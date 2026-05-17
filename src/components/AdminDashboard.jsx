@@ -880,8 +880,8 @@ const AdminDashboard = () => {
             </div>
           </button>
           <button className="admin-tab-btn" style={{ ...styles.tabBtn, ...(activeTab === 'ai' ? styles.tabActive : {}) }} onClick={() => { setActiveTab('ai'); setEditingProductKey(null); }}>
-            <div style={{display:'flex', alignItems:'center', gap:'5px', color: activeTab === 'ai' ? '#fff' : 'var(--color-primary)'}}>
-              <Sparkles size={16} /> Asistente IA
+            <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
+              <Sparkles size={16} style={{ color: activeTab === 'ai' ? 'inherit' : 'var(--color-primary)' }} /> Asistente IA
             </div>
           </button>
         </div>

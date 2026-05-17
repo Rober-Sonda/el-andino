@@ -210,16 +210,16 @@ INSTRUCCIONES ADICIONALES:
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', height: 'calc(100vh - 150px)', 
-      background: 'rgba(25, 25, 30, 0.65)', backdropFilter: 'blur(16px)', 
+      background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', 
       WebkitBackdropFilter: 'blur(16px)',
-      borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.3)', overflow: 'hidden', position: 'relative'
+      borderRadius: '20px', border: '1px solid var(--glass-border)',
+      boxShadow: 'var(--shadow-soft)', overflow: 'hidden', position: 'relative'
     }}>
       {/* Header Premium */}
       <div style={{
-        padding: '1.2rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', 
+        padding: '1.2rem 1.5rem', borderBottom: '1px solid var(--glass-border)', 
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-        background: 'linear-gradient(to right, rgba(0,0,0,0.4), rgba(20,20,30,0.6))'
+        background: 'rgba(0,0,0,0.03)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
@@ -229,9 +229,9 @@ INSTRUCCIONES ADICIONALES:
             <Sparkles size={24} color="#fff" />
           </div>
           <div>
-            <h2 style={{margin: 0, fontSize: '1.3rem', color: '#fff', fontWeight: 'bold'}}>Analista de Negocios IA</h2>
-            <span style={{fontSize: '0.85rem', color: '#aaa', display: 'flex', alignItems: 'center', gap: '5px'}}>
-              <div style={{width:'8px', height:'8px', borderRadius:'50%', background:'#10b981', boxShadow: '0 0 8px #10b981'}}></div> 
+            <h2 style={{margin: 0, fontSize: '1.3rem', color: 'var(--color-text)', fontWeight: 'bold'}}>Analista de Negocios IA</h2>
+            <span style={{fontSize: '0.85rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '5px'}}>
+              <div style={{width:'8px', height:'8px', borderRadius:'50%', background:'#10b981', boxShadow: '0 0 8px rgba(16, 185, 129, 0.5)'}}></div> 
               Sistema Online y Listo
             </span>
           </div>
@@ -245,9 +245,9 @@ INSTRUCCIONES ADICIONALES:
           }}
           title={voiceEnabled ? "Desactivar respuestas por voz" : "Activar respuestas por voz"}
           style={{
-            background: voiceEnabled ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.05)',
-            border: `1px solid ${voiceEnabled ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255,255,255,0.1)'}`,
-            color: voiceEnabled ? '#10b981' : '#aaa',
+            background: voiceEnabled ? 'rgba(16, 185, 129, 0.15)' : 'rgba(0,0,0,0.05)',
+            border: `1px solid ${voiceEnabled ? 'rgba(16, 185, 129, 0.4)' : 'var(--glass-border)'}`,
+            color: voiceEnabled ? '#10b981' : 'var(--color-text-muted)',
             padding: '8px 12px', borderRadius: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.3s'
           }}
         >
@@ -266,19 +266,19 @@ INSTRUCCIONES ADICIONALES:
             maxWidth: '85%'
           }}>
             {msg.role === 'model' && (
-              <div style={{background: 'linear-gradient(135deg, #1f2937, #111827)', minWidth: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)'}}>
+              <div style={{background: 'var(--color-bg-light)', minWidth: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-soft)', border: '1px solid var(--glass-border)'}}>
                 <Bot size={22} color="var(--color-primary)" />
               </div>
             )}
             
             <div style={{
-              background: msg.role === 'user' ? 'linear-gradient(135deg, var(--color-primary), var(--color-accent))' : 'rgba(30, 30, 40, 0.7)',
+              background: msg.role === 'user' ? 'linear-gradient(135deg, var(--color-primary), var(--color-accent))' : 'var(--color-bg-light)',
               backdropFilter: msg.role === 'model' ? 'blur(10px)' : 'none',
-              color: '#fff',
+              color: msg.role === 'user' ? '#fff' : 'var(--color-text)',
               padding: '1.2rem 1.5rem',
               borderRadius: msg.role === 'user' ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
-              border: msg.role === 'model' ? '1px solid rgba(255,255,255,0.08)' : 'none',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+              border: msg.role === 'model' ? '1px solid var(--glass-border)' : 'none',
+              boxShadow: 'var(--shadow-soft)',
               lineHeight: '1.6',
               whiteSpace: 'pre-wrap',
               fontSize: '0.95rem'
@@ -287,20 +287,20 @@ INSTRUCCIONES ADICIONALES:
             </div>
 
             {msg.role === 'user' && (
-              <div style={{background: 'rgba(255,255,255,0.1)', minWidth: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.2)'}}>
-                <User size={20} color="#fff" />
+              <div style={{background: 'rgba(0,0,0,0.1)', minWidth: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--glass-border)'}}>
+                <User size={20} color="var(--color-text)" />
               </div>
             )}
           </div>
         ))}
         {isLoading && (
           <div style={{display: 'flex', gap: '12px', alignSelf: 'flex-start'}}>
-            <div style={{background: 'linear-gradient(135deg, #1f2937, #111827)', minWidth: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)'}}>
+            <div style={{background: 'var(--color-bg-light)', minWidth: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--glass-border)'}}>
               <Bot size={22} color="var(--color-primary)" />
             </div>
-            <div style={{padding: '1rem 1.5rem', background: 'rgba(30,30,40,0.7)', borderRadius: '20px 20px 20px 4px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '10px'}}>
+            <div style={{padding: '1rem 1.5rem', background: 'var(--color-bg-light)', borderRadius: '20px 20px 20px 4px', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', gap: '10px'}}>
               <Loader2 size={18} className="spin" color="var(--color-primary)" />
-              <span style={{color: '#aaa', fontStyle:'italic'}}>El Andino está analizando tus datos...</span>
+              <span style={{color: 'var(--color-text-muted)', fontStyle:'italic'}}>El Andino está analizando tus datos...</span>
             </div>
           </div>
         )}
@@ -309,20 +309,20 @@ INSTRUCCIONES ADICIONALES:
 
       {/* Input Area */}
       <div style={{
-        padding: '1.2rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', 
-        background: 'linear-gradient(to top, rgba(0,0,0,0.6), rgba(20,20,30,0.3))'
+        padding: '1.2rem 1.5rem', borderTop: '1px solid var(--glass-border)', 
+        background: 'rgba(0,0,0,0.02)'
       }}>
         <div style={{
-          display: 'flex', gap: '12px', background: 'rgba(0,0,0,0.4)', 
-          padding: '8px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)',
-          boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.2)'
+          display: 'flex', gap: '12px', background: 'var(--color-bg)', 
+          padding: '8px', borderRadius: '24px', border: '1px solid var(--glass-border)',
+          boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.05)'
         }}>
           {/* Mic Button */}
           <button
             onClick={toggleListen}
             style={{
-              background: isListening ? '#ef4444' : 'rgba(255,255,255,0.05)',
-              color: isListening ? '#fff' : '#aaa',
+              background: isListening ? '#ef4444' : 'var(--color-bg-light)',
+              color: isListening ? '#fff' : 'var(--color-text-muted)',
               border: 'none', borderRadius: '50%', width: '48px', height: '48px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer', transition: 'all 0.3s',
@@ -340,7 +340,7 @@ INSTRUCCIONES ADICIONALES:
             onKeyDown={handleKeyDown}
             placeholder={isListening ? "Escuchando... Habla ahora" : "Escribe o dicta tu consulta..."}
             style={{
-              flex: 1, background: 'transparent', border: 'none', color: '#fff',
+              flex: 1, background: 'transparent', border: 'none', color: 'var(--color-text)',
               padding: '12px 8px', resize: 'none', minHeight: '48px', maxHeight: '120px',
               fontFamily: 'inherit', outline: 'none', fontSize: '1rem'
             }}
@@ -351,8 +351,8 @@ INSTRUCCIONES ADICIONALES:
             onClick={handleSend}
             disabled={isLoading || !input.trim()}
             style={{
-              background: input.trim() && !isLoading ? 'linear-gradient(135deg, var(--color-primary), var(--color-accent))' : 'rgba(255,255,255,0.05)',
-              color: input.trim() && !isLoading ? '#fff' : '#666',
+              background: input.trim() && !isLoading ? 'linear-gradient(135deg, var(--color-primary), var(--color-accent))' : 'var(--color-bg-light)',
+              color: input.trim() && !isLoading ? '#fff' : 'var(--color-text-muted)',
               border: 'none', borderRadius: '50%', width: '48px', height: '48px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: input.trim() && !isLoading ? 'pointer' : 'not-allowed',
@@ -364,8 +364,8 @@ INSTRUCCIONES ADICIONALES:
           </button>
         </div>
         <div style={{textAlign: 'center', marginTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: 0.6}}>
-          <AlertCircle size={12} color="#aaa" />
-          <span style={{fontSize: '0.75rem', color: '#aaa'}}>Procesamiento de voz seguro a través de Web Speech API (Gratis)</span>
+          <AlertCircle size={12} color="var(--color-text-muted)" />
+          <span style={{fontSize: '0.75rem', color: 'var(--color-text-muted)'}}>Procesamiento seguro. Los audios nunca salen de tu dispositivo.</span>
         </div>
       </div>
       <style>{`
