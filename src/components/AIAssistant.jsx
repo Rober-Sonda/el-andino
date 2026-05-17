@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Sparkles, Loader2, AlertCircle } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Loader2, AlertCircle, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 
 const AIAssistant = ({ orders, config, expenses }) => {
   const [messages, setMessages] = useState([
@@ -7,7 +7,11 @@ const AIAssistant = ({ orders, config, expenses }) => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  
   const messagesEndRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -16,6 +20,94 @@ const AIAssistant = ({ orders, config, expenses }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Inicializar reconocimiento de voz
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.lang = 'es-AR';
+      recognition.interimResults = false;
+      
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsListening(false);
+      };
+      
+      recognition.onerror = (event) => {
+        setIsListening(false);
+        if(event.error === 'not-allowed') {
+          alert("Por favor permite el acceso al micrófono en tu navegador para usar esta función.");
+        } else if (event.error === 'network') {
+          alert("Error de red del micrófono. Si estás usando navegadores como Brave, Opera o Chromium, estos suelen bloquear el servicio gratuito de voz de Google. Por favor, inténtalo desde Google Chrome oficial.");
+        } else if (event.error === 'no-speech') {
+          console.warn("No se detectó voz. Se apagó el micrófono automáticamente.");
+          // No mostramos un alert invasivo aquí porque es normal que se apague si hay silencio prolongado
+        } else {
+          console.error('Error de micrófono:', event.error);
+        }
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+      
+      recognitionRef.current = recognition;
+    }
+    
+    // Cargar voces para que estén listas
+    if (window.speechSynthesis) {
+      window.speechSynthesis.getVoices();
+    }
+    
+    // Cleanup
+    return () => {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+    }
+  }, []);
+
+  const toggleListen = () => {
+    if (!recognitionRef.current) {
+      alert("Tu navegador no soporta el reconocimiento de voz nativo. Por favor usa Chrome o Safari.");
+      return;
+    }
+    
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (e) {
+        console.error(e);
+        setIsListening(false);
+      }
+    }
+  };
+
+  const speakText = (text) => {
+    if (!voiceEnabled || !window.speechSynthesis) return;
+    
+    window.speechSynthesis.cancel();
+    
+    // Limpiar markdown básico para no leer asteriscos ni hashtags
+    const cleanText = text.replace(/[*_#`]/g, '');
+    
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'es-AR'; // Español de Argentina o genérico
+    utterance.rate = 1.05; 
+    
+    const voices = window.speechSynthesis.getVoices();
+    // Intentar buscar una buena voz en español
+    const spanishVoice = voices.find(v => v.lang.includes('es') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Sabina')));
+    if (spanishVoice) {
+      utterance.voice = spanishVoice;
+    }
+    
+    window.speechSynthesis.speak(utterance);
+  };
 
   const generateSystemContext = () => {
     const dataContext = {
@@ -32,19 +124,16 @@ const AIAssistant = ({ orders, config, expenses }) => {
 
     return `Eres el Analista de Negocios e Inventario de 'El Andino', una marca de yerba mate uruguaya de especialidad en Argentina.
 El dueño del negocio te está consultando sobre el estado de la empresa.
-Debes responder de manera profesional, directa, clara y amigable.
-Utiliza formato Markdown (negritas, listas) para estructurar tus respuestas y hacerlas fáciles de leer.
-Si te piden cálculos (ej. ganancias, costos, proyecciones), usa los datos proporcionados a continuación.
-Si no encuentras el dato exacto, da la mejor estimación posible y acláralo.
-
+Debes responder de manera muy profesional, super clara y directa.
+Tus respuestas van a ser leídas en voz alta por el navegador, así que usa oraciones cortas y un tono natural y conversacional. 
+Evita usar caracteres especiales raros, usa números y letras.
 AQUÍ ESTÁN LOS DATOS ACTUALES DEL NEGOCIO EN FORMATO JSON:
 ${JSON.stringify(dataContext)}
 
 INSTRUCCIONES ADICIONALES:
 - Las materias primas (yerbas) tienen stock medido en "kilos" (kg).
 - Las bolsas y etiquetas se miden en unidades (un).
-- Si el usuario pregunta qué tiene que comprar, revisa el 'currentStock' frente al 'minStock' en el objeto config.materials.
-- Calcula ganancias restando los costos (costo_produccion, costo de empaques, gastos operativos) a los ingresos totales de los pedidos ('closed' o 'shipped' o 'prepared').
+- Si te piden calcular ganancias, resta los costos de los ingresos de pedidos.
 `;
   };
 
@@ -69,7 +158,6 @@ INSTRUCCIONES ADICIONALES:
         parts: [{ text: m.text }]
       }));
       
-      // Add the new user message to history
       chatHistory.push({ role: 'user', parts: [{ text: userText }] });
 
       const payload = {
@@ -78,7 +166,7 @@ INSTRUCCIONES ADICIONALES:
         },
         contents: chatHistory,
         generationConfig: {
-          temperature: 0.2, // Low temperature for more analytical/factual responses
+          temperature: 0.2,
           topK: 40,
           topP: 0.95,
           maxOutputTokens: 2048,
@@ -97,12 +185,16 @@ INSTRUCCIONES ADICIONALES:
       }
 
       const data = await response.json();
-      const modelText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Lo siento, no pude generar una respuesta clara. ¿Puedes replantear tu pregunta?";
+      const modelText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Lo siento, no pude procesar la solicitud.";
       
       setMessages(prev => [...prev, { role: 'model', text: modelText }]);
+      speakText(modelText);
+      
     } catch (error) {
       console.error("AI Assistant Error:", error);
-      setMessages(prev => [...prev, { role: 'model', text: `⚠️ Error de conexión: ${error.message}` }]);
+      const errorMsg = `Error de conexión: ${error.message}`;
+      setMessages(prev => [...prev, { role: 'model', text: errorMsg }]);
+      speakText("Hubo un error de conexión.");
     } finally {
       setIsLoading(false);
     }
@@ -117,22 +209,51 @@ INSTRUCCIONES ADICIONALES:
 
   return (
     <div style={{
-      display: 'flex', flexDirection: 'column', height: 'calc(100vh - 180px)', 
-      background: 'var(--glass-bg)', borderRadius: '16px', border: '1px solid var(--glass-border)',
-      overflow: 'hidden', position: 'relative'
+      display: 'flex', flexDirection: 'column', height: 'calc(100vh - 150px)', 
+      background: 'rgba(25, 25, 30, 0.65)', backdropFilter: 'blur(16px)', 
+      WebkitBackdropFilter: 'blur(16px)',
+      borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.3)', overflow: 'hidden', position: 'relative'
     }}>
-      {/* Header */}
+      {/* Header Premium */}
       <div style={{
-        padding: '1.2rem', borderBottom: '1px solid var(--glass-border)', 
-        display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(20, 20, 20, 0.4)'
+        padding: '1.2rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', 
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+        background: 'linear-gradient(to right, rgba(0,0,0,0.4), rgba(20,20,30,0.6))'
       }}>
-        <div style={{background: 'var(--color-primary)', padding: '10px', borderRadius: '12px'}}>
-          <Sparkles size={24} color="#fff" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))', 
+            padding: '10px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(212, 175, 55, 0.3)'
+          }}>
+            <Sparkles size={24} color="#fff" />
+          </div>
+          <div>
+            <h2 style={{margin: 0, fontSize: '1.3rem', color: '#fff', fontWeight: 'bold'}}>Analista de Negocios IA</h2>
+            <span style={{fontSize: '0.85rem', color: '#aaa', display: 'flex', alignItems: 'center', gap: '5px'}}>
+              <div style={{width:'8px', height:'8px', borderRadius:'50%', background:'#10b981', boxShadow: '0 0 8px #10b981'}}></div> 
+              Sistema Online y Listo
+            </span>
+          </div>
         </div>
-        <div>
-          <h2 style={{margin: 0, fontSize: '1.2rem', color: 'var(--color-text)'}}>Analista de Negocios IA</h2>
-          <span style={{fontSize: '0.85rem', color: 'var(--color-text-muted)'}}>Conectado en tiempo real a tus datos</span>
-        </div>
+        
+        {/* Toggle de Voz */}
+        <button 
+          onClick={() => {
+             setVoiceEnabled(!voiceEnabled);
+             if (window.speechSynthesis) window.speechSynthesis.cancel();
+          }}
+          title={voiceEnabled ? "Desactivar respuestas por voz" : "Activar respuestas por voz"}
+          style={{
+            background: voiceEnabled ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.05)',
+            border: `1px solid ${voiceEnabled ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255,255,255,0.1)'}`,
+            color: voiceEnabled ? '#10b981' : '#aaa',
+            padding: '8px 12px', borderRadius: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.3s'
+          }}
+        >
+          {voiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          <span style={{fontSize:'0.85rem', fontWeight:'bold'}}>{voiceEnabled ? 'Voz Activada' : 'Voz Mutada'}</span>
+        </button>
       </div>
 
       {/* Messages */}
@@ -145,25 +266,28 @@ INSTRUCCIONES ADICIONALES:
             maxWidth: '85%'
           }}>
             {msg.role === 'model' && (
-              <div style={{background: 'var(--color-accent)', minWidth: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                <Bot size={20} color="#fff" />
+              <div style={{background: 'linear-gradient(135deg, #1f2937, #111827)', minWidth: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)'}}>
+                <Bot size={22} color="var(--color-primary)" />
               </div>
             )}
             
             <div style={{
-              background: msg.role === 'user' ? 'var(--color-primary)' : 'rgba(255,255,255,0.05)',
-              color: 'var(--color-text)',
-              padding: '1rem 1.2rem',
-              borderRadius: msg.role === 'user' ? '16px 16px 0 16px' : '16px 16px 16px 0',
-              border: msg.role === 'model' ? '1px solid var(--glass-border)' : 'none',
-              lineHeight: '1.5',
-              whiteSpace: 'pre-wrap'
+              background: msg.role === 'user' ? 'linear-gradient(135deg, var(--color-primary), var(--color-accent))' : 'rgba(30, 30, 40, 0.7)',
+              backdropFilter: msg.role === 'model' ? 'blur(10px)' : 'none',
+              color: '#fff',
+              padding: '1.2rem 1.5rem',
+              borderRadius: msg.role === 'user' ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
+              border: msg.role === 'model' ? '1px solid rgba(255,255,255,0.08)' : 'none',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+              lineHeight: '1.6',
+              whiteSpace: 'pre-wrap',
+              fontSize: '0.95rem'
             }}>
               {msg.text}
             </div>
 
             {msg.role === 'user' && (
-              <div style={{background: 'var(--color-text-muted)', minWidth: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+              <div style={{background: 'rgba(255,255,255,0.1)', minWidth: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.2)'}}>
                 <User size={20} color="#fff" />
               </div>
             )}
@@ -171,62 +295,87 @@ INSTRUCCIONES ADICIONALES:
         ))}
         {isLoading && (
           <div style={{display: 'flex', gap: '12px', alignSelf: 'flex-start'}}>
-            <div style={{background: 'var(--color-accent)', minWidth: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-              <Bot size={20} color="#fff" />
+            <div style={{background: 'linear-gradient(135deg, #1f2937, #111827)', minWidth: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)'}}>
+              <Bot size={22} color="var(--color-primary)" />
             </div>
-            <div style={{padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '16px 16px 16px 0', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', gap: '10px'}}>
-              <Loader2 size={18} className="spin" color="var(--color-text-muted)" />
-              <span style={{color: 'var(--color-text-muted)'}}>Analizando datos...</span>
+            <div style={{padding: '1rem 1.5rem', background: 'rgba(30,30,40,0.7)', borderRadius: '20px 20px 20px 4px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '10px'}}>
+              <Loader2 size={18} className="spin" color="var(--color-primary)" />
+              <span style={{color: '#aaa', fontStyle:'italic'}}>El Andino está analizando tus datos...</span>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
+      {/* Input Area */}
       <div style={{
-        padding: '1.2rem', borderTop: '1px solid var(--glass-border)', 
-        background: 'rgba(20, 20, 20, 0.4)'
+        padding: '1.2rem 1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', 
+        background: 'linear-gradient(to top, rgba(0,0,0,0.6), rgba(20,20,30,0.3))'
       }}>
         <div style={{
-          display: 'flex', gap: '10px', background: 'var(--color-bg)', 
-          padding: '8px', borderRadius: '16px', border: '1px solid var(--glass-border)'
+          display: 'flex', gap: '12px', background: 'rgba(0,0,0,0.4)', 
+          padding: '8px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)',
+          boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.2)'
         }}>
+          {/* Mic Button */}
+          <button
+            onClick={toggleListen}
+            style={{
+              background: isListening ? '#ef4444' : 'rgba(255,255,255,0.05)',
+              color: isListening ? '#fff' : '#aaa',
+              border: 'none', borderRadius: '50%', width: '48px', height: '48px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', transition: 'all 0.3s',
+              boxShadow: isListening ? '0 0 15px rgba(239, 68, 68, 0.6)' : 'none',
+              animation: isListening ? 'pulse 1.5s infinite' : 'none'
+            }}
+            title="Dictar por voz"
+          >
+            {isListening ? <Mic size={22} /> : <MicOff size={22} />}
+          </button>
+          
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Pregúntame sobre tus ventas, costos o inventario... (Enter para enviar)"
+            placeholder={isListening ? "Escuchando... Habla ahora" : "Escribe o dicta tu consulta..."}
             style={{
-              flex: 1, background: 'transparent', border: 'none', color: 'var(--color-text)',
-              padding: '8px', resize: 'none', minHeight: '44px', maxHeight: '120px',
-              fontFamily: 'inherit', outline: 'none'
+              flex: 1, background: 'transparent', border: 'none', color: '#fff',
+              padding: '12px 8px', resize: 'none', minHeight: '48px', maxHeight: '120px',
+              fontFamily: 'inherit', outline: 'none', fontSize: '1rem'
             }}
             disabled={isLoading}
           />
+          
           <button 
             onClick={handleSend}
             disabled={isLoading || !input.trim()}
             style={{
-              background: input.trim() && !isLoading ? 'var(--color-primary)' : 'var(--color-bg-light)',
-              color: input.trim() && !isLoading ? '#fff' : 'var(--color-text-muted)',
-              border: 'none', borderRadius: '12px', width: '44px', height: '44px',
+              background: input.trim() && !isLoading ? 'linear-gradient(135deg, var(--color-primary), var(--color-accent))' : 'rgba(255,255,255,0.05)',
+              color: input.trim() && !isLoading ? '#fff' : '#666',
+              border: 'none', borderRadius: '50%', width: '48px', height: '48px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: input.trim() && !isLoading ? 'pointer' : 'not-allowed',
-              transition: 'all 0.2s'
+              transition: 'all 0.3s',
+              boxShadow: input.trim() && !isLoading ? '0 4px 15px rgba(212, 175, 55, 0.4)' : 'none'
             }}
           >
-            <Send size={20} />
+            <Send size={20} style={{marginLeft: '2px'}} />
           </button>
         </div>
-        <div style={{textAlign: 'center', marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: 0.7}}>
-          <AlertCircle size={12} color="var(--color-text-muted)" />
-          <span style={{fontSize: '0.75rem', color: 'var(--color-text-muted)'}}>La IA tiene acceso de lectura a tus datos actuales para dar respuestas precisas.</span>
+        <div style={{textAlign: 'center', marginTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: 0.6}}>
+          <AlertCircle size={12} color="#aaa" />
+          <span style={{fontSize: '0.75rem', color: '#aaa'}}>Procesamiento de voz seguro a través de Web Speech API (Gratis)</span>
         </div>
       </div>
       <style>{`
         .spin { animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse {
+          0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+          70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
       `}</style>
     </div>
   );
