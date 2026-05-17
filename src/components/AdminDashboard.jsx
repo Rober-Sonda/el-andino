@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc, addDoc, serverTimestamp, runTransaction, deleteDoc, limit } from 'firebase/firestore';
-import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2, Search, X, PlusCircle, Trash2, Save, Box, AlertTriangle, XCircle } from 'lucide-react';
+import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2, Search, X, PlusCircle, Trash2, Save, Box, AlertTriangle, XCircle, Sparkles, Tag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import AIAssistant from './AIAssistant';
 
 const ADMIN_EMAIL = 'rober.junin@gmail.com';
 
@@ -308,6 +309,29 @@ const AdminDashboard = () => {
     } catch (e) {
       console.error('Error deleting order', e);
       alert('Error al eliminar el pedido.');
+    }
+  };
+
+  const applyOrderDiscount = async (orderId, items, currentDiscount = 0) => {
+    const originalTotal = items.reduce((sum, item) => sum + ((item.formattedPrice || item.price || 0) * (item.quantity || 1)), 0);
+    const amountStr = window.prompt(`El total original es $${originalTotal}.\nIngrese el monto total de descuento a aplicar (en pesos):`, currentDiscount || 0);
+    if (amountStr === null) return;
+    
+    const amount = Number(amountStr);
+    if (isNaN(amount) || amount < 0 || amount > originalTotal) {
+      alert("Monto de descuento inválido.");
+      return;
+    }
+
+    try {
+      const orderRef = doc(db, 'orders', orderId);
+      await updateDoc(orderRef, {
+        discountAmount: amount,
+        totalPrice: originalTotal - amount
+      });
+    } catch(e) {
+      console.error(e);
+      alert("Error al aplicar descuento.");
     }
   };
 
@@ -763,16 +787,21 @@ const AdminDashboard = () => {
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
-  let monthlySales = 0;
+  let grossSales = 0;
+  let totalDiscountsThisMonth = 0;
   let totalKilosSold = 0;
   let totalOrdersThisMonth = 0;
   let totalCost = 0;
+  
+  const salesRanking = {};
 
-  orders.forEach(o => {
+  orders.filter(o => o.status === 'closed' || o.status === 'shipped' || o.status === 'prepared').forEach(o => {
     if (o.createdAt) {
       const d = o.createdAt.toDate();
       if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-        monthlySales += o.totalPrice || 0;
+        const discount = o.discountAmount || 0;
+        grossSales += (o.totalPrice + discount);
+        totalDiscountsThisMonth += discount;
         totalOrdersThisMonth += 1;
 
         o.items?.forEach(item => {
@@ -792,8 +821,23 @@ const AdminDashboard = () => {
           totalKilosSold += kilos;
 
           let productKey = item.id;
-          if (productKey?.startsWith('blend-')) productKey = 'blend';
-          if (!config.products[productKey]) productKey = 'premium';
+          let isCustomBlend = false;
+          if (productKey?.match(/^blend-\d+-\d+-\d+-\d+$/)) {
+            productKey = 'blend-personalizado';
+            isCustomBlend = true;
+          } else if (productKey?.startsWith('blend-') && !config.products[productKey]) {
+            productKey = 'blend';
+          }
+          if (!config.products[productKey] && !isCustomBlend) productKey = 'premium';
+
+          const prodName = isCustomBlend ? 'Blend Personalizado' : (config.products[productKey]?.name || item.name);
+          if (!salesRanking[productKey]) {
+            salesRanking[productKey] = { name: prodName, '500g': 0, '1kg': 0, 'granel': 0, totalKg: 0 };
+          }
+          if (item.format === '500g') salesRanking[productKey]['500g'] += item.quantity;
+          else if (item.format === '1kg') salesRanking[productKey]['1kg'] += item.quantity;
+          else salesRanking[productKey]['granel'] += kilos;
+          salesRanking[productKey].totalKg += kilos;
 
           totalCost += kilos * (config.products[productKey]?.costo_produccion || 3500);
           totalCost += unitCost * item.quantity;
@@ -814,7 +858,7 @@ const AdminDashboard = () => {
 
   totalCost += (totalOrdersThisMonth * config.general.costo_distribucion);
   totalCost += totalExpensesThisMonth;
-  const netProfit = monthlySales - totalCost;
+  const netProfit = grossSales - totalDiscountsThisMonth - totalCost;
 
   return (
     <div style={styles.container} className="admin-container glass">
@@ -835,8 +879,17 @@ const AdminDashboard = () => {
               <Box size={16} /> Inventario
             </div>
           </button>
+          <button className="admin-tab-btn" style={{ ...styles.tabBtn, ...(activeTab === 'ai' ? styles.tabActive : {}) }} onClick={() => { setActiveTab('ai'); setEditingProductKey(null); }}>
+            <div style={{display:'flex', alignItems:'center', gap:'5px', color: activeTab === 'ai' ? '#fff' : 'var(--color-primary)'}}>
+              <Sparkles size={16} /> Asistente IA
+            </div>
+          </button>
         </div>
       </div>
+
+      {activeTab === 'ai' && (
+        <AIAssistant orders={orders} config={config} expenses={expenses} />
+      )}
 
       {activeTab === 'board' ? (
         <div className="admin-board-wrapper">
@@ -1031,10 +1084,14 @@ const AdminDashboard = () => {
                             </ul>
                           </td>
                           <td style={{ padding: '12px 8px' }}>{order.totalKilos}kg</td>
-                          <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--color-accent)' }}>${order.totalPrice}</td>
+                          <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--color-accent)' }}>
+                            ${order.totalPrice}
+                            {order.discountAmount > 0 && <div style={{fontSize:'0.75rem', color:'#ef4444', marginTop:'2px'}}>-${order.discountAmount} desc.</div>}
+                          </td>
                           <td style={{ padding: '12px 8px' }}>
                             <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
                               <StatusDropdown currentStatus={order.status} onChange={(newStatus) => updateStatus(order.id, newStatus)} />
+                              <button onClick={() => applyOrderDiscount(order.id, order.items || [], order.discountAmount)} title="Aplicar Descuento" style={{background:'transparent', border:'none', color:'var(--color-primary)', cursor:'pointer', padding: 0}}><Tag size={20}/></button>
                               <button onClick={() => deleteOrder(order.id)} title="Eliminar pedido" style={{background:'transparent', border:'none', color:'#ef4444', cursor:'pointer', padding: 0}}><Trash2 size={20}/></button>
                             </div>
                           </td>
@@ -1082,7 +1139,11 @@ const AdminDashboard = () => {
           <div style={styles.metricsGrid}>
             <div style={{ ...styles.metricCard, borderLeft: '4px solid #3b82f6' }}>
               <div style={styles.metricTitle}>Ventas del Mes (Bruto)</div>
-              <div style={styles.metricValue}>${monthlySales.toLocaleString()}</div>
+              <div style={styles.metricValue}>${grossSales.toLocaleString()}</div>
+            </div>
+            <div style={{ ...styles.metricCard, borderLeft: '4px solid #ef4444' }}>
+              <div style={styles.metricTitle}>Descuentos Otorgados</div>
+              <div style={{ ...styles.metricValue, color: '#ef4444' }}>-${totalDiscountsThisMonth.toLocaleString()}</div>
             </div>
             <div style={{ ...styles.metricCard, borderLeft: '4px solid #f59e0b' }}>
               <div style={styles.metricTitle}>Costos Totales</div>
@@ -1095,6 +1156,39 @@ const AdminDashboard = () => {
             <div style={{ ...styles.metricCard, borderLeft: '4px solid #8b5cf6' }}>
               <div style={styles.metricTitle}>Kilos Vendidos</div>
               <div style={styles.metricValue}>{totalKilosSold} kg</div>
+            </div>
+          </div>
+
+          <div style={{ background: 'var(--glass-bg)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--glass-border)', marginBottom: '2rem', marginTop: '2rem' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem', color: 'var(--color-primary)' }}>Ranking de Variedades Vendidas (Este Mes)</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid var(--glass-border)', textAlign: 'left', color: 'var(--color-text-muted)' }}>
+                    <th style={{ padding: '12px 8px' }}>Variedad / Producto</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'center' }}>Medio Kilo (Unid)</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'center' }}>1 Kilo (Unid)</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'center' }}>Granel (Kg)</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'center' }}>Total Kilos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(salesRanking)
+                    .sort((a, b) => b[1].totalKg - a[1].totalKg)
+                    .map(([key, data]) => (
+                      <tr key={key} style={{ borderBottom: '1px solid var(--glass-border)' }}>
+                        <td style={{ padding: '12px 8px', fontWeight: 'bold', color: 'var(--color-text)' }}>{data.name}</td>
+                        <td style={{ padding: '12px 8px', textAlign: 'center' }}>{data['500g']}</td>
+                        <td style={{ padding: '12px 8px', textAlign: 'center' }}>{data['1kg']}</td>
+                        <td style={{ padding: '12px 8px', textAlign: 'center' }}>{data.granel} kg</td>
+                        <td style={{ padding: '12px 8px', textAlign: 'center', fontWeight: 'bold', color: 'var(--color-accent)' }}>{data.totalKg} kg</td>
+                      </tr>
+                  ))}
+                  {Object.keys(salesRanking).length === 0 && (
+                    <tr><td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No hay ventas registradas este mes.</td></tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
 
