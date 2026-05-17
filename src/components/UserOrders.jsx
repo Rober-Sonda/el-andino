@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, doc, updateDoc, getDoc, runTransaction } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
-import { Package, Clock, CheckCircle, Truck, Info, MessageCircle, Edit } from 'lucide-react';
+import { Package, Clock, CheckCircle, Truck, Info, MessageCircle, Edit, XCircle } from 'lucide-react';
 import Navbar from './Navbar';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
@@ -52,7 +52,8 @@ const UserOrders = () => {
     'pending': { label: 'Pendiente', color: '#f59e0b', icon: <Clock size={20} /> },
     'prepared': { label: 'Preparado', color: '#3b82f6', icon: <Package size={20} /> },
     'shipped': { label: 'Enviado', color: '#10b981', icon: <Truck size={20} /> },
-    'closed': { label: 'Entregado', color: '#6b7280', icon: <CheckCircle size={20} /> }
+    'closed': { label: 'Entregado', color: '#6b7280', icon: <CheckCircle size={20} /> },
+    'cancelled': { label: 'Cancelado', color: '#ef4444', icon: <XCircle size={20} /> }
   };
 
   const WHATSAPP_NUMBER = "2317472432";
@@ -69,6 +70,87 @@ const UserOrders = () => {
     setCurrentOrderId(order.id);
     setIsCartOpen(true);
     navigate('/#alquimista'); // Navigate back to store
+  };
+
+  const handleCancelOrder = async (order) => {
+    if (!window.confirm("¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.")) return;
+    try {
+      const orderRef = doc(db, 'orders', order.id);
+      
+      if (order.stockDeducted) {
+        const adminRef = doc(db, 'config', 'admin');
+        await runTransaction(db, async (transaction) => {
+          const adminDoc = await transaction.get(adminRef);
+          if (adminDoc.exists()) {
+            let currentMaterials = adminDoc.data().materials || {};
+            const productsConf = adminDoc.data().products || {};
+            let modified = false;
+
+            const findMaterialIdByKeyword = (materials, keyword) => {
+              const kw = keyword.toLowerCase();
+              for (const key in materials) {
+                if (materials[key].category === 'yerbas' && materials[key].name?.toLowerCase().includes(kw)) return key;
+              }
+              return null;
+            };
+
+            order.items?.forEach(item => {
+              const blendMatch = item.id?.match(/^blend-(\d+)-(\d+)-(\d+)-(\d+)$/);
+              if (blendMatch) {
+                const ratios = {
+                  premium: parseInt(blendMatch[1], 10),
+                  ahumada: parseInt(blendMatch[2], 10),
+                  despalada: parseInt(blendMatch[3], 10),
+                  molida: parseInt(blendMatch[4], 10)
+                };
+                let gramsPerUnit = 1000;
+                if (item.format === '500g') gramsPerUnit = 500;
+                const totalGrams = gramsPerUnit * (item.quantity || 1);
+
+                Object.entries(ratios).forEach(([variety, percentage]) => {
+                  if (percentage > 0) {
+                    const varietyGrams = (totalGrams * percentage) / 100;
+                    const matId = findMaterialIdByKeyword(currentMaterials, variety);
+                    if (matId) {
+                      const kilosToAdd = varietyGrams / 1000;
+                      currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) + kilosToAdd;
+                      modified = true;
+                    }
+                  }
+                });
+              } else {
+                const product = productsConf[item.id] || productsConf[item.productId];
+                if (product) {
+                  const format = product.formats?.find(f => f.id === item.format || f.id === item.formatId);
+                  if (format && format.recipe && Array.isArray(format.recipe)) {
+                    format.recipe.forEach(ri => {
+                      const matId = ri.materialId;
+                      const totalAdd = (ri.quantity || 0) * item.quantity;
+                      if (currentMaterials[matId]) {
+                        currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) + totalAdd;
+                        modified = true;
+                      }
+                    });
+                  }
+                }
+              }
+            });
+
+            if (modified) {
+              transaction.update(adminRef, { materials: currentMaterials });
+            }
+          }
+          transaction.update(orderRef, { status: 'cancelled', stockDeducted: false });
+        });
+      } else {
+        await updateDoc(orderRef, { status: 'cancelled' });
+      }
+      
+      setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'cancelled', stockDeducted: false } : o));
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      alert("Hubo un error al cancelar el pedido. Por favor intenta de nuevo.");
+    }
   };
 
   if (loading) {
@@ -161,6 +243,16 @@ const UserOrders = () => {
                           onMouseOut={(e) => e.currentTarget.style.filter = 'brightness(1)'}
                         >
                           <Edit size={18} /> Editar Pedido
+                        </button>
+                      )}
+                      {(order.status === 'pending' || order.status === 'prepared' || !order.status) && (
+                        <button 
+                          onClick={() => handleCancelOrder(order)}
+                          style={{display: 'flex', alignItems: 'center', gap: '8px', background: 'transparent', color: '#ef4444', border: '1px solid #ef4444', padding: '0.8rem 1.2rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s'}}
+                          onMouseOver={(e) => {e.currentTarget.style.background = '#ef4444'; e.currentTarget.style.color = '#fff';}}
+                          onMouseOut={(e) => {e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#ef4444';}}
+                        >
+                          <XCircle size={18} /> Cancelar
                         </button>
                       )}
                       <button 

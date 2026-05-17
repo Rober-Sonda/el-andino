@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc, addDoc, serverTimestamp, runTransaction, deleteDoc, limit } from 'firebase/firestore';
-import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2, Search, X, PlusCircle, Trash2, Save, Box, AlertTriangle } from 'lucide-react';
+import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2, Search, X, PlusCircle, Trash2, Save, Box, AlertTriangle, XCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const ADMIN_EMAIL = 'rober.junin@gmail.com';
@@ -10,7 +10,8 @@ const STATUSES = [
   { id: 'pending', label: 'Pendiente', color: '#f59e0b', icon: ListTodo },
   { id: 'prepared', label: 'Preparado', color: '#3b82f6', icon: Package },
   { id: 'shipped', label: 'Enviado', color: '#8b5cf6', icon: Truck },
-  { id: 'closed', label: 'Cerrado', color: '#10b981', icon: CheckCircle2 }
+  { id: 'closed', label: 'Cerrado', color: '#10b981', icon: CheckCircle2 },
+  { id: 'cancelled', label: 'Cancelado', color: '#ef4444', icon: XCircle }
 ];
 
 const StatusDropdown = ({ currentStatus, onChange }) => {
@@ -66,6 +67,7 @@ const AdminDashboard = () => {
   const [mobileActiveStatus, setMobileActiveStatus] = useState('pending');
   const [editingProductKey, setEditingProductKey] = useState(null);
   const [catalogFilter, setCatalogFilter] = useState('all');
+  const [inventoryFilter, setInventoryFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
   // Search and Pagination State
@@ -93,35 +95,35 @@ const AdminDashboard = () => {
     products: {
       'premium': {
         id: 'premium', name: 'Yerba Premium', category: 'yerbas', description: 'Estacionada naturalmente por 24 meses. Suave, duradera y de molienda equilibrada. Ideal para largas rondas.', image: '/premium_full.jpg',
-        isActive: true, discountPercentage: 0, costo_produccion: 3500, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
+        isActive: true, discountPercentage: 0, costo_produccion: 3500, formats: [{ id: '500g', name: '½ Kilo', price: 4000, recipe: [{ materialId: 'bolsa-500g', quantity: 1 }, { materialId: 'etiqueta-premium', quantity: 1 }, { materialId: 'yerba-premium', quantity: 0.5 }] }, { id: '1kg', name: '1 Kilo', price: 7500, recipe: [{ materialId: 'bolsa-1kg', quantity: 1 }, { materialId: 'etiqueta-premium', quantity: 1 }, { materialId: 'yerba-premium', quantity: 1 }] }, { id: 'granel', name: 'A Granel', price: 7500, recipe: [{ materialId: 'yerba-premium', quantity: 1 }] }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000, recipe: [{ materialId: 'yerba-premium', quantity: 1 }] }]
       },
       'ahumada': {
         id: 'ahumada', name: 'Yerba Ahumada', category: 'yerbas', description: 'Secada con maderas seleccionadas (Barbacuá). Un sabor intenso, profundo y con carácter de monte.', image: '/ahumada_full.jpg',
-        isActive: true, discountPercentage: 0, costo_produccion: 4000, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
+        isActive: true, discountPercentage: 0, costo_produccion: 4000, formats: [{ id: '500g', name: '½ Kilo', price: 4000, recipe: [{ materialId: 'bolsa-500g', quantity: 1 }, { materialId: 'etiqueta-ahumada', quantity: 1 }, { materialId: 'yerba-ahumada', quantity: 0.5 }] }, { id: '1kg', name: '1 Kilo', price: 7500, recipe: [{ materialId: 'bolsa-1kg', quantity: 1 }, { materialId: 'etiqueta-ahumada', quantity: 1 }, { materialId: 'yerba-ahumada', quantity: 1 }] }, { id: 'granel', name: 'A Granel', price: 7500, recipe: [{ materialId: 'yerba-ahumada', quantity: 1 }] }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000, recipe: [{ materialId: 'yerba-ahumada', quantity: 1 }] }]
       },
       'uruguaya-despalada': {
         id: 'uruguaya-despalada', name: 'Uruguaya Despalada', category: 'yerbas', description: 'Corte fino sin palo, pura hoja. Estilo canario para un mate fuerte, espumoso y de sabor prologando.', image: '/despalada_full.jpg',
-        isActive: true, discountPercentage: 0, costo_produccion: 3800, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
+        isActive: true, discountPercentage: 0, costo_produccion: 3800, formats: [{ id: '500g', name: '½ Kilo', price: 4000, recipe: [{ materialId: 'bolsa-500g', quantity: 1 }, { materialId: 'etiqueta-despalada', quantity: 1 }, { materialId: 'yerba-despalada', quantity: 0.5 }] }, { id: '1kg', name: '1 Kilo', price: 7500, recipe: [{ materialId: 'bolsa-1kg', quantity: 1 }, { materialId: 'etiqueta-despalada', quantity: 1 }, { materialId: 'yerba-despalada', quantity: 1 }] }, { id: 'granel', name: 'A Granel', price: 7500, recipe: [{ materialId: 'yerba-despalada', quantity: 1 }] }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000, recipe: [{ materialId: 'yerba-despalada', quantity: 1 }] }]
       },
       'uruguaya-molida': {
         id: 'uruguaya-molida', name: 'Uruguaya Molida', category: 'yerbas', description: 'Tradicional molienda fina con equilibrio perfecto. La clásica y elegante elección oriental.', image: '/molida_full.jpg',
-        isActive: true, discountPercentage: 0, costo_produccion: 3200, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: '1kg', name: '1 Kilo', price: 7500 }, { id: 'granel', name: 'A Granel', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
+        isActive: true, discountPercentage: 0, costo_produccion: 3200, formats: [{ id: '500g', name: '½ Kilo', price: 4000, recipe: [{ materialId: 'bolsa-500g', quantity: 1 }, { materialId: 'etiqueta-molida', quantity: 1 }, { materialId: 'yerba-molida', quantity: 0.5 }] }, { id: '1kg', name: '1 Kilo', price: 7500, recipe: [{ materialId: 'bolsa-1kg', quantity: 1 }, { materialId: 'etiqueta-molida', quantity: 1 }, { materialId: 'yerba-molida', quantity: 1 }] }, { id: 'granel', name: 'A Granel', price: 7500, recipe: [{ materialId: 'yerba-molida', quantity: 1 }] }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000, recipe: [{ materialId: 'yerba-molida', quantity: 1 }] }]
       },
       'blend-herencia': {
         id: 'blend-herencia', name: 'Blend: Herencia del Sembrador', category: 'blends', description: 'Base Premium • Pura Hoja • Molienda media. Equilibrio entre el estacionamiento premium y la intensidad de la hoja pura despalada. Esta fusión crea un mate de textura suave, un sabor más ligero y con un rendimiento excepcional.', image: '/kraft_bag.png',
-        isActive: true, discountPercentage: 0, costo_produccion: 3500, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
+        isActive: true, discountPercentage: 0, costo_produccion: 3500, formats: [{ id: '500g', name: '½ Kilo', price: 4000, recipe: [{ materialId: 'bolsa-500g', quantity: 1 }, { materialId: 'etiqueta-herencia', quantity: 1 }, { materialId: 'yerba-premium', quantity: 0.25 }, { materialId: 'yerba-despalada', quantity: 0.25 }] }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500, recipe: [{ materialId: 'yerba-premium', quantity: 0.5 }, { materialId: 'yerba-despalada', quantity: 0.5 }] }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000, recipe: [{ materialId: 'yerba-premium', quantity: 0.5 }, { materialId: 'yerba-despalada', quantity: 0.5 }] }]
       },
       'blend-fuego': {
         id: 'blend-fuego', name: 'Blend: Fuego Andino', category: 'blends', description: 'Base Barbacuá • Toques Premium • Con palo. Intensa base ahumada barbacuá equilibrada con sutiles hojas puras y premium. Brinda un sabor profundo, cuerpo robusto y matices leñosos, logrando un mate de gran carácter y persistencia.', image: '/kraft_bag.png',
-        isActive: true, discountPercentage: 0, costo_produccion: 3800, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
+        isActive: true, discountPercentage: 0, costo_produccion: 3800, formats: [{ id: '500g', name: '½ Kilo', price: 4000, recipe: [{ materialId: 'bolsa-500g', quantity: 1 }, { materialId: 'etiqueta-fuego', quantity: 1 }, { materialId: 'yerba-ahumada', quantity: 0.35 }, { materialId: 'yerba-premium', quantity: 0.15 }] }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500, recipe: [{ materialId: 'yerba-ahumada', quantity: 0.7 }, { materialId: 'yerba-premium', quantity: 0.3 }] }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000, recipe: [{ materialId: 'yerba-ahumada', quantity: 0.7 }, { materialId: 'yerba-premium', quantity: 0.3 }] }]
       },
       'blend-charrua': {
         id: 'blend-charrua', name: 'Blend: Tradición Charrúa', category: 'blends', description: 'Corte Oriental • Molienda fina • Gran espuma. Fusión de molienda fina, hoja pura y un toque premium. Este clásico oriental brinda un mate intenso, logrando un sabor fuerte y bien definido.', image: '/kraft_bag.png',
-        isActive: true, discountPercentage: 0, costo_produccion: 3400, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
+        isActive: true, discountPercentage: 0, costo_produccion: 3400, formats: [{ id: '500g', name: '½ Kilo', price: 4000, recipe: [{ materialId: 'bolsa-500g', quantity: 1 }, { materialId: 'etiqueta-charrua', quantity: 1 }, { materialId: 'yerba-molida', quantity: 0.25 }, { materialId: 'yerba-despalada', quantity: 0.15 }, { materialId: 'yerba-premium', quantity: 0.1 }] }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500, recipe: [{ materialId: 'yerba-molida', quantity: 0.5 }, { materialId: 'yerba-despalada', quantity: 0.3 }, { materialId: 'yerba-premium', quantity: 0.2 }] }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000, recipe: [{ materialId: 'yerba-molida', quantity: 0.5 }, { materialId: 'yerba-despalada', quantity: 0.3 }, { materialId: 'yerba-premium', quantity: 0.2 }] }]
       },
       'blend-alma': {
         id: 'blend-alma', name: 'Blend: Alma de Monte', category: 'blends', description: 'Base Despalada • Toque Ahumado • Sin palo. Base de pura hoja despalada coronada con sutiles notas ahumadas. El resultado es un mate con un sabor imponente, con matices a leña que logran capturar la verdadera esencia del monte.', image: '/kraft_bag.png',
-        isActive: true, discountPercentage: 0, costo_produccion: 3900, formats: [{ id: '500g', name: '½ Kilo', price: 4000 }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500 }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }]
+        isActive: true, discountPercentage: 0, costo_produccion: 3900, formats: [{ id: '500g', name: '½ Kilo', price: 4000, recipe: [{ materialId: 'bolsa-500g', quantity: 1 }, { materialId: 'etiqueta-alma', quantity: 1 }, { materialId: 'yerba-despalada', quantity: 0.4 }, { materialId: 'yerba-ahumada', quantity: 0.1 }] }, { id: 'granel', name: 'A Granel (Mín. 5Kg)', price: 7500, recipe: [{ materialId: 'yerba-despalada', quantity: 0.8 }, { materialId: 'yerba-ahumada', quantity: 0.2 }] }, { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000, recipe: [{ materialId: 'yerba-despalada', quantity: 0.8 }, { materialId: 'yerba-ahumada', quantity: 0.2 }] }]
       }
     },
     general: {
@@ -130,7 +132,24 @@ const AdminDashboard = () => {
       costo_etiqueta: 50,
       costo_distribucion: 1000
     },
-    materials: {}
+    materials: {
+      'etiqueta-premium': { id: 'etiqueta-premium', name: 'Etiqueta Premium', category: 'etiquetas', unit: 'un', currentStock: 500, minStock: 50 },
+      'etiqueta-ahumada': { id: 'etiqueta-ahumada', name: 'Etiqueta Ahumada', category: 'etiquetas', unit: 'un', currentStock: 500, minStock: 50 },
+      'etiqueta-despalada': { id: 'etiqueta-despalada', name: 'Etiqueta Despalada', category: 'etiquetas', unit: 'un', currentStock: 500, minStock: 50 },
+      'etiqueta-molida': { id: 'etiqueta-molida', name: 'Etiqueta Molida', category: 'etiquetas', unit: 'un', currentStock: 500, minStock: 50 },
+      'etiqueta-herencia': { id: 'etiqueta-herencia', name: 'Etiqueta Blend Herencia', category: 'etiquetas', unit: 'un', currentStock: 500, minStock: 50 },
+      'etiqueta-fuego': { id: 'etiqueta-fuego', name: 'Etiqueta Blend Fuego', category: 'etiquetas', unit: 'un', currentStock: 500, minStock: 50 },
+      'etiqueta-charrua': { id: 'etiqueta-charrua', name: 'Etiqueta Blend Charrúa', category: 'etiquetas', unit: 'un', currentStock: 500, minStock: 50 },
+      'etiqueta-alma': { id: 'etiqueta-alma', name: 'Etiqueta Blend Alma', category: 'etiquetas', unit: 'un', currentStock: 500, minStock: 50 },
+      'bolsa-500g': { id: 'bolsa-500g', name: 'Bolsa Kraft 500g', category: 'bolsas', unit: 'un', currentStock: 1000, minStock: 100 },
+      'bolsa-1kg': { id: 'bolsa-1kg', name: 'Bolsa Kraft 1kg', category: 'bolsas', unit: 'un', currentStock: 1000, minStock: 100 },
+      'bolsa-arranque': { id: 'bolsa-arranque', name: 'Bolsa de Arranque 25x53', category: 'bolsas', unit: 'un', currentStock: 1280, minStock: 200 },
+      'ganchos': { id: 'ganchos', name: 'Ganchos', category: 'otros', unit: 'un', currentStock: 1950, minStock: 200 },
+      'yerba-premium': { id: 'yerba-premium', name: 'Yerba Premium (Materia Prima)', category: 'yerbas', unit: 'kg', currentStock: 36, minStock: 5 },
+      'yerba-ahumada': { id: 'yerba-ahumada', name: 'Yerba Ahumada (Materia Prima)', category: 'yerbas', unit: 'kg', currentStock: 45, minStock: 5 },
+      'yerba-despalada': { id: 'yerba-despalada', name: 'Uruguaya Despalada (Materia Prima)', category: 'yerbas', unit: 'kg', currentStock: 12, minStock: 5 },
+      'yerba-molida': { id: 'yerba-molida', name: 'Uruguaya Molida (Materia Prima)', category: 'yerbas', unit: 'kg', currentStock: 15, minStock: 5 }
+    }
   };
 
   // Cost config
@@ -159,7 +178,7 @@ const AdminDashboard = () => {
               mergedProducts[key] = mergedData.products[key];
             });
 
-            // Convert old prices object to formats array
+            // Convert old prices object to formats array and inject missing recipes
             Object.keys(mergedProducts).forEach(key => {
               const p = mergedProducts[key];
               if (!p.formats && p.prices) {
@@ -175,10 +194,25 @@ const AdminDashboard = () => {
               if (p.isActive === undefined) p.isActive = true;
               if (p.discountPercentage === undefined) p.discountPercentage = 0;
               if (p.costo_produccion === undefined) p.costo_produccion = p.costo_kg || 3500;
+
+              // Inject DEFAULT_CONFIG recipes into user formats if missing
+              const defProd = DEFAULT_CONFIG.products[key];
+              if (defProd && defProd.formats && p.formats) {
+                p.formats.forEach(format => {
+                  const defFormat = defProd.formats.find(df => df.id === format.id);
+                  if (defFormat && defFormat.recipe && (!format.recipe || format.recipe.length === 0)) {
+                    format.recipe = defFormat.recipe;
+                  }
+                });
+              }
             });
 
             mergedData.products = mergedProducts;
-            if (!mergedData.materials) mergedData.materials = {};
+            
+            if (!mergedData.materials || Object.keys(mergedData.materials).length === 0) {
+              mergedData.materials = { ...DEFAULT_CONFIG.materials };
+            }
+            
             setConfig(mergedData);
           }
         }
@@ -237,15 +271,17 @@ const AdminDashboard = () => {
     try {
       const orderRef = doc(db, 'orders', orderId);
       
-      // Stock deduction logic if changing to 'prepared'
+      const isDeductible = (s) => ['prepared', 'shipped', 'closed'].includes(s);
+      
       const orderSnap = await getDoc(orderRef);
       if (orderSnap.exists()) {
         const orderData = orderSnap.data();
-        if (newStatus === 'prepared' && orderData.status !== 'prepared' && !orderData.stockDeducted) {
-          // Deduct stock
+        const currentlyDeducted = orderData.stockDeducted || false;
+        const shouldBeDeducted = isDeductible(newStatus);
+
+        if (shouldBeDeducted && !currentlyDeducted) {
           await deductStockForOrder(orderData, orderId);
-        } else if (newStatus !== 'prepared' && orderData.status === 'prepared' && orderData.stockDeducted) {
-          // Revert stock if moving out of prepared
+        } else if (!shouldBeDeducted && currentlyDeducted) {
           await revertStockForOrder(orderData, orderId);
         }
       }
@@ -264,7 +300,7 @@ const AdminDashboard = () => {
       const orderSnap = await getDoc(orderRef);
       if (orderSnap.exists()) {
         const orderData = orderSnap.data();
-        if (orderData.status === 'prepared' && orderData.stockDeducted) {
+        if (orderData.stockDeducted) {
           await revertStockForOrder(orderData, orderId);
         }
       }
@@ -292,7 +328,7 @@ const AdminDashboard = () => {
         const findMaterialIdByKeyword = (materials, keyword) => {
           const kw = keyword.toLowerCase();
           for (const key in materials) {
-            if (materials[key].name?.toLowerCase().includes(kw)) return key;
+            if (materials[key].category === 'yerbas' && materials[key].name?.toLowerCase().includes(kw)) return key;
           }
           return null;
         };
@@ -315,7 +351,8 @@ const AdminDashboard = () => {
                 const varietyGrams = (totalGrams * percentage) / 100;
                 const matId = findMaterialIdByKeyword(currentMaterials, variety);
                 if (matId) {
-                  currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) - varietyGrams;
+                  const kilosToDeduct = varietyGrams / 1000;
+                  currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) - kilosToDeduct;
                   modified = true;
                 }
               }
@@ -365,7 +402,7 @@ const AdminDashboard = () => {
         const findMaterialIdByKeyword = (materials, keyword) => {
           const kw = keyword.toLowerCase();
           for (const key in materials) {
-            if (materials[key].name?.toLowerCase().includes(kw)) return key;
+            if (materials[key].category === 'yerbas' && materials[key].name?.toLowerCase().includes(kw)) return key;
           }
           return null;
         };
@@ -388,7 +425,8 @@ const AdminDashboard = () => {
                 const varietyGrams = (totalGrams * percentage) / 100;
                 const matId = findMaterialIdByKeyword(currentMaterials, variety);
                 if (matId) {
-                  currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) + varietyGrams;
+                  const kilosToAdd = varietyGrams / 1000;
+                  currentMaterials[matId].currentStock = (currentMaterials[matId].currentStock || 0) + kilosToAdd;
                   modified = true;
                 }
               }
@@ -1365,7 +1403,7 @@ const AdminDashboard = () => {
                 ...prev,
                 materials: {
                   ...prev.materials,
-                  [id]: { id, name: 'Nuevo Insumo', unit: 'un', currentStock: 0, minStock: 10 }
+                  [id]: { id, name: 'Nuevo Insumo', category: 'otros', unit: 'un', currentStock: 0, minStock: 10 }
                 }
               }));
             }} style={{ ...styles.addFormatBtn, padding: '0.8rem 1.2rem' }}>
@@ -1373,8 +1411,18 @@ const AdminDashboard = () => {
             </button>
           </div>
           
+          <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '1rem', borderBottom: '1px solid var(--glass-border)' }}>
+            <button onClick={() => setInventoryFilter('all')} style={{ ...styles.segmentBtn, background: inventoryFilter === 'all' ? 'var(--color-primary)' : 'transparent', border: inventoryFilter === 'all' ? 'none' : '1px solid var(--glass-border)', color: inventoryFilter === 'all' ? '#fff' : 'var(--color-text-muted)' }}>Todos</button>
+            <button onClick={() => setInventoryFilter('yerbas')} style={{ ...styles.segmentBtn, background: inventoryFilter === 'yerbas' ? 'var(--color-primary)' : 'transparent', border: inventoryFilter === 'yerbas' ? 'none' : '1px solid var(--glass-border)', color: inventoryFilter === 'yerbas' ? '#fff' : 'var(--color-text-muted)' }}>Materia Prima (Yerba)</button>
+            <button onClick={() => setInventoryFilter('bolsas')} style={{ ...styles.segmentBtn, background: inventoryFilter === 'bolsas' ? 'var(--color-primary)' : 'transparent', border: inventoryFilter === 'bolsas' ? 'none' : '1px solid var(--glass-border)', color: inventoryFilter === 'bolsas' ? '#fff' : 'var(--color-text-muted)' }}>Bolsas</button>
+            <button onClick={() => setInventoryFilter('etiquetas')} style={{ ...styles.segmentBtn, background: inventoryFilter === 'etiquetas' ? 'var(--color-primary)' : 'transparent', border: inventoryFilter === 'etiquetas' ? 'none' : '1px solid var(--glass-border)', color: inventoryFilter === 'etiquetas' ? '#fff' : 'var(--color-text-muted)' }}>Etiquetas</button>
+            <button onClick={() => setInventoryFilter('otros')} style={{ ...styles.segmentBtn, background: inventoryFilter === 'otros' ? 'var(--color-primary)' : 'transparent', border: inventoryFilter === 'otros' ? 'none' : '1px solid var(--glass-border)', color: inventoryFilter === 'otros' ? '#fff' : 'var(--color-text-muted)' }}>Otros</button>
+          </div>
+
           <div style={styles.catalogGrid}>
-            {Object.keys(config.materials || {}).map(matId => {
+            {Object.keys(config.materials || {})
+              .filter(matId => inventoryFilter === 'all' || (config.materials[matId].category || 'otros') === inventoryFilter)
+              .map(matId => {
               const mat = config.materials[matId];
               const isLowStock = mat.currentStock <= mat.minStock;
               return (
@@ -1383,6 +1431,15 @@ const AdminDashboard = () => {
                   <input type="text" value={mat.name} onChange={(e) => setConfig(p => ({ ...p, materials: { ...p.materials, [matId]: { ...mat, name: e.target.value } } }))} style={{ ...styles.inputNoBorder, fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--color-text)', padding: 0, marginBottom: '10px', width: '80%' }} placeholder="Nombre Insumo" />
                   
                   <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                    <div style={{ flex: 2 }}>
+                      <label style={styles.smallLabel}>Categoría</label>
+                      <select value={mat.category || 'otros'} onChange={(e) => setConfig(p => ({ ...p, materials: { ...p.materials, [matId]: { ...mat, category: e.target.value } } }))} style={styles.inputSmall}>
+                        <option value="yerbas">Materia Prima (Yerba)</option>
+                        <option value="bolsas">Bolsas</option>
+                        <option value="etiquetas">Etiquetas</option>
+                        <option value="otros">Otros Insumos</option>
+                      </select>
+                    </div>
                     <div style={{ flex: 1 }}>
                       <label style={styles.smallLabel}>Unidad</label>
                       <select value={mat.unit} onChange={(e) => setConfig(p => ({ ...p, materials: { ...p.materials, [matId]: { ...mat, unit: e.target.value } } }))} style={styles.inputSmall}>
