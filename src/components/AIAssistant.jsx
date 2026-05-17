@@ -267,7 +267,7 @@ INSTRUCCIONES ADICIONALES:
           }}>
             {msg.role === 'model' && (
               <div style={{background: 'var(--color-bg-light)', minWidth: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-soft)', border: '1px solid var(--glass-border)'}}>
-                <Bot size={22} color="var(--color-primary)" />
+                <Bot size={22} color="#10b981" />
               </div>
             )}
             
@@ -296,10 +296,10 @@ INSTRUCCIONES ADICIONALES:
         {isLoading && (
           <div style={{display: 'flex', gap: '12px', alignSelf: 'flex-start'}}>
             <div style={{background: 'var(--color-bg-light)', minWidth: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--glass-border)'}}>
-              <Bot size={22} color="var(--color-primary)" />
+              <Bot size={22} color="#10b981" />
             </div>
             <div style={{padding: '1rem 1.5rem', background: 'var(--color-bg-light)', borderRadius: '20px 20px 20px 4px', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', gap: '10px'}}>
-              <Loader2 size={18} className="spin" color="var(--color-primary)" />
+              <Loader2 size={18} className="spin" color="#10b981" />
               <span style={{color: 'var(--color-text-muted)', fontStyle:'italic'}}>El Andino está analizando tus datos...</span>
             </div>
           </div>
