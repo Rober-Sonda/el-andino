@@ -13,6 +13,7 @@ import MateSecrets from './components/MateSecrets';
 import ThemeToggle from './components/ThemeToggle';
 import HistoriaDelMate from './components/HistoriaDelMate';
 import UserOrders from './components/UserOrders';
+import { ADMIN_EMAIL } from '@el-andino/shared-config';
 import './App.css';
 
 const Home = () => {
@@ -65,7 +66,7 @@ const AdminNotificationListener = lazy(() => import('./components/AdminNotificat
 
 const AppRoutes = () => {
   const { currentUser } = useAuth();
-  const isAdmin = currentUser?.email === 'rober.junin@gmail.com';
+  const isAdmin = currentUser?.email === ADMIN_EMAIL;
 
   return (
     <div className="app-container">

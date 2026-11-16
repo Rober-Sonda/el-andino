@@ -2,8 +2,7 @@ import React, { useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, onSnapshot, query, where, orderBy, limit } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
-
-const ADMIN_EMAIL = 'rober.junin@gmail.com';
+import { ADMIN_EMAIL } from '@el-andino/shared-config';
 
 const playSoftPop = () => {
   try {

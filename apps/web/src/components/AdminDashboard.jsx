@@ -4,8 +4,7 @@ import { collection, doc, onSnapshot, query, orderBy, setDoc, getDoc, updateDoc,
 import { Settings, LayoutDashboard, ListTodo, Package, Truck, CheckCircle2, Search, X, PlusCircle, Trash2, Save, Box, AlertTriangle, XCircle, Sparkles, Tag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AIAssistant from './AIAssistant';
-
-const ADMIN_EMAIL = 'rober.junin@gmail.com';
+import { ADMIN_EMAIL } from '@el-andino/shared-config';
 
 const STATUSES = [
   { id: 'pending', label: 'Pendiente', color: '#f59e0b', icon: ListTodo },

@@ -22,21 +22,21 @@ function downloadFile(id, path) {
 
 (async () => {
   try {
-    await downloadFile('1HsXzUUBmjsjorTm7Usp4DTU7P-Q0oqEg', 'public/premium.png');
+    await downloadFile('1HsXzUUBmjsjorTm7Usp4DTU7P-Q0oqEg', 'apps/web/public/premium.png');
     console.log('Downloading Ahumada...');
-    await downloadFile('1IfU_kipZGaohXdXsnveXJ42H9tFFW3eG', 'public/ahumada.png');
+    await downloadFile('1IfU_kipZGaohXdXsnveXJ42H9tFFW3eG', 'apps/web/public/ahumada.png');
     console.log('Downloading Despalada...');
-    await downloadFile('1_S3fG71s8K4coezR6SBMMXHq6ISGuQ22', 'public/despalada.png');
+    await downloadFile('1_S3fG71s8K4coezR6SBMMXHq6ISGuQ22', 'apps/web/public/despalada.png');
     console.log('Downloading Molida...');
-    await downloadFile('1vIUZUEfAR74stntoq1Ry__ONbcxeOqKc', 'public/molida.png');
+    await downloadFile('1vIUZUEfAR74stntoq1Ry__ONbcxeOqKc', 'apps/web/public/molida.png');
     console.log('Downloading Favicon...');
-    await downloadFile('18mGwm5WA5TRxRPBxyjJpudVOh51gmCcw', 'public/favicon.png');
+    await downloadFile('18mGwm5WA5TRxRPBxyjJpudVOh51gmCcw', 'apps/web/public/favicon.png');
     console.log('Downloading og-image...');
-    await downloadFile('1iVDqBSUX-ZVTjrYe5kOwWgt9AGOBhgSu', 'public/og-image.png');
+    await downloadFile('1iVDqBSUX-ZVTjrYe5kOwWgt9AGOBhgSu', 'apps/web/public/og-image.png');
     console.log('Downloading logo-nav...');
-    await downloadFile('170GzQsyHyh02u-EwNvrNSE8bYekfcZ2i', 'public/logo_nav.png');
+    await downloadFile('170GzQsyHyh02u-EwNvrNSE8bYekfcZ2i', 'apps/web/public/logo_nav.png');
     console.log('Downloading logo-hero...');
-    await downloadFile('1KYDTn-leWxD1Rm4_pSzGrZq091tXUibl', 'public/logo_hero.png');
+    await downloadFile('1KYDTn-leWxD1Rm4_pSzGrZq091tXUibl', 'apps/web/public/logo_hero.png');
     console.log('Todos los archivos descargados correctamente');
   } catch (err) {
     console.error('Error:', err);

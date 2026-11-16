@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
+import { ADMIN_EMAIL } from '@el-andino/shared-config';
 
 const SackIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -75,7 +76,7 @@ const Navbar = () => {
           <button onClick={() => handleNavClick('variedades')} className="nav-link">Variedades</button>
           <button onClick={() => handleNavClick('alquimista')} className="nav-link">Blend Creator</button>
           <button onClick={() => handleNavClick('sabiduria')} className="nav-link">Secretos</button>
-          {currentUser?.email === 'rober.junin@gmail.com' && (
+          {currentUser?.email === ADMIN_EMAIL && (
             <button onClick={() => navigate('/admin')} className="nav-link">Dashboard</button>
           )}
         </div>
@@ -130,7 +131,7 @@ const Navbar = () => {
             <button onClick={() => handleNavClick('variedades')} className="mobile-link">Variedades Puras</button>
             <button onClick={() => handleNavClick('alquimista')} className="mobile-link">Armá tu Blend</button>
             <button onClick={() => handleNavClick('sabiduria')} className="mobile-link">Sabiduría del Mate</button>
-            {currentUser?.email === 'rober.junin@gmail.com' && (
+            {currentUser?.email === ADMIN_EMAIL && (
               <button onClick={() => { navigate('/admin'); setMenuOpen(false); }} className="mobile-link">Dashboard</button>
             )}
             

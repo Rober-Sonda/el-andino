@@ -3,7 +3,7 @@ const Jimp = require('jimp');
 async function createOgImage() {
     try {
         console.log('Reading logo...');
-        const icon = await Jimp.read('public/logo_nav.png');
+        const icon = await Jimp.read('apps/web/public/logo_nav.png');
         
         console.log('Turning icon white...');
         icon.scan(0, 0, icon.bitmap.width, icon.bitmap.height, function(x, y, idx) {
@@ -22,7 +22,7 @@ async function createOgImage() {
         // Let's try hero_campo.png. If it fails, fallback to green.
         let bg;
         try {
-            bg = await Jimp.read('public/hero_campo.png');
+            bg = await Jimp.read('apps/web/public/hero_campo.png');
             bg.cover(1200, 630); // Resize and crop to perfectly fit 1200x630
             
             console.log('Applying dark overlay to background...');
@@ -39,7 +39,7 @@ async function createOgImage() {
         bg.composite(icon, x, y);
 
         console.log('Saving to og-banner.jpg...');
-        await bg.quality(80).writeAsync('public/og-banner.jpg');
+        await bg.quality(80).writeAsync('apps/web/public/og-banner.jpg');
         console.log('Successfully generated og-banner.jpg (optimized size)!');
     } catch (err) {
         console.error('Error generating image:', err);

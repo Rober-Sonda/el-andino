@@ -1,14 +1,15 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
+import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDIU4taXr6pDM9fnBKw1vqTQ1abIvi83Do",
-  authDomain: "el-andino-mate-app.firebaseapp.com",
-  projectId: "el-andino-mate-app",
-  storageBucket: "el-andino-mate-app.firebasestorage.app",
-  messagingSenderId: "682141370061",
-  appId: "1:682141370061:web:aa6add951a33c0516f8b84"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
@@ -27,4 +28,6 @@ const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
 });
 
-export { auth, googleProvider, db };
+const functions = getFunctions(app);
+
+export { auth, googleProvider, db, functions };

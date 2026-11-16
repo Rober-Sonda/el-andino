@@ -2,7 +2,7 @@ const Jimp = require('jimp');
 
 async function processLogos() {
     console.log('Loading logo_nav.png ...');
-    const fullLogo = await Jimp.read('public/logo_nav.png');
+    const fullLogo = await Jimp.read('apps/web/public/logo_nav.png');
     console.log('Original size:', fullLogo.bitmap.width, 'x', fullLogo.bitmap.height);
     // Assuming the icon is on the left and takes ~20% of width. Let's crop the right 80%.
     // Usually isologotipos have the icon on the left, then text.
@@ -12,7 +12,7 @@ async function processLogos() {
     
     // Create text-only logo
     const textLogo = fullLogo.clone().crop(cropX, 0, cropWidth, fullLogo.bitmap.height);
-    await textLogo.writeAsync('public/logotipo_verde.png');
+    await textLogo.writeAsync('apps/web/public/logotipo_verde.png');
     console.log('Saved logotipo_verde.png');
     
     // Create white version
@@ -23,7 +23,7 @@ async function processLogos() {
             this.bitmap.data[idx+2]=255;
         }
     });
-    await textLogo.writeAsync('public/logotipo_blanco.png');
+    await textLogo.writeAsync('apps/web/public/logotipo_blanco.png');
     console.log('Saved logotipo_blanco.png');
 }
 

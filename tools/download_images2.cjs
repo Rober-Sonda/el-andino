@@ -23,13 +23,13 @@ function downloadFile(id, path) {
 (async () => {
   try {
     console.log('Downloading Premium Full...');
-    await downloadFile('1F-WSzpd_5dGVaotbalOALlNMff97e1dn', 'public/premium_full.jpg');
+    await downloadFile('1F-WSzpd_5dGVaotbalOALlNMff97e1dn', 'apps/web/public/premium_full.jpg');
     console.log('Downloading Ahumada Full...');
-    await downloadFile('1X09MlVg11Fa5lCblIC5Xrf5Jpa0lJUDy', 'public/ahumada_full.jpg');
+    await downloadFile('1X09MlVg11Fa5lCblIC5Xrf5Jpa0lJUDy', 'apps/web/public/ahumada_full.jpg');
     console.log('Downloading Despalada Full...');
-    await downloadFile('1Zca4eFiiyp3lMRXVaOCjWKBOSFYHEYzb', 'public/despalada_full.jpg');
+    await downloadFile('1Zca4eFiiyp3lMRXVaOCjWKBOSFYHEYzb', 'apps/web/public/despalada_full.jpg');
     console.log('Downloading Molida Full...');
-    await downloadFile('1STGL06iPad4q0FGicwL_4KBZtj-bZqHf', 'public/molida_full.jpg');
+    await downloadFile('1STGL06iPad4q0FGicwL_4KBZtj-bZqHf', 'apps/web/public/molida_full.jpg');
     console.log('Todos los archivos full descargados correctamente');
   } catch (err) {
     console.error('Error:', err);

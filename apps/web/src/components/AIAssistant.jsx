@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Bot, User, Sparkles, Loader2, AlertCircle, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebase';
+
+const askBusinessAnalyst = httpsCallable(functions, 'askBusinessAnalyst');
 
 const AIAssistant = ({ orders, config, expenses }) => {
   const [messages, setMessages] = useState([
@@ -146,11 +150,6 @@ INSTRUCCIONES ADICIONALES:
     setIsLoading(true);
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error("No se encontró la API Key de Gemini. Asegúrate de tener VITE_GEMINI_API_KEY en tu archivo .env");
-      }
-
       const systemInstruction = generateSystemContext();
       
       const chatHistory = messages.filter(m => m.role !== 'system').map(m => ({
@@ -160,32 +159,8 @@ INSTRUCCIONES ADICIONALES:
       
       chatHistory.push({ role: 'user', parts: [{ text: userText }] });
 
-      const payload = {
-        system_instruction: {
-          parts: [{ text: systemInstruction }]
-        },
-        contents: chatHistory,
-        generationConfig: {
-          temperature: 0.2,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048,
-        }
-      };
-
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || "Error en la API de Gemini");
-      }
-
-      const data = await response.json();
-      const modelText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Lo siento, no pude procesar la solicitud.";
+      const result = await askBusinessAnalyst({ systemInstruction, history: chatHistory });
+      const modelText = result.data?.text || "Lo siento, no pude procesar la solicitud.";
       
       setMessages(prev => [...prev, { role: 'model', text: modelText }]);
       speakText(modelText);
