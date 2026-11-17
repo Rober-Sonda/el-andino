@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import BenefitsBanner from './components/BenefitsBanner';
+import SceneBackground from './components/SceneBackground';
 import ProductList from './components/ProductList';
 import BlendCreator from './components/BlendCreator';
 import Cart from './components/Cart';
@@ -40,9 +41,10 @@ const Home = () => {
 
   return (
     <>
+      <SceneBackground />
       <main>
         <div id="inicio"><Hero /></div>
-        <BenefitsBanner />
+        <div id="beneficios"><BenefitsBanner /></div>
         <div id="variedades"><ProductList /></div>
         <div id="alquimista"><BlendCreator /></div>
         <div id="sabiduria"><MateSecrets /></div>

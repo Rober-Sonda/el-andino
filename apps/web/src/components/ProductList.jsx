@@ -27,7 +27,7 @@ const ProductList = () => {
                   {yerbas.length > 0 && (
                     <button 
                       onClick={() => setActiveTab('puras')} 
-                      style={{...styles.segmentBtn, background: activeTab === 'puras' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'puras' ? '#fff' : 'var(--color-primary)'}}
+                      style={{...styles.segmentBtn, background: activeTab === 'puras' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'puras' ? '#fff' : 'var(--color-text)'}}
                     >
                       Yerbas Puras
                     </button>
@@ -35,7 +35,7 @@ const ProductList = () => {
                   {blends.length > 0 && (
                     <button 
                       onClick={() => setActiveTab('blends')} 
-                      style={{...styles.segmentBtn, background: activeTab === 'blends' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'blends' ? '#fff' : 'var(--color-primary)'}}
+                      style={{...styles.segmentBtn, background: activeTab === 'blends' ? 'var(--color-primary)' : 'transparent', color: activeTab === 'blends' ? '#fff' : 'var(--color-text)'}}
                     >
                       Yerbas Compuestas
                     </button>
@@ -78,7 +78,7 @@ const ProductList = () => {
 const styles = {
   section: {
     padding: '8rem 5%',
-    backgroundColor: 'var(--color-bg-light)',
+    background: 'transparent',
   },
   container: {
     maxWidth: '1200px',
@@ -87,6 +87,15 @@ const styles = {
   heading: {
     textAlign: 'center',
     marginBottom: '4rem',
+    maxWidth: '800px',
+    margin: '0 auto 4rem',
+    padding: '2.5rem 2rem',
+    borderRadius: '24px',
+    background: 'var(--glass-bg)',
+    backdropFilter: 'var(--glass-blur)',
+    WebkitBackdropFilter: 'var(--glass-blur)',
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--shadow-soft)'
   },
   title: {
     fontSize: 'clamp(2.5rem, 5vw, 4rem)',
@@ -128,7 +137,9 @@ const styles = {
   },
   segmentContainer: {
     display: 'flex',
-    background: 'rgba(74, 124, 46, 0.1)',
+    background: 'var(--glass-bg)',
+    backdropFilter: 'var(--glass-blur)',
+    WebkitBackdropFilter: 'var(--glass-blur)',
     borderRadius: '30px',
     padding: '0.4rem',
     gap: '0.4rem',

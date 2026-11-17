@@ -35,9 +35,8 @@ const BenefitsBanner = () => {
 
 const styles = {
   banner: {
-    backgroundColor: 'var(--color-bg-light)',
+    background: 'transparent',
     padding: '8rem 5%',
-    borderBottom: '1px solid var(--glass-border)'
   },
   container: {
     maxWidth: '1200px',
@@ -51,7 +50,14 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '1rem'
+    gap: '1rem',
+    background: 'var(--glass-bg)',
+    backdropFilter: 'var(--glass-blur)',
+    WebkitBackdropFilter: 'var(--glass-blur)',
+    border: '1px solid var(--glass-border)',
+    borderRadius: '20px',
+    padding: '2.5rem 2rem',
+    boxShadow: 'var(--shadow-soft)'
   },
   iconWrapper: {
     width: '90px',

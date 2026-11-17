@@ -41,11 +41,11 @@ export const CartProvider = ({ children }) => {
       isAntiacid: true,
       isActive: true,
       discountPercentage: 0,
-      costo_produccion: 3500,
+      costo_produccion: 3700,
       formats: [
-        { id: '500g', name: '½ Kilo', price: 4000 },
-        { id: '1kg', name: '1 Kilo', price: 7500 },
-        { id: 'granel', name: 'A Granel', price: 7500 },
+        { id: '500g', name: '½ Kilo', price: 4500 },
+        { id: '1kg', name: '1 Kilo', price: 8000 },
+        { id: 'granel', name: 'A Granel', price: 8000 },
         { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
       ]
     },
@@ -60,11 +60,11 @@ export const CartProvider = ({ children }) => {
       isAntiacid: true,
       isActive: true,
       discountPercentage: 0,
-      costo_produccion: 4000,
+      costo_produccion: 4200,
       formats: [
-        { id: '500g', name: '½ Kilo', price: 4000 },
-        { id: '1kg', name: '1 Kilo', price: 7500 },
-        { id: 'granel', name: 'A Granel', price: 7500 },
+        { id: '500g', name: '½ Kilo', price: 4500 },
+        { id: '1kg', name: '1 Kilo', price: 8000 },
+        { id: 'granel', name: 'A Granel', price: 8000 },
         { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
       ]
     },
@@ -79,11 +79,11 @@ export const CartProvider = ({ children }) => {
       isAntiacid: true,
       isActive: true,
       discountPercentage: 0,
-      costo_produccion: 3800,
+      costo_produccion: 4000,
       formats: [
-        { id: '500g', name: '½ Kilo', price: 4000 },
-        { id: '1kg', name: '1 Kilo', price: 7500 },
-        { id: 'granel', name: 'A Granel', price: 7500 },
+        { id: '500g', name: '½ Kilo', price: 4500 },
+        { id: '1kg', name: '1 Kilo', price: 8000 },
+        { id: 'granel', name: 'A Granel', price: 8000 },
         { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
       ]
     },
@@ -98,11 +98,11 @@ export const CartProvider = ({ children }) => {
       isAntiacid: true,
       isActive: true,
       discountPercentage: 0,
-      costo_produccion: 3200,
+      costo_produccion: 3400,
       formats: [
-        { id: '500g', name: '½ Kilo', price: 4000 },
-        { id: '1kg', name: '1 Kilo', price: 7500 },
-        { id: 'granel', name: 'A Granel', price: 7500 },
+        { id: '500g', name: '½ Kilo', price: 4500 },
+        { id: '1kg', name: '1 Kilo', price: 8000 },
+        { id: 'granel', name: 'A Granel', price: 8000 },
         { id: 'granel_mayorista', name: 'Mayorista >40kg', price: 6000 }
       ]
     },

@@ -76,9 +76,8 @@ const MateSecrets = () => {
 const styles = {
   section: {
     padding: '8rem 5%',
-    background: 'var(--color-bg-light)',
+    background: 'transparent',
     color: 'var(--color-text)',
-    borderTop: '1px solid var(--glass-border)'
   },
   container: {
     maxWidth: '800px', // Narrower for better reading line-length
@@ -87,6 +86,15 @@ const styles = {
   header: {
     textAlign: 'center',
     marginBottom: '4rem',
+    maxWidth: '800px',
+    margin: '0 auto 4rem',
+    padding: '2.5rem 2rem',
+    borderRadius: '24px',
+    background: 'var(--glass-bg)',
+    backdropFilter: 'var(--glass-blur)',
+    WebkitBackdropFilter: 'var(--glass-blur)',
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--shadow-soft)'
   },
   title: {
     fontFamily: 'var(--font-serif)',

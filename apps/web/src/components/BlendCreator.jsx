@@ -277,7 +277,7 @@ const BlendCreator = () => {
 const styles = {
   section: {
     padding: '6rem 5%',
-    backgroundColor: 'var(--color-bg-light)',
+    background: 'transparent',
   },
   container: {
     maxWidth: '1200px',
@@ -286,6 +286,15 @@ const styles = {
   heading: {
     textAlign: 'center',
     marginBottom: '4rem',
+    maxWidth: '800px',
+    margin: '0 auto 4rem',
+    padding: '2.5rem 2rem',
+    borderRadius: '24px',
+    background: 'var(--glass-bg)',
+    backdropFilter: 'var(--glass-blur)',
+    WebkitBackdropFilter: 'var(--glass-blur)',
+    border: '1px solid var(--glass-border)',
+    boxShadow: 'var(--shadow-soft)'
   },
   title: {
     fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
@@ -299,7 +308,9 @@ const styles = {
     margin: '0 auto'
   },
   featuredBox: {
-    background: 'rgba(74, 124, 46, 0.05)',
+    background: 'var(--glass-bg)',
+    backdropFilter: 'var(--glass-blur)',
+    WebkitBackdropFilter: 'var(--glass-blur)',
     border: '1px solid rgba(74, 124, 46, 0.2)',
     borderRadius: '16px',
     padding: '1.5rem',
