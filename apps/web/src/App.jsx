@@ -6,6 +6,8 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import BenefitsBanner from './components/BenefitsBanner';
 import SceneBackground from './components/SceneBackground';
+import SmoothScroll from './components/SmoothScroll';
+import CustomCursor from './components/CustomCursor';
 import ProductList from './components/ProductList';
 import BlendCreator from './components/BlendCreator';
 import Cart from './components/Cart';
@@ -41,6 +43,7 @@ const Home = () => {
 
   return (
     <>
+      <SmoothScroll />
       <SceneBackground />
       <main>
         <div id="inicio"><Hero /></div>
@@ -72,6 +75,7 @@ const AppRoutes = () => {
 
   return (
     <div className="app-container">
+      <CustomCursor />
       <Navbar />
       {isAdmin && (
         <Suspense fallback={null}>

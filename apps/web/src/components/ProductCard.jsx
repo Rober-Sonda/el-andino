@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useCart } from '../context/CartContext';
+import MagneticButton from './MagneticButton';
 import { Plus, Minus, Leaf, Award, Droplets } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
   const { addToCart, getQuantity, totalKilos, getPriceForProduct, getOriginalPriceForProduct } = useCart();
+  const cardRef = useRef(null);
+  const [tilt, setTilt] = useState('');
   const formats = product.formats || [];
   const defaultFormat = formats.find(f => f.id === '1kg')?.id || formats[0]?.id;
   const [selectedFormat, setSelectedFormat] = useState(defaultFormat);
@@ -32,8 +35,20 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  const handleTilt = (e) => {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width - 0.5;
+    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt(`perspective(900px) rotateX(${-py * 6}deg) rotateY(${px * 6}deg) translateY(-4px)`);
+  };
+
+  const resetTilt = () => setTilt('');
+
   return (
-    <div className="product-card" style={styles.card}>
+    <div ref={cardRef} className="product-card" style={{...styles.card, transform: tilt}} onMouseMove={handleTilt} onMouseLeave={resetTilt}>
       <div style={styles.imageContainer}>
         <img src={product.image} alt={product.name} style={styles.image} />
         {product.discountPercentage > 0 && <div style={styles.discountBadge}>{product.discountPercentage}% OFF</div>}
@@ -78,9 +93,9 @@ const ProductCard = ({ product }) => {
         
         <div style={styles.actions}>
           {quantity === 0 ? (
-             <button style={styles.addButton} onClick={handleIncrement}>
+             <MagneticButton strength={0.2} style={styles.addButton} onClick={handleIncrement}>
                {isBulk ? 'Sumar 5Kg (Granel)' : 'Agregar al Pedido'}
-             </button>
+             </MagneticButton>
           ) : (
             <div style={styles.counter}>
               <button style={styles.counterBtn} onClick={handleDecrement}>

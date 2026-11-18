@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
+import RevealText from './RevealText';
 import { Scale, Beaker, Plus, Star, Award, Flame, Leaf, Coffee } from 'lucide-react';
 
 const featuredBlends = [
@@ -178,7 +179,7 @@ const BlendCreator = () => {
       <div style={styles.container}>
         <div style={styles.heading}>
           <Beaker size={48} color="var(--color-accent)" style={{ marginBottom: '1rem' }} />
-          <h2 style={styles.title}>Armá tu Propia Yerba</h2>
+          <h2 style={styles.title}><RevealText text="Armá tu Propia Yerba" /></h2>
           <p style={styles.subtitle}>Prepará una mezcla a tu medida con la esencia del campo. Ajustá las proporciones a tu gusto o probá una de nuestras combinaciones recomendadas.</p>
         </div>
 

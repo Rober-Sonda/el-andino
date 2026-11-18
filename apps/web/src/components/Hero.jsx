@@ -1,4 +1,6 @@
 import React from 'react';
+import RevealText from './RevealText';
+import MagneticButton from './MagneticButton';
 
 const Hero = () => {
   return (
@@ -7,13 +9,13 @@ const Hero = () => {
       <div className="hero-content" style={styles.content}>
         <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <img src="/favicon.png" alt="El Andino Logo" className="hero-logo-img" style={styles.heroLogo} />
-          <h1 style={styles.title}>Sentí el campo en cada mate.</h1>
+          <RevealText as="h1" text="Sentí el campo en cada mate." style={styles.title} />
           <p style={styles.subtitle}>
             Nuestra tierra noble en tu mesa. Descubre la calidez rústica de una yerba premium, orgánica y estacionada al tiempo de la naturaleza.
           </p>
-          <button className="hero-btn" style={styles.button} onClick={() => document.getElementById('productos').scrollIntoView({ behavior: 'smooth' })}>
+          <MagneticButton className="hero-btn" style={styles.button} onClick={() => document.getElementById('productos').scrollIntoView({ behavior: 'smooth' })}>
             EXPLORAR SEMBRADOS
-          </button>
+          </MagneticButton>
         </div>
       </div>
     </section>

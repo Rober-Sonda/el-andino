@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ProductCard from './ProductCard';
+import RevealText from './RevealText';
 import { useCart } from '../context/CartContext';
 
 const ProductList = () => {
@@ -15,7 +16,7 @@ const ProductList = () => {
     <section id="productos" style={styles.section}>
       <div style={styles.container}>
         <div style={styles.heading}>
-          <h2 style={styles.title}>Nuestra Cosecha</h2>
+          <h2 style={styles.title}><RevealText text="Nuestra Cosecha" /></h2>
           <p style={styles.subtitle}>Directas del secadero natural, respetando el tiempo y la frescura de nuestra tierra noble.</p>
         </div>
         

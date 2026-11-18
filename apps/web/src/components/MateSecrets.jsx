@@ -1,6 +1,7 @@
 import React from 'react';
 import { BookOpen, Droplets, Flame, ThermometerSun, MapPin, Compass } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import RevealText from './RevealText';
 
 const secrets = [
   {
@@ -37,7 +38,7 @@ const MateSecrets = () => {
       <div style={styles.container}>
         <div style={styles.header}>
           <BookOpen size={40} color="var(--color-accent)" style={{marginBottom: '1rem'}} />
-          <h2 style={styles.title}>Sabiduría del Mate</h2>
+          <h2 style={styles.title}><RevealText text="Sabiduría del Mate" /></h2>
           <p style={styles.subtitle}>
             Un viaje desde los orígenes de la tierra hasta el secreto para cebar el mate perfecto.
           </p>
