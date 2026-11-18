@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { X, Send, User, Leaf, Loader2 } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import MagneticButton from './MagneticButton';
 
 const CheckoutModal = () => {
   const { 
@@ -99,7 +100,9 @@ const CheckoutModal = () => {
               Tu remito fue enviado a <strong>El Andino</strong>.<br/>
               Haz clic en el botón de abajo para enviarnos un WhatsApp y coordinar el pago y la entrega.
             </p>
-            <a 
+            <MagneticButton
+              as="a"
+              strength={0.2}
               href={generateWhatsAppLink(currentUser.displayName)} 
               target="_blank" 
               rel="noopener noreferrer"
@@ -124,7 +127,7 @@ const CheckoutModal = () => {
             >
               <Send size={20} style={{marginRight: '10px'}}/>
               Ir a WhatsApp
-            </a>
+            </MagneticButton>
           </div>
         </div>
       </div>
@@ -149,9 +152,9 @@ const CheckoutModal = () => {
             <p style={styles.instruction}>
               Para poder procesar y preparar tu pedido de manera segura, te pedimos que inicies sesión con tu cuenta de Google.
             </p>
-            <button onClick={loginWithGoogle} style={{...styles.rusticSubmitBtn, backgroundColor: '#4285F4', marginTop: '1.5rem', color: '#fff', border: 'none'}}>
+            <MagneticButton strength={0.2} onClick={loginWithGoogle} style={{...styles.rusticSubmitBtn, backgroundColor: '#4285F4', marginTop: '1.5rem', color: '#fff', border: 'none'}}>
               Continuar con Google
-            </button>
+            </MagneticButton>
           </div>
         ) : (
           <div style={styles.content}>
@@ -179,10 +182,10 @@ const CheckoutModal = () => {
             <p style={styles.instruction}>
               ¡Hola, <strong>{currentUser.displayName}</strong>! Revisa tu cosecha y envíala a nuestro equipo. Te abriremos un chat de WhatsApp para coordinar el pago y la tranquera de entrega.
             </p>
-            <button onClick={handleSubmit} disabled={isSubmitting} className="rustic-submit-btn" style={{...styles.rusticSubmitBtn, opacity: isSubmitting ? 0.7 : 1}}>
+            <MagneticButton strength={0.2} onClick={handleSubmit} disabled={isSubmitting} className="rustic-submit-btn" style={{...styles.rusticSubmitBtn, opacity: isSubmitting ? 0.7 : 1}}>
               {isSubmitting ? <Loader2 className="spin" size={20} /> : <Send size={20} />}
               {isSubmitting ? 'Procesando...' : 'Enviar y Coordinar al WhatsApp'}
-            </button>
+            </MagneticButton>
           </div>
         )}
       </div>

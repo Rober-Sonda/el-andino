@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import RevealText from './RevealText';
+import MagneticButton from './MagneticButton';
 import { Scale, Beaker, Plus, Star, Award, Flame, Leaf, Coffee } from 'lucide-react';
 
 const featuredBlends = [
@@ -264,9 +265,9 @@ const BlendCreator = () => {
                 </span>
               </div>
 
-              <button style={styles.addButton} onClick={handleAddCart}>
+              <MagneticButton strength={0.25} style={styles.addButton} onClick={handleAddCart}>
                 {isBulk ? 'Comprar 5Kg (Granel)' : 'Agregar Blend al Pedido'}
-              </button>
+              </MagneticButton>
             </div>
           </div>
         </div>
